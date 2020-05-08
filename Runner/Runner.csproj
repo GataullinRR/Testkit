@@ -3,7 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <OutputType>Library</OutputType>
+    <AssemblyName>BlazorApp1</AssemblyName>
+    <RootNamespace>Runner</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
