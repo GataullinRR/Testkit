@@ -1,0 +1,15 @@
+﻿@page "/case-target/{TargetId}"
+
+<h3>Service #@TargetId</h3>
+
+<p>This page is under construction!</p>
+
+@code {
+    public static string BuildPath(string targetId)
+    {
+        return $"/case-target/{targetId}";
+    }
+
+    [Parameter]
+    public string TargetId { get; set; }
+}

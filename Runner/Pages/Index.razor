@@ -1,7 +1,289 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<h3>Test observer</h3>
 
-Welcome to your new app.
+<div>
+    <RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="4"
+                AllowSorting="true" Data="@_tests" TItem="TestInfo">
+        <Columns>
+            <RadzenGridColumn Width="10%" TItem="TestInfo" Property="LastResult.Result" Type="string" Title="">
+                <Template Context="data">
+                    @data.LastResult.Result.ToString()
+                </Template>
+            </RadzenGridColumn>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+            <RadzenGridColumn TItem="TestInfo" Property="Target.Id" Type="string" Title="Target">
+                <Template Context="data">
+                    <RadzenLink Path="@TestTarget.BuildPath(data.Target.Id)" Text="@data.Target.Id" />
+                </Template>
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="TestInfo" Property="@nameof(TestInfo.Description)" Type="string" Title="Description">
+                <Template Context="data">
+                    @data.Description
+                </Template>
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="TestInfo" Property="@(nameof(TestInfo.LastResult) + ".StartTime")" Type="dateTime" Title="Last run">
+                <Template Context="data">
+                    @(data.LastResult == null ? "" : data.LastResult.StartTime.ToString())
+                </Template>
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="TestInfo" Property="@(nameof(TestInfo.RunPlan) + ".NextRun")" Type="dateTime" Title="Next run">
+                <Template Context="data">
+                    @switch (data.RunPlan.RunPlan)
+                    {
+                        case RunPlan.Manual:
+                            <text>Manual</text>
+                            break;
+                        case RunPlan.Periodic:
+                            <text>@(data.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())</text>
+                            break;
+
+                        default:
+                            throw new NotSupportedException();
+                    }
+                </Template>
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="TestInfo" Property="@(nameof(TestInfo.Author) + ".Name")" Type="string" Title="Author">
+                <Template Context="data">
+                    <RadzenLink Path="@Profile.BuildPath(data.Author.Id)" Text="@data.Author.Name" />
+                </Template>
+            </RadzenGridColumn>
+
+            <RadzenGridColumn TItem="TestInfo" Title="Action">
+                <Template Context="data">
+                    @switch (data.State.State)
+                    {
+                        case State.AwaitingStart:
+                        case State.Running:
+                            <text>
+                                <RadzenButton class="btn btn-danger">Cancel</RadzenButton>
+                            </text>
+                            break;
+                        case State.Suspended:
+                            <text>
+                                <RadzenButton class="btn btn-primary">Continue</RadzenButton>
+                            </text>
+                            break;
+
+                        default:
+                            throw new NotSupportedException();
+                    }
+                </Template>
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+</div>
+
+@code {
+    int currentCount = 0;
+
+    public enum RunResult
+    {
+        Passed,
+        AbortedByUser,
+        SUTError,
+        RunnerError
+    }
+
+    public abstract class RunResultBase
+    {
+        public RunResult Result { get; set; }
+        public DateTime StartTime { get; set; }
+        public TimeSpan Duration { get; set; }
+    }
+
+    public class OkResult : RunResultBase
+    {
+
+    }
+
+    public class AbortedByUserResult : RunResultBase
+    {
+
+    }
+
+    public abstract class ErrorResult : RunResultBase
+    {
+        public string Description { get; set; }
+    }
+
+    public class SUTErrorResult : ErrorResult
+    {
+
+    }
+
+    public class RunnerErrorResult : ErrorResult
+    {
+    }
+
+    public class Author
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string EMail { get; set; }
+        public string? Phone { get; set; }
+    }
+
+    public enum RunPlan
+    {
+        Manual,
+        Periodic
+    }
+
+    public interface IPredictableRunPlan
+    {
+        DateTime NextRun { get; }
+    }
+
+
+    public abstract class RunPlanBase
+    {
+        public abstract RunPlan RunPlan { get; }
+    }
+
+    public class ManualRunPlan : RunPlanBase
+    {
+        public override RunPlan RunPlan => RunPlan.Manual;
+    }
+
+    public class PeriodicRunPlan : RunPlanBase, IPredictableRunPlan
+    {
+        public override RunPlan RunPlan => RunPlan.Periodic;
+
+        public DateTime NextRun { get; set; }
+        public TimeSpan Interval { get; set; }
+    }
+
+    public enum State
+    {
+        AwaitingStart,
+        Suspended,
+        Running
+    }
+
+    public abstract class StateBase
+    {
+        public abstract State State { get; }
+    }
+
+    public class AwaitingStartState : StateBase
+    {
+        public override State State => State.AwaitingStart;
+    }
+
+    public class SuspendedState : StateBase
+    {
+        public override State State => State.Suspended;
+    }
+
+    public class RunningState : StateBase
+    {
+        public override State State => State.Running;
+    }
+
+    public class TestInfo
+    {
+        public int Id { get; set; }
+        public string Description { get; set; }
+
+        public Author Author { get; set; }
+        public RunPlanBase RunPlan { get; set; }
+        public StateBase State { get; set; }
+        public RunResultBase? LastResult { get; set; }
+        public TargetBase Target { get; set; }
+    }
+
+    public enum Target
+    {
+        Service
+    }
+
+    public abstract class TargetBase
+    {
+        public abstract Target Target { get; }
+        public string Id { get; set; }
+    }
+
+    public class ServiceTestTarget : TargetBase
+    {
+        public override Target Target => Target.Service;
+
+        public int EKassirId { get; set; }
+        public string EKassirName { get; set; }
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    IEnumerable<TestInfo> _tests;
+
+    protected override void OnInitialized()
+    {
+        _tests = new TestInfo[]
+        {
+            new TestInfo()
+            {
+                Description = "Validatioin test",
+                Author = new Author()
+                {
+                    Id = "Hi!",
+                    EMail = "LaLa@hi.com",
+                    Name = "QTU100",
+                    Phone = "+7-919-608-48-69"
+                },
+                State = new AwaitingStartState(),
+                LastResult = new OkResult()
+                {
+                    Duration = TimeSpan.FromSeconds(3.2),
+                    Result = RunResult.Passed,
+                    StartTime = DateTime.UtcNow.AddDays(-1)
+                },
+                RunPlan = new PeriodicRunPlan()
+                {
+                    Interval = TimeSpan.FromMinutes(1),
+                    NextRun = DateTime.UtcNow.AddMinutes(1)
+                },
+                Target = new ServiceTestTarget()
+                {
+                    Id = "SVC1234",
+                    EKassirId = 6641,
+                    EKassirName = "Перевод в другой банк",
+                }
+            },
+            new TestInfo()
+            {
+                Description = "TR-XXXX test 1",
+                Author = new Author()
+                {
+                    Id = "Hi2!",
+                    EMail = "Yusov@hi.com",
+                    Name = "Yusov",
+                    Phone = "+1-000-000-00-00"
+                },
+                State = new SuspendedState(),
+                LastResult = new OkResult()
+                {
+                    Duration = TimeSpan.FromSeconds(10),
+                    Result = RunResult.RunnerError,
+                    StartTime = DateTime.UtcNow.AddDays(-11)
+                },
+                RunPlan = new ManualRunPlan()
+                {
+
+                },
+                Target = new ServiceTestTarget()
+                {
+                    Id = "SVC3333",
+                    EKassirId = 1234,
+                    EKassirName = "Заказ товаров из ВкусВилл",
+                }
+            }
+        };
+    }
+}

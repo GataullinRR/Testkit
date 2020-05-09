@@ -1,0 +1,15 @@
+﻿@page "/profile/{UserId}"
+
+<h3>Profile of user with id @UserId</h3>
+
+<p>This page is under construction!</p>
+
+@code {
+    public static string BuildPath(string userId)
+    {
+        return $"/profile/{userId}";
+    }
+
+    [Parameter]
+    public string UserId { get; set; }
+}
