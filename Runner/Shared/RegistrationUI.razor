@@ -1,0 +1,40 @@
+﻿<FormBase Title="Registration" ButtonName="Sign me up!" Model="_model" Fields="_fields" OnSubmit="onSubmit">
+    <InlineButton @onclick="OnSignInRequest">I already have an account!</InlineButton>
+</FormBase>
+
+@code {
+    public class RegisterPresentationModel : CSRegisterRequest
+    {
+        [Required, Compare(nameof(Password)), DataType(DataType.Password)]
+        public string PasswordConfirmation { get; set; }
+    }
+
+    RegisterPresentationModel _model { get; } = new RegisterPresentationModel();
+
+    IEnumerable<FormBase.Field> _fields { get; set; }
+
+    [Parameter]
+    public Action<RegisterPresentationModel> OnSubmit { get; set; } = delegate { };
+
+    [Parameter]
+    public Action OnSignInRequest { get; set; } = delegate { };
+
+    protected override void OnInitialized()
+    {
+        _fields = new FormBase.Field[]
+        {
+            new FormBase.Field("Your name", @<InputText class="form-control" @bind-Value="_model.UserName" />),
+            new FormBase.Field("Password", @<InputText class="form-control" type="password" @bind-Value="_model.Password" />),
+            new FormBase.Field("Password confirmation", @<InputText type="password" class="form-control" @bind-Value="_model.PasswordConfirmation" />),
+            new FormBase.Field("E-Mail", @<InputText class="form-control" @bind-Value="_model.Email" />),
+            new FormBase.Field("Phone", @<InputText class="form-control" @bind-Value="_model.Phone" />),
+        };
+
+        base.OnInitialized();
+    }
+
+    void onSubmit()
+    {
+        OnSubmit(_model);
+    }
+}

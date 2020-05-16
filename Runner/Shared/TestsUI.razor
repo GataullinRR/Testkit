@@ -1,0 +1,76 @@
+﻿<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Target</th>
+            <th>Description</th>
+            <th>Last run</th>
+            <th>Next run</th>
+            <th>Author</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var test in Tests)
+        {
+            <tr>
+                <td>
+                    @test.LastResult.Result
+                </td>
+
+                <td>
+                    <NavLink href="@TestTarget.BuildPath(test.Target.Id)">@test.Target.Id</NavLink>
+                </td>
+
+                <td>@test.Description</td>
+
+                <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString())</td>
+
+                <td>
+                    @switch (test.RunPlan.RunPlan)
+                    {
+                        case RunPlan.Manual:
+                            <text>Manual</text>
+                            break;
+                        case RunPlan.Periodic:
+                            <text>@(test.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())</text>
+                            break;
+
+                        default:
+                            throw new NotSupportedException();
+                    }
+                </td>
+
+                <td>
+                    <NavLink href="@Pages.Profile.BuildPath(test.Author.Id)">@test.Author.Name</NavLink>
+                </td>
+
+                <td>
+                    @switch (test.State.State)
+                    {
+                        case State.AwaitingStart:
+                        case State.Running:
+                            <text>
+                                <button class="btn btn-primary">Cancel</button>
+                            </text>
+                            break;
+                        case State.Suspended:
+                            <text>
+                                <button class="btn btn-primary">Continue</button>
+                            </text>
+                            break;
+
+                        default:
+                            throw new NotSupportedException();
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public IEnumerable<TestInfo> Tests { get; set; }
+}

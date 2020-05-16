@@ -1,0 +1,16 @@
+﻿@*<div class="row">
+    <div class="col-md-6">@Name</div>
+    <div class="col-md-6">@ChildContent</div>
+</div>*@
+
+<div>
+    @Name<span>:  </span>@ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

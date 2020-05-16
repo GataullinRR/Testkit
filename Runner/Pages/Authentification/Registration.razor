@@ -1,0 +1,83 @@
+﻿@page "/registration";
+@inject IMapper Mapper;
+@inject UserService.UserServiceClient UserService;
+@inject IMessageService MessageService;
+@inject ICookieStorage Cookies;
+@inject NavigationManager NavigationManager;
+@inject IUserChangeNotifier UserChangeNotifier;
+
+@if (_signIn)
+{
+    <SignInUI OnSubmit="loginAsync" OnRegistrationRequest="@registrationRequested"></SignInUI>
+}
+else
+{
+    <RegistrationUI OnSubmit="registerAsync" OnSignInRequest="signInRequested"></RegistrationUI>
+}
+
+@code {
+    bool _signIn = true;
+
+    void registrationRequested()
+    {
+        _signIn = false;
+
+        StateHasChanged();
+    }
+
+    void signInRequested()
+    {
+        _signIn = true;
+
+        StateHasChanged();
+    }
+
+    async void registerAsync(RegistrationUI.RegisterPresentationModel model)
+    {
+        var request = Mapper.Map<RegisterRequest>(model);
+        var response = await UserService.RegisterAsync(request);
+        if (response.Status.Code == StatusCode.Ok)
+        {
+            MessageService.AddMessage("You've been succesfully registered, now you can sign in!");
+
+            signInRequested();
+        }
+        else
+        {
+            if (response.Status.Description == null)
+            {
+                MessageService.AddMessage("Ooops! Could not perform operation requested  :(");
+            }
+            else
+            {
+                MessageService.AddMessage(response.Status.Description);
+            }
+        }
+    }
+
+    async void loginAsync(SignInUI.SignInPresentationModel model)
+    {
+        var request = Mapper.Map<LoginRequest>(model);
+        var response = await UserService.LoginAsync(request);
+        if (response.Status.Code == StatusCode.Ok)
+        {
+            await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, response.Token);
+            await UserChangeNotifier.FireAuthStateChangedAsync();
+
+            MessageService.AddMessage($"Hi, {model.UserName}!");
+
+            NavigationManager.NavigateTo(Pages.Index.URI);
+        }
+        else
+        {
+            if (response.Status.Description == null)
+            {
+                MessageService.AddMessage("Ooops! Could not perform operation requested  :(");
+            }
+            else
+            {
+                MessageService.AddMessage(response.Status.Description);
+            }
+        }
+    }
+}

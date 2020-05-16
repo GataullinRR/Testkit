@@ -1,15 +1,61 @@
-﻿@page "/profile/{UserId}"
+﻿@page "/profile" 
+@page "/profile/{UserName}"
+@inject IIdentityContext Context;
+@inject UserService.UserServiceClient UserService;
+@inject ICookieStorage Cookies;
+@inject IMapper Mapper;
+@inject IMessageService Messages;
 
-<h3>Profile of user with id @UserId</h3>
-
-<p>This page is under construction!</p>
+@if (_userInfo != null)
+{
+    <KVP Name="User">@_userInfo.UserName</KVP>
+    <KVP Name="E-Mail">@_userInfo.EMail.DefaultToString("-")</KVP>
+    <KVP Name="Phone">@_userInfo.Phone.DefaultToString("-")</KVP>
+}
+else
+{
+    <span>Not authorized</span>
+}
 
 @code {
-    public static string BuildPath(string userId)
+    public static string BuildPathToCurrentUser()
     {
-        return $"/profile/{userId}";
+        return $"/profile";
+    }
+    public static string BuildPath(string userName)
+    {
+        return $"/profile/{userName}";
     }
 
+    UserInfo? _userInfo;
+
     [Parameter]
-    public string UserId { get; set; }
+    public string? UserName { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (UserName == null) // this user
+        {
+            _userInfo = Context.Identity.User;
+        }
+        else
+        {
+            var response = await UserService.GetUserInfoAsync(new GetUserInfoRequest()
+            {
+                Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
+                UserName = UserName
+            });
+
+            if (response.Status.Code == StatusCode.Ok)
+            {
+                _userInfo = Mapper.Map<UserInfo>(response);
+            }
+            else
+            {
+                Messages.AddMessage(response.Status.Description);
+            }
+        }
+
+        await base.OnParametersSetAsync();
+    }
 }

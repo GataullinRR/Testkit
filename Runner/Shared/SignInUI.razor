@@ -1,0 +1,36 @@
+﻿<FormBase Title="Sign in" ButtonName="Sign in!" Model="_model" Fields="_fields" OnSubmit="onSubmit">
+    <InlineButton @onclick="OnRegistrationRequest">I don't have an account :(</InlineButton>
+</FormBase>
+
+@code {
+    public class SignInPresentationModel : CSLoginRequest
+    {
+
+    }
+
+    readonly SignInPresentationModel _model = new SignInPresentationModel();
+
+    IEnumerable<FormBase.Field> _fields { get; set; }
+
+    [Parameter]
+    public Action<SignInPresentationModel> OnSubmit { get; set; } = delegate { };
+
+    [Parameter]
+    public Action OnRegistrationRequest { get; set; } = delegate { };
+
+    protected override void OnInitialized()
+    {
+        _fields = new FormBase.Field[]
+        {
+            new FormBase.Field("Your name", @<InputText class="form-control" @bind-Value="_model.UserName" />),
+            new FormBase.Field("Password", @<InputText class="form-control" type="password" @bind-Value="_model.Password" />)
+        };
+
+        base.OnInitialized();
+    }
+
+    void onSubmit()
+    {
+        OnSubmit(_model);
+    }
+}

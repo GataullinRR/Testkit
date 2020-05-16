@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+option csharp_namespace = "UserService.API";
+package common;
+
+enum StatusCode {
+  Ok = 0;
+  Error = 1;
+  FatalError = 2;
+}
+
+message ResponseStatus {
+  StatusCode code = 1;
+  string Description = 2;
+  repeated ValidationResult errors = 3;
+}
+
+message ValidationResult {
+  string error_message = 1;
+  repeated string member_names = 2; 
+}

@@ -1,5 +1,27 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+.form-sm {
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.message {
+    background: #E9ECEF;
+}
+
+a .action-primary {
+    color: forestgreen;
+}
+
+a .action-secondary {
+    
+}
+
+a .action-danger {
+    color: red;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
