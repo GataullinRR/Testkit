@@ -1,4 +1,4 @@
-﻿@page "/registration";
+﻿@page "/auth";
 @inject IMapper Mapper;
 @inject UserService.UserServiceClient UserService;
 @inject IMessageService MessageService;
@@ -8,14 +8,19 @@
 
 @if (_signIn)
 {
-    <SignInUI OnSubmit="loginAsync" OnRegistrationRequest="@registrationRequested"></SignInUI>
+    <SignInForm OnSubmit="loginAsync" OnRegistrationRequest="registrationRequested"></SignInForm>
 }
 else
 {
-    <RegistrationUI OnSubmit="registerAsync" OnSignInRequest="signInRequested"></RegistrationUI>
+    <SignUpForm OnSubmit="registerAsync" OnSignInRequest="signInRequested"></SignUpForm>
 }
 
 @code {
+    public static string BuildPath()
+    {
+        return $"/auth";
+    }
+
     bool _signIn = true;
 
     void registrationRequested()
@@ -32,10 +37,10 @@ else
         StateHasChanged();
     }
 
-    async void registerAsync(RegistrationUI.RegisterPresentationModel model)
+    async void registerAsync(SignUpForm.SignUpPresentationModel model)
     {
-        var request = Mapper.Map<RegisterRequest>(model);
-        var response = await UserService.RegisterAsync(request);
+        var request = Mapper.Map<SignUpRequest>(model);
+        var response = await UserService.SignUpAsync(request);
         if (response.Status.Code == StatusCode.Ok)
         {
             MessageService.AddMessage("You've been succesfully registered, now you can sign in!");
@@ -55,10 +60,10 @@ else
         }
     }
 
-    async void loginAsync(SignInUI.SignInPresentationModel model)
+    async void loginAsync(SignInForm.SignInPresentationModel model)
     {
-        var request = Mapper.Map<LoginRequest>(model);
-        var response = await UserService.LoginAsync(request);
+        var request = Mapper.Map<SignInRequest>(model);
+        var response = await UserService.SignInAsync(request);
         if (response.Status.Code == StatusCode.Ok)
         {
             await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, response.Token);
@@ -66,7 +71,7 @@ else
 
             MessageService.AddMessage($"Hi, {model.UserName}!");
 
-            NavigationManager.NavigateTo(Pages.Index.URI);
+            NavigationManager.NavigateTo(Runner.UI.Pages.Index.URI);
         }
         else
         {

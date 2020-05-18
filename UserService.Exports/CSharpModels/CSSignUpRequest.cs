@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using Utilities.Types;
 
 namespace UserService.API
 {
-    public class CSRegisterRequest
+    [AutoMapFrom(typeof(SignUpRequest))]
+    [AutoMapTo(typeof(SignUpRequest))]
+    public class CSSignUpRequest
     {
         [Required]
         public virtual string UserName { get; set; }

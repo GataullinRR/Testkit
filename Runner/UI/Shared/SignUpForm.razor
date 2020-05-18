@@ -3,18 +3,18 @@
 </FormBase>
 
 @code {
-    public class RegisterPresentationModel : CSRegisterRequest
+    public class SignUpPresentationModel : CSSignUpRequest
     {
         [Required, Compare(nameof(Password)), DataType(DataType.Password)]
         public string PasswordConfirmation { get; set; }
     }
 
-    RegisterPresentationModel _model { get; } = new RegisterPresentationModel();
+    SignUpPresentationModel _model { get; } = new SignUpPresentationModel();
 
     IEnumerable<FormBase.Field> _fields { get; set; }
 
     [Parameter]
-    public Action<RegisterPresentationModel> OnSubmit { get; set; } = delegate { };
+    public Action<SignUpPresentationModel> OnSubmit { get; set; } = delegate { };
 
     [Parameter]
     public Action OnSignInRequest { get; set; } = delegate { };

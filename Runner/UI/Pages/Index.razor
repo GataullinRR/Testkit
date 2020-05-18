@@ -1,8 +1,6 @@
 ﻿@page "/"
 
-<h3>Test observer</h3>
-
-<TestsUI Tests="_tests"></TestsUI>
+<TestsTable Tests="_tests"></TestsTable>
 
 @code {
     public const string URI = "/";
@@ -15,12 +13,12 @@
         {
             new TestInfo()
             {
-                Description = "Validatioin test",
+                Description = "Project P-1010 (validatioin test 1)",
                 Author = new Author()
                 {
                     Id = "Hi!",
                     EMail = "LaLa@hi.com",
-                    Name = "QTU100",
+                    Name = "GataullinRR",
                     Phone = "+7-919-608-48-69"
                 },
                 State = new AwaitingStartState(),
@@ -35,21 +33,20 @@
                     Interval = TimeSpan.FromMinutes(1),
                     NextRun = DateTime.UtcNow.AddMinutes(1)
                 },
-                Target = new ServiceTestTarget()
+                Target = new MicroserviceTestTarget()
                 {
                     Id = "SVC1234",
-                    ServiceId = 6641,
-                    Name = "Уничтожение муравьев",
+                    DisplayName = "Сервис интеграции с Google",
                 }
             },
             new TestInfo()
             {
-                Description = "Issue XXXX test 1",
+                Description = "Issue #109 bugfix",
                 Author = new Author()
                 {
                     Id = "Hi2!",
                     EMail = "Abraham@hi.com",
-                    Name = "Abraham",
+                    Name = "AbrahamRL",
                     Phone = "+1-000-000-00-00"
                 },
                 State = new SuspendedState(),
@@ -63,11 +60,10 @@
                 {
 
                 },
-                Target = new ServiceTestTarget()
+                Target = new MicroserviceTestTarget()
                 {
-                    Id = "SVC3333",
-                    ServiceId = 1234,
-                    Name = "Заказ товаров из ВкусВилл",
+                    Id = "SVC1234",
+                    DisplayName = "Сервис мониторинга статуса почтового отправления",
                 }
             }
         };

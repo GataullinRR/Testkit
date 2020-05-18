@@ -24,82 +24,21 @@ using Utilities.Types;
 
 namespace UserService.Endpoints
 {
-    public interface IDIHelper
-    {
-        void ResolveProperties(object target);
-    }
-
-    [Service(ServiceLifetime.Scoped)]
-    class DIHelper : IDIHelper
-    {
-        readonly IServiceProvider _serviceProvider;
-
-        public DIHelper(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        }
-
-        public void ResolveProperties(object target)
-        {
-            var type = target.GetType();
-            var allFields = type
-                .GetMembers(BindingFlags.Instance | BindingFlags.NonPublic)
-                .Select(mi => mi.As<FieldInfo>())
-                .SkipNulls()
-                .ToArray();
-            var properties = type
-                .GetMembers(BindingFlags.Instance | BindingFlags.Public)
-                .Select(mi => mi.As<PropertyInfo>())
-                .SkipNulls()
-                .Where(pi => pi.CanWrite && pi.CanRead && pi.GetCustomAttribute<InjectAttribute>() != null)
-                .ToArray();
-            foreach (var pi in properties)
-            {
-                var value = _serviceProvider.GetRequiredService(pi.PropertyType);
-                pi.SetValue(target, value);
-            }
-        }
-    }
-
-    //public interface IRequestContext
-    //{
-    //    IEnumerable<System.ComponentModel.DataAnnotations.ValidationResult> Errors { get; }
-
-    //    void AddValidationError(string errorText, params string[] keys);
-    //}
-
-    //class GRPCResponseBase
-    //{
-    //    StatusCode Code { get; set; }
-    //    string Description { get; set; }
-    //    List<ValidationResult> Errors { get; set; }
-    //}
-
-    //class GRPCResponseBase
-    //{
-
-    //}
-
-    //class CSLoginResponse
-    //{
-
-    //}
-
     public class UserServiceEndpoints : API.UserService.UserServiceBase
     {
         [Inject] public SignInManager<User> SignInManager { get; set; }
         [Inject] public UserManager<User> UserManager { get; set; }
         [Inject] public IMapper Mapper { get; set; }
-        [Inject] public Microsoft.Extensions.Configuration.IConfiguration Configuration { get; set;} 
+        [Inject] public Microsoft.Extensions.Configuration.IConfiguration Configuration { get; set; } 
 
-        public UserServiceEndpoints(IDIHelper di)
+        public UserServiceEndpoints(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
 
-        public override async Task<LoginResponse> Login(LoginRequest request, ServerCallContext context)
+        public override async Task<SignInResponse> SignIn(SignInRequest request, ServerCallContext context)
         {
-            var response = new LoginResponse()
+            var response = new SignInResponse()
             {
                 Status = new ResponseStatus()
             };
@@ -144,9 +83,9 @@ namespace UserService.Endpoints
             }
         }
 
-        public override async Task<RegisterResponse> Register(RegisterRequest request, ServerCallContext context)
+        public override async Task<SignUpResponse> SignUp(SignUpRequest request, ServerCallContext context)
         {
-            var response = new RegisterResponse();
+            var response = new SignUpResponse();
 
             var user = new User
             {

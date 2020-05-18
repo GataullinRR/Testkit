@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Utilities.Extensions;
+using AutoMapper;
 
 namespace UserService
 {
@@ -6,8 +7,7 @@ namespace UserService
     {
         public MappingProfile()
         {
-            //CreateMap<RegisterModel, RegisterRequest>();
-            //CreateMap<LoginModel, LoginRequest>();
+            typeof(MappingProfile).Assembly.FindAndRegisterMappingsTo(this);
         }
     }
 }

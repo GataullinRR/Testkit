@@ -5,7 +5,7 @@ using UserServiceDb;
 using Utilities.Extensions;
 using Utilities.Types;
 
-namespace UserService.Endpoints
+namespace UserService
 {
     [Service(ServiceLifetime.Scoped, RegisterAsPolicy.Self)]
     class DbBootstrapper

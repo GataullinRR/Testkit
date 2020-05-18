@@ -22,6 +22,7 @@ using UserService.Endpoints;
 using Utilities.Extensions;
 using AutoMapper;
 using System.Reflection;
+using Utilities.Types;
 
 namespace UserService
 {
@@ -75,8 +76,8 @@ namespace UserService
 
             services.AddCors();
             services.AddAutoMapper(typeof(MappingProfile));
-            
-            Assembly.GetExecutingAssembly().FindAndRegisterServicesTo(services);
+            services.AddUtilityServices();
+            services.AddAttributeRegisteredServices();
 
             using var sp = services.BuildServiceProvider();
             sp.GetRequiredService<DbBootstrapper>();

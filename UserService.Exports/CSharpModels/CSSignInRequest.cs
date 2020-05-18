@@ -1,8 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Utilities.Types;
 
 namespace UserService.API
 {
-    public class CSLoginRequest
+    [AutoMapFrom(typeof(SignInRequest))]
+    [AutoMapTo(typeof(SignInRequest))]
+    public class CSSignInRequest
     {
         [Required]
         public virtual string UserName { get; set; }

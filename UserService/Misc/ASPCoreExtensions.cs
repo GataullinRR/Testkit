@@ -11,7 +11,7 @@ using Utilities.Extensions;
 
 namespace UserService.Misc
 {
-    public static class ASPCoreExtensions
+    static class ASPCoreExtensions
     {
         public static IServiceCollection AddJWTAuthentication(this IServiceCollection services, IConfiguration config)
         {

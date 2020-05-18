@@ -23,6 +23,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtilitiesStandard", "..\Gen
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtilitiesStandard.ASPCore", "..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj", "{725449EF-2E62-478A-996D-911C0D1C2E26}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities.AutoMapper", "Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj", "{FEB60BB0-D461-44C7-B053-357F24F05E00}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtilitiesStandard.Emit", "..\GeneralPurposeLibs\Utilities\UtilitiesStandard.Emit\UtilitiesStandard.Emit.csproj", "{6EFCF0D3-084B-434E-B483-F313013C8FB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,14 @@ Global
 		{725449EF-2E62-478A-996D-911C0D1C2E26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{725449EF-2E62-478A-996D-911C0D1C2E26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{725449EF-2E62-478A-996D-911C0D1C2E26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEB60BB0-D461-44C7-B053-357F24F05E00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEB60BB0-D461-44C7-B053-357F24F05E00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEB60BB0-D461-44C7-B053-357F24F05E00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEB60BB0-D461-44C7-B053-357F24F05E00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EFCF0D3-084B-434E-B483-F313013C8FB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EFCF0D3-084B-434E-B483-F313013C8FB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EFCF0D3-084B-434E-B483-F313013C8FB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EFCF0D3-084B-434E-B483-F313013C8FB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +82,8 @@ Global
 		{B47C3893-28DD-4184-B0C9-9E01634DD0BC} = {C07938C3-C29D-47EC-9D7D-4E6ED5EBEFAD}
 		{155A31F4-FB8D-4BDC-A557-ACD4B3AD3A32} = {F5F0FF81-BCB3-4F80-92F4-53A729A9539A}
 		{725449EF-2E62-478A-996D-911C0D1C2E26} = {F5F0FF81-BCB3-4F80-92F4-53A729A9539A}
+		{FEB60BB0-D461-44C7-B053-357F24F05E00} = {F5F0FF81-BCB3-4F80-92F4-53A729A9539A}
+		{6EFCF0D3-084B-434E-B483-F313013C8FB6} = {F5F0FF81-BCB3-4F80-92F4-53A729A9539A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA964220-4AF3-45D4-BBC2-E555BE55486E}
