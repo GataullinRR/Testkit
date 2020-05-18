@@ -21,6 +21,7 @@ using UserService.API;
 using UserServiceDb;
 using Utilities.Extensions;
 using Utilities.Types;
+using Protobuf;
 
 namespace UserService.Endpoints
 {
@@ -48,11 +49,11 @@ namespace UserService.Endpoints
             {
                 var user = await UserManager.FindByNameAsync(request.UserName);
                 response.Token = generateJwtToken(user);
-                response.Status.Code = API.StatusCode.Ok;
+                response.Status.Code = Protobuf.StatusCode.Ok;
             }
             else
             {
-                response.Status.Code = API.StatusCode.Error;
+                response.Status.Code = Protobuf.StatusCode.Error;
                 response.Status.Description = "Could not authorize. Wrong credentials or the user does not exist";
             }
 
@@ -99,7 +100,7 @@ namespace UserService.Endpoints
                 await UserManager.AddToRoleAsync(user, Roles.User);
                 response.Status = new ResponseStatus()
                 {
-                    Code = API.StatusCode.Ok,
+                    Code = Protobuf.StatusCode.Ok,
                     Description = "Done!"
                 };
             }
@@ -107,7 +108,7 @@ namespace UserService.Endpoints
             {
                 response.Status = new ResponseStatus()
                 {
-                    Code = API.StatusCode.Error,
+                    Code = Protobuf.StatusCode.Error,
                     Description = "Could not complete registration. Maybe the user with this name already exists."
                 };
             }
@@ -127,7 +128,7 @@ namespace UserService.Endpoints
             {
                 if (currentUser == null)
                 {
-                    response.Status.Code = API.StatusCode.Error;
+                    response.Status.Code = Protobuf.StatusCode.Error;
                     response.Status.Description = "Authentification required!";
                 }
                 else
@@ -142,7 +143,7 @@ namespace UserService.Endpoints
                 var targetUser = await UserManager.FindByNameAsync(request.UserName);
                 if (targetUser == null)
                 {
-                    response.Status.Code = API.StatusCode.Error;
+                    response.Status.Code = Protobuf.StatusCode.Error;
                     response.Status.Description = "User not found";
                 }
                 else
@@ -221,9 +222,9 @@ namespace UserService.Endpoints
         {
             return new TokenValidationParameters()
             {
-                ValidateLifetime = true, // Because there is no expiration in the generated token
-                ValidateAudience = true, // Because there is no audiance in the generated token
-                ValidateIssuer = true,   // Because there is no issuer in the generated token
+                ValidateLifetime = true, 
+                ValidateAudience = true,
+                ValidateIssuer = true, 
                 ValidIssuer = Configuration["JWT:Issuer"],
                 ValidAudience = Configuration["JWT:Issuer"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Key"])) // The same key as the one that generate the token

@@ -1,11 +1,10 @@
 ﻿syntax = "proto3";
-option csharp_namespace = "UserService.API";
+option csharp_namespace = "Protobuf";
 package common;
 
 enum StatusCode {
   Ok = 0;
   Error = 1;
-  FatalError = 2;
 }
 
 message ResponseStatus {

@@ -4,26 +4,24 @@ using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
 using UserService.API;
 using Utilities.Types;
+using Microsoft.AspNetCore.Components;
 
 namespace Runner
 {
     [Service(ServiceLifetime.Singleton)]
     class IdentityContext : IIdentityContext
     {
-        readonly UserService.API.UserService.UserServiceClient _userService;
-        readonly ICookieStorage _cookies;
-        readonly IMapper _mapper;
+        [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
+        [Inject] public ICookieStorage Cookies { get; set; }
+        [Inject] public Browser Browser { get; set; }
+        [Inject] public IMapper Mapper { get; set; }
 
         public Identity Identity { get; private set; } = new Identity();
 
-        public IdentityContext(UserService.API.UserService.UserServiceClient userService, 
-            ICookieStorage cookies, 
-            IMapper mapper, 
+        public IdentityContext(IDependencyResolver di, 
             IUserChangeNotifier userChangeNotifier)
         {
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            _cookies = cookies ?? throw new ArgumentNullException(nameof(cookies));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            di.ResolveProperties(this);
 
             userChangeNotifier.ProfileChangedAsync += reloadIdentityAsync;
             userChangeNotifier.AuthStateChangedAsync += reloadIdentityAsync;
@@ -31,7 +29,9 @@ namespace Runner
 
         async Task reloadIdentityAsync()
         {
-            var token = await _cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE);
+            await Browser.LogToConsoleAsync("Reloading identity...");
+
+            var token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE);
             if (token == null)
             {
                 Identity = new Identity();
@@ -43,10 +43,10 @@ namespace Runner
                     Token = token
                 };
 
-                var response = await _userService.GetUserInfoAsync(request);
-                if (response.Status.Code == UserService.API.StatusCode.Ok)
+                var response = await UserService.GetUserInfoAsync(request);
+                if (response.Status.Code == Protobuf.StatusCode.Ok)
                 {
-                    var user = _mapper.Map<UserInfo>(response);
+                    var user = Mapper.Map<UserInfo>(response);
                     Identity = new Identity(true, user);
                 }
             }

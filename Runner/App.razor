@@ -1,3 +1,6 @@
+@inject SingletonInitializationService InitializationService;
+@inject IServiceProvider ServiceProvider;
+
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
@@ -8,3 +11,12 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code{
+    protected override void OnInitialized()
+    {
+        InitializationService.Initialize(ServiceProvider);
+
+        base.OnInitialized();
+    }
+}

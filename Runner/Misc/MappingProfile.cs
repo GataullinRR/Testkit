@@ -12,7 +12,7 @@ namespace Runner
         public MappingProfile()
         {
             typeof(MappingProfile).Assembly.FindAndRegisterMappingsTo(this);
-            typeof(UserService.API.UserService).Assembly.FindAndRegisterMappingsTo(this);
+            typeof(CSSignInRequest).Assembly.FindAndRegisterMappingsTo(this);
         }
     }
 }

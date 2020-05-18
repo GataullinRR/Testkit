@@ -1,6 +1,6 @@
 ﻿syntax = "proto3";
 option csharp_namespace = "UserService.API";
-import "Common.proto";
+import "common.proto"; 
 package userservice.api;
 
 service UserService {

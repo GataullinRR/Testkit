@@ -49,14 +49,7 @@ else
         }
         else
         {
-            if (response.Status.Description == null)
-            {
-                MessageService.AddMessage("Ooops! Could not perform operation requested  :(");
-            }
-            else
-            {
-                MessageService.AddMessage(response.Status.Description);
-            }
+            MessageService.AddMessage(response.Status.Description ?? "Ooops! Could not perform operation requested");
         }
     }
 
@@ -75,14 +68,7 @@ else
         }
         else
         {
-            if (response.Status.Description == null)
-            {
-                MessageService.AddMessage("Ooops! Could not perform operation requested  :(");
-            }
-            else
-            {
-                MessageService.AddMessage(response.Status.Description);
-            }
+            MessageService.AddMessage(response.Status.Description ?? "Ooops! Could not perform operation requested");
         }
     }
 }
