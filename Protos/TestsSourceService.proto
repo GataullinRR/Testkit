@@ -1,0 +1,16 @@
+﻿syntax = "proto3";
+option csharp_namespace = "TestsSourceService.API";
+import "common.proto"; 
+package userservice.api;
+
+service TestsSourceService {
+  rpc BeginRecording (BeginRecordingRequest) returns (BeginRecordingResponse);
+}
+
+message BeginRecordingRequest {
+  map<string, string> filter = 2;
+}
+
+message BeginRecordingResponse {
+  common.ResponseStatus status = 1;
+}

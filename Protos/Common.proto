@@ -5,6 +5,7 @@ package common;
 enum StatusCode {
   Ok = 0;
   Error = 1;
+  NotAuthorized = 2;
 }
 
 message ResponseStatus {
@@ -16,4 +17,14 @@ message ResponseStatus {
 message ValidationResult {
   string error_message = 1;
   repeated string member_names = 2; 
+}
+
+message Range {
+  int32 from = 1;
+  int32 to = 2; 
+}
+
+message UIntRange {
+  uint32 from = 1;
+  uint32 to = 2; 
 }

@@ -1,0 +1,19 @@
+﻿syntax = "proto3";
+option csharp_namespace = "PresentationService.API2"; // It simply wont compile with API namespace... (!)
+import "common.proto"; 
+package userservice.api;
+
+service PresentationService {
+  rpc ListTests (ListTestsRequest) returns (ListTestsResponse);
+}
+
+message ListTestsRequest {
+  string token = 1;
+  common.UIntRange range = 2;
+}
+
+message ListTestsResponse {
+  common.ResponseStatus status = 1;
+  bytes test_infos = 3;
+  uint32 total_count = 2;
+}

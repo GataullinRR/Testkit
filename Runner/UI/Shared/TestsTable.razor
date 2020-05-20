@@ -1,4 +1,11 @@
-﻿<table class="table">
+﻿
+@if (Tests == null)
+{
+    <div>Loading...</div>
+}
+else
+{
+<table class="table">
     <thead>
         <tr>
             <th></th>
@@ -20,10 +27,10 @@
                 </td>
 
                 <td>
-                    <NavLink href="@TestTarget.BuildPath(test.Target.Id)">@test.Target.Id</NavLink>
+                    <NavLink href="@TestTarget.BuildPath(test.TestId)">@test.TestId</NavLink>
                 </td>
 
-                <td>@test.Description</td>
+                <td>@test.Target.DisplayName</td>
 
                 <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString())</td>
 
@@ -43,7 +50,7 @@
                 </td>
 
                 <td>
-                    <NavLink href="@Pages.Profile.BuildPath(test.Author.Id)">@test.Author.Name</NavLink>
+                    <NavLink href="@UI.Pages.Profile.BuildPath(test.Author.UserName)">@test.Author.UserName</NavLink>
                 </td>
 
                 <td>
@@ -69,6 +76,7 @@
         }
     </tbody>
 </table>
+}
 
 @code {
     [Parameter]

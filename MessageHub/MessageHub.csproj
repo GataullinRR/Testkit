@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="1.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
+    <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
+    <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
+  </ItemGroup>
+
+</Project>

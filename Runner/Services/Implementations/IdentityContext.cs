@@ -46,7 +46,7 @@ namespace Runner
                 var response = await UserService.GetUserInfoAsync(request);
                 if (response.Status.Code == Protobuf.StatusCode.Ok)
                 {
-                    var user = Mapper.Map<UserInfo>(response);
+                    var user = Mapper.Map<CSUserInfo>(response);
                     Identity = new Identity(true, user);
                 }
             }

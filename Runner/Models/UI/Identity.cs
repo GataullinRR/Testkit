@@ -1,16 +1,18 @@
-﻿namespace Runner
+﻿using UserService.API;
+
+namespace Runner
 {
     public class Identity
     {
         public bool IsAuthentificated { get; }
-        public UserInfo? User { get; }
+        public CSUserInfo? User { get; }
 
         public Identity() : this(false, null)
         {
         
         }
 
-        public Identity(bool isAuthentificated, UserInfo? user)
+        public Identity(bool isAuthentificated, CSUserInfo? user)
         {
             IsAuthentificated = isAuthentificated;
             User = user;

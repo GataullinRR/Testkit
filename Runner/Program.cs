@@ -16,6 +16,7 @@ using Utilities.Types;
 using System.Reflection;
 using Utilities.Extensions;
 using Microsoft.AspNetCore.Components;
+using Shared;
 
 namespace Runner
 {
@@ -30,11 +31,32 @@ namespace Runner
             services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             services.AddAutoMapper(typeof(MappingProfile));
             services.AddSingleton(sp => createUserServiceClient(sp.GetRequiredService<ICookieStorage>()));
+            services.AddSingleton(sp => createPresentationServiceClient(sp.GetRequiredService<ICookieStorage>()));
 
-            services.AddAttributeRegisteredServices();
-            services.AddUtilityServices();
+            services.AddUINecessaryFeatures();
 
             await builder.Build().RunAsync();
+        }
+
+        static PresentationService.API2.PresentationService.PresentationServiceClient createPresentationServiceClient(ICookieStorage cookies)
+        {
+            var token = cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE).Result;
+            var credentials = CallCredentials.FromInterceptor((context, metadata) =>
+            {
+                if (token.IsNotNullOrEmpty())
+                {
+                    metadata.Add("Authorization", $"Bearer {token}");
+                }
+                return Task.CompletedTask;
+            });
+
+            var handler = new GrpcWebHandler(GrpcWebMode.GrpcWebText, new HttpClientHandler());
+            var channel = GrpcChannel.ForAddress("https://localhost:5011/", new GrpcChannelOptions
+            {
+                HttpClient = new HttpClient(handler),
+                Credentials = ChannelCredentials.Create(new SslCredentials(), credentials)
+            });
+            return new PresentationService.API2.PresentationService.PresentationServiceClient(channel);
         }
 
         static UserService.API.UserService.UserServiceClient createUserServiceClient(ICookieStorage cookies)

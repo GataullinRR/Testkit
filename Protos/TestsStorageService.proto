@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+option csharp_namespace = "TestsStorageService.API";
+import "common.proto"; 
+package userservice.api;
+
+service TestsStorageService {
+  rpc ListTestsData (ListTestsDataRequest) returns (ListTestsDataResponse);
+}
+
+message ListTestsDataRequest {
+  bool include_data = 1;
+  common.UIntRange by_range = 2; // oneof
+  repeated string by_ids = 3;
+}
+
+message ListTestsDataResponse {
+  common.ResponseStatus status = 1;
+  bytes tests = 2;
+  uint32 count = 3;
+}

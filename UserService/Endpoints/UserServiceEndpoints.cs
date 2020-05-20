@@ -204,17 +204,24 @@ namespace UserService.Endpoints
 
         bool validateToken(string authToken)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var validationParameters = GetValidationParameters();
-            try
-            {
-                tokenHandler.ValidateToken(authToken, validationParameters, out var validatedToken);
-
-                return true;
-            }
-            catch (SecurityTokenException)
+            if (authToken.IsNullOrEmpty())
             {
                 return false;
+            }
+            else
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var validationParameters = GetValidationParameters();
+                try
+                {
+                    tokenHandler.ValidateToken(authToken, validationParameters, out var validatedToken);
+
+                    return true;
+                }
+                catch (SecurityTokenException)
+                {
+                    return false;
+                }
             }
         }
 

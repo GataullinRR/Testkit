@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="PresentationService.proto" />
+    <None Remove="TestsSourceService.proto" />
+    <None Remove="TestsStorageService.proto" />
+  </ItemGroup>
 	
 	<ItemGroup>
 		<PackageReference Include="Google.Protobuf" Version="3.11.4" />
@@ -16,7 +22,10 @@
 
 
 	<ItemGroup>
-		<Protobuf Include="UserService.proto"/>
-		<Protobuf Include="Common.proto"/>
+		<Protobuf Include="TestsSourceService.proto" />
+		<Protobuf Include="TestsStorageService.proto" />
+		<Protobuf Include="PresentationService.proto" />
+		<Protobuf Include="UserService.proto" />
+		<Protobuf Include="Common.proto" />
 	</ItemGroup>
 </Project>

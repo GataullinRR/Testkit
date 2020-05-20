@@ -17,14 +17,19 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0-rc1.20223.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0-rc1.20223.4" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0-rc1.20223.4" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http.Json" Version="3.2.0-rc1.20217.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
+    <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
     <ProjectReference Include="..\Protos\Protos.csproj" />
+    <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
   </ItemGroup>
 

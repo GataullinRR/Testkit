@@ -27,7 +27,7 @@ else
         return $"/profile/{userName}";
     }
 
-    UserInfo? _userInfo;
+    CSUserInfo? _userInfo;
 
     [Parameter]
     public string? UserName { get; set; }
@@ -48,7 +48,7 @@ else
 
             if (response.Status.Code == StatusCode.Ok)
             {
-                _userInfo = Mapper.Map<UserInfo>(response);
+                _userInfo = Mapper.Map<CSUserInfo>(response);
             }
             else
             {

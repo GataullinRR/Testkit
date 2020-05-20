@@ -8,9 +8,9 @@ using Utilities.Types;
 namespace UserService
 {
     [Service(ServiceLifetime.Scoped, RegisterAsPolicy.Self)]
-    class DbBootstrapper
+    class DbInitializer
     {
-        public DbBootstrapper(RoleManager<IdentityRole> roleManager)
+        public DbInitializer(RoleManager<IdentityRole> roleManager)
         {
             if (roleManager.Roles.Count() == 0)
             {

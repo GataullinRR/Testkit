@@ -23,6 +23,7 @@ using Utilities.Extensions;
 using AutoMapper;
 using System.Reflection;
 using Utilities.Types;
+using Shared;
 
 namespace UserService
 {
@@ -38,8 +39,6 @@ namespace UserService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddGrpc();
-            
             services.AddAuthorization();
             services.AddJWTAuthentication(Configuration);
             services.AddIdentity<User, IdentityRole>()
@@ -65,22 +64,16 @@ namespace UserService
                 options.User.RequireUniqueEmail = false;
             });
 
-            //// configure strongly typed settings objects	 
-            //var jwtSection = Configuration.GetSection("JwtBearerTokenSettings");	
-            //services.Configure<JwtBearerTokenSettings>(jwtSection);	 
-            //var jwtBearerTokenSettings = jwtSection.Get<JwtBearerTokenSettings>();	 
-            //var key = Encoding.ASCII.GetBytes(jwtBearerTokenSettings.SecretKey);	
-
             services.AddDbContext<UserContext>(options =>
                 options.UseSqlServer(Configuration.GetSection("DefaultConnection").Value));
 
+            services.AddGrpc();
             services.AddCors();
             services.AddAutoMapper(typeof(MappingProfile));
             services.AddUtilityServices();
             services.AddAttributeRegisteredServices();
 
-            using var sp = services.BuildServiceProvider();
-            sp.GetRequiredService<DbBootstrapper>();
+            services.AddDbInitializer<DbInitializer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
