@@ -13,10 +13,10 @@
 </Router>
 
 @code{
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        InitializationService.Initialize(ServiceProvider);
+        await InitializationService.InitializeAsync(ServiceProvider);
 
-        base.OnInitialized();
+       await base.OnInitializedAsync();
     }
 }

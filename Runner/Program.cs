@@ -12,10 +12,8 @@ using Grpc.Net.Client;
 using Grpc.Core;
 using Grpc.Net.Client.Web;
 using Microsoft.JSInterop;
-using Utilities.Types;
 using System.Reflection;
 using Utilities.Extensions;
-using Microsoft.AspNetCore.Components;
 using Shared;
 
 namespace Runner

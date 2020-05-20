@@ -2,6 +2,8 @@
 using Google.Protobuf;
 using Grpc.Core;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API2;
 using RunnerService.API;
@@ -14,18 +16,25 @@ using Utilities.Types;
 
 namespace PresentationService
 {
-    public class GRPCController : API2.PresentationService.PresentationServiceBase
+    public class GrpcService : API2.PresentationService.PresentationServiceBase
     {
         [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
         [Inject] public TestsStorageService.API.TestsStorageService.TestsStorageServiceClient TestsStorageService { get; set; }
+        [Inject] public TestsSourceService.API.TestsSourceService.TestsSourceServiceClient TestsSourceService { get; set; }
+        [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
+        [Inject] public ILogger<GrpcService> Logger { get; set; }
 
-        public GRPCController(IDependencyResolver di)
+        public GrpcService(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
 
         public override async Task<ListTestsResponse> ListTests(ListTestsRequest request, ServerCallContext context)
         {
+            Logger.LogTrace("ListRequest");
+
+            await Hub.Clients.All.TestRecorded("AA", new API.TestRecordedWebMessage() { DisplayName = "HELLO!" });
+
             var response = new ListTestsResponse()
             {
                 Status = new Protobuf.ResponseStatus()
@@ -70,6 +79,32 @@ namespace PresentationService
             //{
             //    response.Status.Code = Protobuf.StatusCode.NotAuthorized;
             //}
+
+            return response;
+        }
+
+        public override async Task<BeginRecordingResponse> BeginRecording(BeginRecordingRequest request, ServerCallContext context)
+        {
+            Logger.LogTrace("BeginRecordingRequest");
+
+            var response = new BeginRecordingResponse()
+            {
+                Status = new Protobuf.ResponseStatus()
+            };
+
+            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest() { Token = request.Token });
+            if (result.Valid)
+            {
+                var beginRecRequet = new TestsSourceService.API.BeginRecordingRequest();
+                beginRecRequet.Filter.Add(request.Filter);
+                var recResult = await TestsSourceService.BeginRecordingAsync(beginRecRequet);
+
+                response.Status = recResult.Status;
+            }
+            else
+            {
+                response.Status.Code = Protobuf.StatusCode.NotAuthorized;
+            }
 
             return response;
         }

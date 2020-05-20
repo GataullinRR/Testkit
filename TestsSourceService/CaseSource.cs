@@ -13,12 +13,6 @@ using System.Text.Json.Serialization;
 
 namespace ExampleTestsSourceService
 {
-    public interface ICaseSource
-    {
-        Task<CSTestCaseInfo> GetCaseAsync(IDictionary<string, string> filter, CancellationToken cancellation);
-    }
-
-
     [Service(ServiceLifetime.Scoped)]
     class CaseSource :  ICaseSource
     {
@@ -26,7 +20,7 @@ namespace ExampleTestsSourceService
         {
             foreach (var kvp in filter)
             {
-                if (kvp.Key == "userId")
+                if (kvp.Key == "UserId")
                 {
                     var testCase = kvp.Value switch
                     {

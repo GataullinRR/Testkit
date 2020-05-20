@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +17,7 @@ using Shared;
 using TestsStorageService;
 using TestsStorageService.Db;
 using UserService;
+using Utilities.Extensions;
 
 namespace TestsStorage
 {
@@ -42,11 +46,14 @@ namespace TestsStorage
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSingletonInitialization();
+
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<GRPCController>();
+                endpoints.MapGrpcServices(Assembly.GetExecutingAssembly(),
+                    typeof(GrpcEndpointRouteBuilderExtensions).GetMethod("MapGrpcService", BindingFlags.Static | BindingFlags.Public));
             });
         }
     }

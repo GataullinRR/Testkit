@@ -5,15 +5,23 @@ package userservice.api;
 
 service PresentationService {
   rpc ListTests (ListTestsRequest) returns (ListTestsResponse);
+  rpc BeginRecording (BeginRecordingRequest) returns (BeginRecordingResponse);
 }
 
 message ListTestsRequest {
   string token = 1;
   common.UIntRange range = 2;
 }
-
 message ListTestsResponse {
   common.ResponseStatus status = 1;
   bytes test_infos = 3;
   uint32 total_count = 2;
+}
+
+message BeginRecordingRequest {
+  string token = 1;
+  map<string, string> filter = 2;
+}
+message BeginRecordingResponse {
+  common.ResponseStatus status = 1;
 }

@@ -6,18 +6,23 @@ using System.Threading.Tasks;
 using Utilities.Types;
 using Utilities;
 using Utilities.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace MessageHub
 {
     [Service(ServiceLifetime.Singleton)]
     class MessageConsumer : IMessageConsumer
     {
+        readonly ILogger<MessageConsumer> _logger;
+
         public event Func<TestRecordedMessage, Task> TestRecordedAsync;
         public event Func<TestExecutedMessage, Task> TestExecutedAsync;
         public event Func<TestAcquiredMessage, Task> TestAcquiredAsync;
 
-        public MessageConsumer(MessageHubOptions options)
+        public MessageConsumer(ILogger<MessageConsumer> logger, MessageHubOptions options)
         {
+            _logger = logger;
+
             var conf = new ConsumerConfig
             {
                 GroupId = "test-consumer-group",
@@ -30,9 +35,18 @@ namespace MessageHub
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
 
-            var testExecuted = new ConsumerBuilder<Ignore, TestExecutedMessage>(conf).Build();
-            var testRecorded = new ConsumerBuilder<Ignore, TestRecordedMessage>(conf).Build();
-            var testAcquired = new ConsumerBuilder<Ignore, TestAcquiredMessage>(conf).Build();
+            var testExecuted = new ConsumerBuilder<Ignore, TestExecutedMessage>(conf)
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>())
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestExecutedMessage>())
+                .Build();
+            var testRecorded = new ConsumerBuilder<Ignore, TestRecordedMessage>(conf)
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>())
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestRecordedMessage>())
+                .Build();
+            var testAcquired = new ConsumerBuilder<Ignore, TestAcquiredMessage>(conf)
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>())
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestAcquiredMessage>())
+                .Build();
 
             cosumeDaemon(testExecuted, options.TestExecutedTopic, m => TestExecutedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testRecorded, options.TestRecordedTopic, m => TestRecordedAsync.InvokeAndWaitAsync(m));
@@ -51,12 +65,12 @@ namespace MessageHub
                     try
                     {
                         var cr = consumer.Consume();
+                        _logger.LogTrace($"Consumed message '{cr.Message.Value?.ToString()}' at: '{cr.TopicPartitionOffset}'.");
                         await fireEventAsync(cr.Message.Value);
-                        Console.WriteLine($"Consumed message '{cr.Message.Value?.ToString()}' at: '{cr.TopicPartitionOffset}'.");
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"Error occured: {e}");
+                        _logger.LogError(e, $"Error occured");
 
                         Debugger.Break();
                     }

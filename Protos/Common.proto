@@ -6,6 +6,7 @@ enum StatusCode {
   Ok = 0;
   Error = 1;
   NotAuthorized = 2;
+  NotFound = 3;
 }
 
 message ResponseStatus {

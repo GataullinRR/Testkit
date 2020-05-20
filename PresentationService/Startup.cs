@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,6 +28,13 @@ namespace PresentationService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
+
             services.AddGrpc();
             services.AddCors();
             services.AddNecessaryFeatures();
@@ -45,10 +53,10 @@ namespace PresentationService
                 builder.AllowAnyHeader();
             });
             app.UseGrpcWeb();
-
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<GRPCController>().EnableGrpcWeb();
+                endpoints.MapGrpcService<GrpcService>().EnableGrpcWeb();
+                endpoints.MapHub<SignalRHub>("/SignalRHub");
             });
         }
     }

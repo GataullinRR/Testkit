@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
     <ProjectReference Include="..\MessageHub\MessageHub.csproj" />
     <ProjectReference Include="..\Protos\Protos.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
   </ItemGroup>
 

@@ -1,0 +1,45 @@
+﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationServiceCleint;
+@inject ICookieStorage Cookies;
+@inject IMessageService Messages;
+@page "/add-case"
+
+<FormBase Title="Lookup parameters" ButtonName="Add" Model="Model" Fields="_fields" OnSubmit="onSubmit">
+
+</FormBase>
+
+@code {
+    public static string BuildPath()
+    {
+        return $"/add-case";
+    }
+
+    class LookupParameters
+    {
+        public string UserId { get; set; } = "EX1";
+    }
+
+    LookupParameters Model { get; set; } = new LookupParameters();
+
+    IEnumerable<FormBase.Field> _fields { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _fields = new FormBase.Field[]
+        {
+            new FormBase.Field("UserId", @<InputText class="form-control" @bind-Value="Model.UserId"/>),
+        };
+
+            base.OnInitialized();
+        }
+
+        async void onSubmit()
+        {
+            var request = new PresentationService.API2.BeginRecordingRequest();
+            request.Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "";
+            request.Filter.Add("UserId", Model.UserId);
+
+            var response = await PresentationServiceCleint.BeginRecordingAsync(request);
+
+            Messages.AddMessage(response.Status.Code.ToString());
+        }
+    }

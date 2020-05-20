@@ -11,14 +11,16 @@ using Utilities.Extensions;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using Google.Protobuf;
+using Shared;
 
 namespace TestsStorageService
 {
-    public class GRPCController : API.TestsStorageService.TestsStorageServiceBase
+    [GrpcService]
+    public class GrpcService : API.TestsStorageService.TestsStorageServiceBase
     {
         [Inject] public TestsContext Db { get; set; }
         
-        public GRPCController(IDependencyResolver di)
+        public GrpcService(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
@@ -37,7 +39,8 @@ namespace TestsStorageService
             return new ListTestsDataResponse()
             {
                 Count = (uint)await Db.Cases.CountAsync(),
-                Tests = ByteString.CopyFromUtf8(serialized)
+                Tests = ByteString.CopyFromUtf8(serialized),
+                Status = new Protobuf.ResponseStatus()
             };
         }
     }
