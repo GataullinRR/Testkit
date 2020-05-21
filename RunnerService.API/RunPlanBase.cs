@@ -1,4 +1,4 @@
-﻿namespace RunnerService.API
+﻿namespace RunnerService.APIModels
 {
     public abstract class RunPlanBase
     {

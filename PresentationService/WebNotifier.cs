@@ -8,21 +8,31 @@ using Utilities.Types;
 namespace PresentationService
 {
     [Service(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton)]
-    public class RecordedNotifier 
+    public class WebNotifier 
     {
         [Inject] public IMessageConsumer MessageConsumer { get; set; }
         [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
 
-        public RecordedNotifier(IDependencyResolver di)
+        public WebNotifier(IDependencyResolver di)
         {
             di.ResolveProperties(this);
 
             MessageConsumer.TestRecordedAsync += MessageConsumer_TestRecordedAsync;
+            MessageConsumer.TestCompletedAsync += MessageConsumer_TestCompletedAsync;
+        }
+
+        async Task MessageConsumer_TestCompletedAsync(TestCompletedMessage arg)
+        {
+            await Hub.Clients.All.TestCompleted(new TestCompletedWebMessage()
+            { 
+                TestId = arg.TestId, 
+                RunResult = arg.Result 
+            });
         }
 
         async Task MessageConsumer_TestRecordedAsync(TestRecordedMessage arg)
         {
-            await Hub.Clients.All.TestRecorded("AA", new TestRecordedWebMessage() { DisplayName = "Isn't yet supported" });
+            await Hub.Clients.All.TestRecorded(new TestRecordedWebMessage() { DisplayName = "Isn't yet supported" });
         }
     }
 }

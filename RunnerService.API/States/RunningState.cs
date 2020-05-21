@@ -1,7 +1,10 @@
-﻿namespace RunnerService.API
+﻿namespace RunnerService.APIModels
 {
     public class RunningState : StateBase
     {
-        public override State State => State.Running;
+        public RunningState() : base(State.Running)
+        {
+
+        }
     }
 }

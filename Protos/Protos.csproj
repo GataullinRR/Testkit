@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <None Remove="PresentationService.proto" />
+    <None Remove="RunnerService.proto" />
     <None Remove="TestsSourceService.proto" />
     <None Remove="TestsStorageService.proto" />
   </ItemGroup>
@@ -22,6 +23,7 @@
 
 
 	<ItemGroup>
+		<Protobuf Include="RunnerService.proto" />
 		<Protobuf Include="TestsSourceService.proto" />
 		<Protobuf Include="TestsStorageService.proto" />
 		<Protobuf Include="PresentationService.proto" />

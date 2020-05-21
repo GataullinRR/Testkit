@@ -1,7 +1,12 @@
-﻿namespace RunnerService.API
+﻿namespace RunnerService.APIModels
 {
     public abstract class StateBase
     {
-        public abstract State State { get; }
-    }
+        public State State { get; set; }
+
+        protected StateBase(State state)
+        {
+            State = state;
+        }
+    } 
 }

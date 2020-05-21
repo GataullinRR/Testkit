@@ -8,16 +8,19 @@ using Newtonsoft.Json;
 using Google.Protobuf;
 using MessageHub;
 using Shared;
+using RunnerService.APIModels;
+using System;
+using Utilities;
 
 namespace ExampleTestsSourceService
 {
     [GrpcService]
-    public class API : TestsSourceService.API.TestsSourceService.TestsSourceServiceBase
+    public class GrpcService : TestsSourceService.API.TestsSourceService.TestsSourceServiceBase
     {
         [Inject] ICaseSource CaseSource { get; set; }
         [Inject] IMessageProducer MessageProducer { get; set; }
 
-        public API(IDependencyResolver di)
+        public GrpcService(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
@@ -37,6 +40,33 @@ namespace ExampleTestsSourceService
             else
             {
                 MessageProducer.FireTestAcquired(new TestAcquiredMessage() { Test = testCase });
+            }
+
+            return response;
+        }
+
+        public override async Task<BeginTestResponse> BeginTest(BeginTestRequest request, ServerCallContext context)
+        {
+            var response = new BeginTestResponse()
+            {
+                Status = new Protobuf.ResponseStatus()
+            };
+
+            if (request.TestSourceId == "ER1")
+            {
+                response.Status.Code = Protobuf.StatusCode.Error;
+            }
+            else
+            {
+                MessageProducer.FireTestCompletedOnSource(new TestCompletedOnSourceMessage()
+                {
+                    TestSourceId = request.TestSourceId,
+                    Result = new PassedResult()
+                    {
+                        StartTime = DateTime.UtcNow,
+                        Duration = TimeSpan.FromSeconds(Global.Random.NextDouble(0, 10)),
+                    }
+                });
             }
 
             return response;

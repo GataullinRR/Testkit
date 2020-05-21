@@ -1,4 +1,6 @@
-﻿
+﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService; 
+@inject IMessageService MessageService; 
+
 @if (Tests == null)
 {
     <div>Loading...</div>
@@ -38,10 +40,12 @@ else
                     @switch (test.RunPlan.RunPlan)
                     {
                         case RunPlan.Manual:
-                            <text>Manual</text>
+                            <span>Manual</span>
                             break;
                         case RunPlan.Periodic:
-                            <text>@(test.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())</text>
+                            <span>
+                                @(test.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())
+                            </span>
                             break;
 
                         default:
@@ -56,16 +60,13 @@ else
                 <td>
                     @switch (test.State.State)
                     {
+                        case State.JustCreated:
+                        case State.Ready:
+                            <InlineButton class="action-primary" @onclick="() => runAsync(test.TestId)">Run</InlineButton>
+                            break;
                         case State.AwaitingStart:
                         case State.Running:
-                            <text>
-                                <button class="btn btn-primary">Cancel</button>
-                            </text>
-                            break;
-                        case State.Suspended:
-                            <text>
-                                <button class="btn btn-primary">Continue</button>
-                            </text>
+                            <InlineButton class="action-danger">Cancel</InlineButton>
                             break;
 
                         default:
@@ -81,4 +82,11 @@ else
 @code {
     [Parameter]
     public IEnumerable<TestInfo> Tests { get; set; }
+
+    async Task runAsync(string testId)
+    {
+        var response = await PresentationService.RunTestAsync(new PresentationService.API2.RunTestRequest() { TestId = testId });
+
+        MessageService.AddMessage(response.Status.Code.ToString());
+    }
 }

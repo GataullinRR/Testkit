@@ -1,0 +1,19 @@
+﻿using RunnerService.APIModels;
+using System.ComponentModel.DataAnnotations;
+
+namespace RunnerService.Db
+{
+    public class TestRunInfo
+    {
+        [Key]
+        public string TestId { get; set; }
+
+        [Key]
+        public string TestSourceId { get; set; }
+
+        public RunResultBase LastRun { get; set; }
+        
+        [Required]
+        public StateBase State { get; set; }
+    }
+}

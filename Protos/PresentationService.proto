@@ -6,6 +6,7 @@ package userservice.api;
 service PresentationService {
   rpc ListTests (ListTestsRequest) returns (ListTestsResponse);
   rpc BeginRecording (BeginRecordingRequest) returns (BeginRecordingResponse);
+  rpc RunTest (RunTestRequest) returns (RunTestResponse);
 }
 
 message ListTestsRequest {
@@ -23,5 +24,12 @@ message BeginRecordingRequest {
   map<string, string> filter = 2;
 }
 message BeginRecordingResponse {
+  common.ResponseStatus status = 1;
+}
+
+message RunTestRequest {
+  string test_id = 1;
+}
+message RunTestResponse {
   common.ResponseStatus status = 1;
 }

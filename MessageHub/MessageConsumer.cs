@@ -7,6 +7,7 @@ using Utilities.Types;
 using Utilities;
 using Utilities.Extensions;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace MessageHub
 {
@@ -18,8 +19,10 @@ namespace MessageHub
         public event Func<TestRecordedMessage, Task> TestRecordedAsync;
         public event Func<TestExecutedMessage, Task> TestExecutedAsync;
         public event Func<TestAcquiredMessage, Task> TestAcquiredAsync;
+        public event Func<TestCompletedMessage, Task> TestCompletedAsync;
+        public event Func<TestCompletedOnSourceMessage, Task> TestCompletedOnSourceAsync;
 
-        public MessageConsumer(ILogger<MessageConsumer> logger, MessageHubOptions options)
+        public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options)
         {
             _logger = logger;
 
@@ -36,21 +39,31 @@ namespace MessageHub
             };
 
             var testExecuted = new ConsumerBuilder<Ignore, TestExecutedMessage>(conf)
-                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>())
-                .SetValueDeserializer(new JsonNETKafkaSerializer<TestExecutedMessage>())
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestExecutedMessage>(serializerSettings))
                 .Build();
             var testRecorded = new ConsumerBuilder<Ignore, TestRecordedMessage>(conf)
-                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>())
-                .SetValueDeserializer(new JsonNETKafkaSerializer<TestRecordedMessage>())
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestRecordedMessage>(serializerSettings))
                 .Build();
             var testAcquired = new ConsumerBuilder<Ignore, TestAcquiredMessage>(conf)
-                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>())
-                .SetValueDeserializer(new JsonNETKafkaSerializer<TestAcquiredMessage>())
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestAcquiredMessage>(serializerSettings))
+                .Build();
+            var testCompleted = new ConsumerBuilder<Ignore, TestCompletedMessage>(conf)
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestCompletedMessage>(serializerSettings))
+                .Build();
+            var testCompletedOnSource = new ConsumerBuilder<Ignore, TestCompletedOnSourceMessage>(conf)
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestCompletedOnSourceMessage>(serializerSettings))
                 .Build();
 
             cosumeDaemon(testExecuted, options.TestExecutedTopic, m => TestExecutedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testRecorded, options.TestRecordedTopic, m => TestRecordedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testAcquired, options.TestAcquiredTopic, m => TestAcquiredAsync.InvokeAndWaitAsync(m));
+            cosumeDaemon(testCompleted, options.TestCompletedTopic, m => TestCompletedAsync.InvokeAndWaitAsync(m));
+            cosumeDaemon(testCompletedOnSource, options.TestCompletedOnSourceTopic, m => TestCompletedOnSourceAsync.InvokeAndWaitAsync(m));
         }
 
         async void cosumeDaemon<T>(IConsumer<Ignore, T> consumer, string topic, Func<T, Task> fireEventAsync)

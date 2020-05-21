@@ -1,7 +1,10 @@
-﻿namespace RunnerService.API
+﻿namespace RunnerService.APIModels
 {
     public class AwaitingStartState : StateBase
     {
-        public override State State => State.AwaitingStart;
+        public AwaitingStartState() : base(State.AwaitingStart)
+        {
+
+        }
     }
 }

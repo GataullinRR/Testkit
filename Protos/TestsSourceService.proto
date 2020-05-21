@@ -5,12 +5,20 @@ package userservice.api;
 
 service TestsSourceService {
   rpc BeginRecording (BeginRecordingRequest) returns (BeginRecordingResponse);
+  rpc BeginTest (BeginTestRequest) returns (BeginTestResponse);
 }
 
 message BeginRecordingRequest {
   map<string, string> filter = 2;
 }
-
 message BeginRecordingResponse {
+  common.ResponseStatus status = 1;
+}
+
+message BeginTestRequest {
+  string test_source_id = 1;
+  bytes test_data = 2;
+}
+message BeginTestResponse {
   common.ResponseStatus status = 1;
 }

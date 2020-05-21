@@ -27,21 +27,38 @@ namespace TestsStorageService
 
         public override async Task<ListTestsDataResponse> ListTestsData(ListTestsDataRequest request, ServerCallContext context)
         {
-            var count = ((int)request.ByRange.To - (int)request.ByRange.From)
-                .NegativeToZero();
-            var result = await Db.Cases
-                .AsNoTracking()
-                .OrderBy(e => e.Id)
-                .Take(count)
-                .ToArrayAsync();
-            var serialized = JsonConvert.SerializeObject(result);
-
-            return new ListTestsDataResponse()
+            var response = new ListTestsDataResponse()
             {
                 Count = (uint)await Db.Cases.CountAsync(),
-                Tests = ByteString.CopyFromUtf8(serialized),
                 Status = new Protobuf.ResponseStatus()
             };
+
+            if (request.ByIds.Count > 0)
+            {
+                var ids = request.ByIds.ToArray();
+                var result = await Db.Cases
+                    .AsNoTracking()
+                    .Where(c => ids.Contains(c.Id))
+                    .ToArrayAsync();
+                var serialized = JsonConvert.SerializeObject(result);
+
+                response.Tests = ByteString.CopyFromUtf8(serialized);
+            }
+            else if (request.ByRange != null)
+            {
+                var count = ((int)request.ByRange.To - (int)request.ByRange.From)
+                    .NegativeToZero();
+                var result = await Db.Cases
+                    .AsNoTracking()
+                    .OrderBy(e => e.Id)
+                    .Take(count)
+                    .ToArrayAsync();
+                var serialized = JsonConvert.SerializeObject(result);
+
+                response.Tests = ByteString.CopyFromUtf8(serialized);
+            }
+
+            return response;
         }
     }
 }

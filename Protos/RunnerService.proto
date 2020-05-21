@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+option csharp_namespace = "RunnerService.API";
+import "common.proto"; 
+package userservice.api;
+
+service RunnerService {
+  rpc RunTest (RunTestRequest) returns (RunTestResponse);
+}
+
+message RunTestRequest {
+  string test_id = 1;
+}
+message RunTestResponse {
+  common.ResponseStatus status = 1;
+}

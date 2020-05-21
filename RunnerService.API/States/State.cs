@@ -1,9 +1,10 @@
-﻿namespace RunnerService.API
+﻿namespace RunnerService.APIModels
 {
     public enum State
     {
+        JustCreated,
         AwaitingStart,
-        Suspended,
-        Running
+        Running,
+        Ready,
     }
 }

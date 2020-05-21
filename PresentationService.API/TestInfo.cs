@@ -1,5 +1,5 @@
 ﻿using UserService.API;
-using RunnerService.API;
+using RunnerService.APIModels;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

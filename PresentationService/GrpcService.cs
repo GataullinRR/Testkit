@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API2;
-using RunnerService.API;
+using RunnerService.APIModels;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,6 +21,7 @@ namespace PresentationService
         [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
         [Inject] public TestsStorageService.API.TestsStorageService.TestsStorageServiceClient TestsStorageService { get; set; }
         [Inject] public TestsSourceService.API.TestsSourceService.TestsSourceServiceClient TestsSourceService { get; set; }
+        [Inject] public RunnerService.API.RunnerService.RunnerServiceClient RunnerService { get; set; }
         [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
         [Inject] public ILogger<GrpcService> Logger { get; set; }
 
@@ -33,7 +34,7 @@ namespace PresentationService
         {
             Logger.LogTrace("ListRequest");
 
-            await Hub.Clients.All.TestRecorded("AA", new API.TestRecordedWebMessage() { DisplayName = "HELLO!" });
+            await Hub.Clients.All.TestRecorded(new API.TestRecordedWebMessage() { DisplayName = "HELLO!" }); // for test
 
             var response = new ListTestsResponse()
             {
@@ -68,8 +69,8 @@ namespace PresentationService
                         TestId = f.Id,
                         Author = new CSUserInfo() { UserName = f.AuthorName },
                         Target = f.CaseInfo,
-                        State = new SuspendedState(),
-                        LastResult = new OkResult(),
+                        State = new ReadyState(),
+                        LastResult = new PassedResult(),
                         RunPlan = new PeriodicRunPlan(),
                     };
                 }
@@ -107,6 +108,16 @@ namespace PresentationService
             }
 
             return response;
+        }
+
+        public override async Task<RunTestResponse> RunTest(RunTestRequest request, ServerCallContext context)
+        {
+            var runResponse = await RunnerService.RunTestAsync(new RunnerService.API.RunTestRequest() { TestId = request.TestId });
+
+            return new RunTestResponse()
+            {
+                Status = new Protobuf.ResponseStatus()
+            };
         }
     }
 }

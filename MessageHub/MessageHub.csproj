@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
+    <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
   </ItemGroup>
 

@@ -71,6 +71,7 @@ namespace Shared
             services.AddGrpcService<UserService.API.UserService.UserServiceClient>("https://localhost:5001/");
             services.AddGrpcService<TestsStorageService.API.TestsStorageService.TestsStorageServiceClient>("https://localhost:5020");
             services.AddGrpcService<TestsSourceService.API.TestsSourceService.TestsSourceServiceClient>("https://localhost:5041");
+            services.AddGrpcService<RunnerService.API.RunnerService.RunnerServiceClient>("https://localhost:5031");
 
             return services;
         }
