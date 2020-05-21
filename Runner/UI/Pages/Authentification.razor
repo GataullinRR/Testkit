@@ -6,14 +6,16 @@
 @inject NavigationManager NavigationManager;
 @inject IUserChangeNotifier UserChangeNotifier;
 
-@if (_signIn)
-{
-    <SignInForm OnSubmit="loginAsync" OnRegistrationRequest="registrationRequested"></SignInForm>
-}
-else
-{
-    <SignUpForm OnSubmit="registerAsync" OnSignInRequest="signInRequested"></SignUpForm>
-}
+    <RootContainer>
+        @if (_signIn)
+        {
+            <SignInForm OnSubmit="loginAsync" OnRegistrationRequest="registrationRequested"></SignInForm>
+        }
+        else
+        {
+            <SignUpForm OnSubmit="registerAsync" OnSignInRequest="signInRequested"></SignUpForm>
+        }
+    </RootContainer>
 
 @code {
     public static string BuildPath()

@@ -6,16 +6,18 @@
 @inject IMapper Mapper;
 @inject IMessageService Messages;
 
-@if (_userInfo != null)
-{
-    <KVP Name="User">@_userInfo.UserName</KVP>
-    <KVP Name="E-Mail">@_userInfo.EMail.DefaultToString("-")</KVP>
-    <KVP Name="Phone">@_userInfo.Phone.DefaultToString("-")</KVP>
-}
-else
-{
-    <span>Not authorized</span>
-}
+    <RootContainer>
+        @if (_userInfo != null)
+        {
+            <KVP Name="User">@_userInfo.UserName</KVP>
+            <KVP Name="E-Mail">@_userInfo.EMail.DefaultToString("-")</KVP>
+            <KVP Name="Phone">@_userInfo.Phone.DefaultToString("-")</KVP>
+        }
+        else
+        {
+            <span>Not authorized</span>
+        }
+    </RootContainer>
 
 @code {
     public static string BuildPathToCurrentUser()

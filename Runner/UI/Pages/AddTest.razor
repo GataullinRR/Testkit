@@ -3,31 +3,33 @@
 @inject IMessageService Messages;
 @page "/add-case"
 
-<FormBase Title="Lookup parameters" ButtonName="Add" Model="Model" Fields="_fields" OnSubmit="onSubmit">
+    <RootContainer>
+        <FormBase Title="Lookup parameters" ButtonName="Add" Model="Model" Fields="_fields" OnSubmit="onSubmit">
 
-</FormBase>
+        </FormBase>
+    </RootContainer>
 
-@code {
-    public static string BuildPath()
-    {
-        return $"/add-case";
-    }
-
-    class LookupParameters
-    {
-        public string UserId { get; set; } = "EX1";
-    }
-
-    LookupParameters Model { get; set; } = new LookupParameters();
-
-    IEnumerable<FormBase.Field> _fields { get; set; }
-
-    protected override void OnInitialized()
-    {
-        _fields = new FormBase.Field[]
+    @code {
+        public static string BuildPath()
         {
-            new FormBase.Field("UserId", @<InputText class="form-control" @bind-Value="Model.UserId"/>),
-        };
+            return $"/add-case";
+        }
+
+        class LookupParameters
+        {
+            public string UserId { get; set; } = "EX1";
+        }
+
+        LookupParameters Model { get; set; } = new LookupParameters();
+
+        IEnumerable<FormBase.Field> _fields { get; set; }
+
+        protected override void OnInitialized()
+        {
+            _fields = new FormBase.Field[]
+            {
+            new FormBase.Field("UserId", @<InputText class="form-control" @bind-Value="Model.UserId" />),
+            };
 
             base.OnInitialized();
         }

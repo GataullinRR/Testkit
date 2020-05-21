@@ -1,8 +1,10 @@
 ﻿@page "/test/{TestId:int}"
 
-<h3>Test #@TestId</h3>
+<RootContainer>
+    <h3>Test #@TestId</h3>
 
-<p>This page is under construction!</p>
+    <p>This page is under construction!</p>
+</RootContainer>
 
 @code {
     public static string BuildPath(int testId)
