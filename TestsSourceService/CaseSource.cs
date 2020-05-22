@@ -42,6 +42,13 @@ namespace ExampleTestsSourceService
 
                         _ => null
                     };
+                    testCase = testCase ?? new CSTestCaseInfo()
+                    {
+                        CaseSourceId = "" + kvp.Value,
+                        DisplayName = "Case with user:" + kvp.Value,
+                        Data = ("Case with user:" + kvp.Value).GetASCIIBytes(),
+                        TargetType = "None"
+                    };
 
                     if (testCase != null)
                     {

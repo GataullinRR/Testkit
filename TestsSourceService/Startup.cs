@@ -30,6 +30,7 @@ namespace TestsSourceService
             services.AddGrpc();
             services.AddNecessaryFeatures();
             services.AddGrpcServices();
+            services.AddMessaging(Configuration.GetSection("Messaging"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

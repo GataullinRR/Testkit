@@ -7,7 +7,7 @@ using Utilities.Types;
 
 namespace PresentationService
 {
-    [Service(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton)]
+    [Service(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton, RegisterAsPolicy.Self)]
     public class WebNotifier 
     {
         [Inject] public IMessageConsumer MessageConsumer { get; set; }

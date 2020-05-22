@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using MessageHub;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,7 @@ namespace RunnerService
             services.AddGrpc();
             services.AddNecessaryFeatures();
             services.AddGrpcServices();
+            services.AddMessaging(Configuration.GetSection("Messaging"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

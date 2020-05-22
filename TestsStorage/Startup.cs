@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using MessageHub;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -39,6 +40,7 @@ namespace TestsStorage
             services.AddGrpc();
             services.AddNecessaryFeatures();
             services.AddGrpcServices();
+            services.AddMessaging(Configuration.GetSection("Messaging"));
 
             services.AddDbInitializer<DbSeeder>();
         }

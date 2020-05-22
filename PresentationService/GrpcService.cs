@@ -36,7 +36,7 @@ namespace PresentationService
         {
             Logger.LogTrace("ListRequest");
 
-            await Hub.Clients.All.TestRecorded(new API.TestRecordedWebMessage() { DisplayName = "HELLO!" }); // for test
+            //await Hub.Clients.All.TestRecorded(new API.TestRecordedWebMessage() { DisplayName = "HELLO!" }); // for test
 
             var response = new ListTestsResponse()
             {

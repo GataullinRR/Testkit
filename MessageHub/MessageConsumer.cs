@@ -9,6 +9,7 @@ using Utilities.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 
 namespace MessageHub
 {
@@ -23,13 +24,14 @@ namespace MessageHub
         public event Func<TestCompletedMessage, Task> TestCompletedAsync = m => Task.CompletedTask;
         public event Func<TestCompletedOnSourceMessage, Task> TestCompletedOnSourceAsync = m => Task.CompletedTask;
 
-        public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options)
+        public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options, 
+            IOptions<MessageConsumerOptions> consumerOptions)
         {
             _logger = logger;
 
             var conf = new ConsumerConfig
             {
-                GroupId = Assembly.GetEntryAssembly().FullName.GetHashCode().ToString(), //"test-consumer-group",
+                GroupId = consumerOptions.Value.GroupId, //"test-consumer-group",
                 BootstrapServers = options.ServerURI,
                 // Note: The AutoOffsetReset property determines the start offset in the event
                 // there are not yet any committed offsets for the consumer group for the

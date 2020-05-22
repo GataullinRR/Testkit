@@ -1,7 +1,9 @@
-﻿using Grpc.Core;
+﻿using AutoMapper.Configuration;
+using Grpc.Core;
 using Grpc.Net.Client;
 using MessageHub;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -62,6 +64,14 @@ namespace Shared
                 TypeNameHandling = TypeNameHandling.All
             };
             services.AddSingleton(jsonOptions);
+
+            return services;
+        }
+
+        public static IServiceCollection AddMessaging(this IServiceCollection services, Microsoft.Extensions.Configuration.IConfiguration configuration)
+        {
+            services.Configure<MessageConsumerOptions>(configuration);
+            services.AddAttributeRegisteredServices(typeof(IMessageConsumer).Assembly);
 
             return services;
         }

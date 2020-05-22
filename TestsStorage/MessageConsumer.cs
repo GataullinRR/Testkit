@@ -21,6 +21,7 @@ namespace TestsStorageService
     {
         [Inject] public IServiceScopeFactory ScopeFactory { get; set; }
         [Inject] public ILogger<MessageConsumer> Logger { get; set; }
+        [Inject] public IMessageProducer MessageProducer { get; set; }
 
         public MessageConsumer(IDependencyResolver di, IMessageConsumer consumer)
         {
@@ -44,6 +45,11 @@ namespace TestsStorageService
             var db = scope.ServiceProvider.GetRequiredService<TestsContext>();
             await db.Cases.AddAsync(testCase);
             await db.SaveChangesAsync();
+
+            MessageProducer.FireTestRecorded(new TestRecordedMessage()
+            {
+                TestId = "Id" + arg.Test.CaseSourceId
+            });
         }
     }
 }
