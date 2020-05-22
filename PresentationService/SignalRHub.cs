@@ -20,11 +20,16 @@ namespace PresentationService
 
         public async Task Bind(string authToken)
         {
-            var uInfReq = new GetUserInfoRequest();
-            uInfReq.Token = authToken;
-            var uInfResp = await UserService.GetUserInfoAsync(uInfReq);
+            var userName = "";
+            if (authToken != null)
+            {
+                var uInfReq = new GetUserInfoRequest();
+                uInfReq.Token = authToken;
+                var uInfResp = await UserService.GetUserInfoAsync(uInfReq);
+                userName = uInfResp.UserName;
+            }
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, uInfResp.UserName);
+            await Groups.AddToGroupAsync(Context.ConnectionId, userName);
         }
     }
 }

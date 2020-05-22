@@ -1,4 +1,8 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@inject IIdentityContext Identity; 
+@inject ICookieStorage Cookies; 
+@inject IUserChangeNotifier ChangeNotifier;
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">QAAP</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -7,11 +11,22 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="@Runner.UI.Pages.Authentification.BuildPath()">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Sign
-            </NavLink>
-        </li>
+        @if (Identity.Identity.IsAuthentificated)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" @onclick="signOutAsync">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Sign out
+                </NavLink>
+            </li>
+        }
+        else
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="@Runner.UI.Pages.Authentification.BuildPath()">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Sign in
+                </NavLink>
+            </li>
+        }
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Tests
@@ -36,12 +51,24 @@
 </div>
 
 @code {
-    private bool collapseNavMenu = true;
+    bool collapseNavMenu = true;
 
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void ToggleNavMenu()
+    void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ChangeNotifier.AuthStateChangedAsync += async () => StateHasChanged();
+    }
+
+    async Task signOutAsync()
+    {
+        await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, null);
+
+        await ChangeNotifier.FireAuthStateChangedAsync();
     }
 }

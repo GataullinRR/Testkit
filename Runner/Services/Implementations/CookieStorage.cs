@@ -13,7 +13,7 @@ namespace Runner
     [Service(ServiceLifetime.Singleton)]
     class CookieStorage : ICookieStorage
     {
-        readonly ConcurrentDictionary<string, CookieValue?> _cookies = new ConcurrentDictionary<string, CookieValue?>();
+        readonly ConcurrentDictionary<string, CookieValue> _cookies = new ConcurrentDictionary<string, CookieValue>();
 
         public async Task<CookieValue?> GetAsync(string name)
         {
@@ -22,7 +22,14 @@ namespace Runner
 
         public async Task SetAsync(string name, CookieValue? value)
         {
-            _cookies[name] = value;
+            if (value == null)
+            {
+                _cookies.Remove(name, out var _);
+            }
+            else
+            {
+                _cookies[name] = value;
+            }
         }
     }
 }

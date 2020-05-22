@@ -5,7 +5,7 @@ namespace Runner
 {
     public interface ICookieStorage 
     {
-        Task SetAsync(string name, CookieValue value);
+        Task SetAsync(string name, CookieValue? value);
         Task<CookieValue> GetAsync(string name);
     }
 }
