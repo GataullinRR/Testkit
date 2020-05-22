@@ -6,28 +6,42 @@
 @inject IAppInitializationAwaiter AppInitializer;
 @page "/"
 
-<TestsTable Tests="_tests"></TestsTable>
+<TestsTable Tests="_tests" TotalCount="_totalCount" OnAddRequestedAsync="onShowMoreAsync"></TestsTable>
 
 @code {
     public const string URI = "/";
 
-    IEnumerable<TestInfo> _tests;
+    int _totalCount;
+    TestInfo[] _tests;
 
     protected override async Task OnInitializedAsync()
     {
         await AppInitializer.AwaitInitializedAsync();
 
-        await loadTests();
+        await addTestsAsync(0, 10);
     }
 
-    async Task loadTests()
+    async Task addTestsAsync(int from, int to)
     {
         var response = await PresentationServiceCleint.ListTestsAsync(new PresentationService.API2.ListTestsRequest()
         {
             Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
-            Range = new UIntRange() { From = 0, To = 10 }
+            Range = new UIntRange() { From = from.ToUInt32(), To = to.ToUInt32() }
         });
         var text = response.TestInfos.ToStringUtf8();
-        _tests = JsonConvert.DeserializeObject<TestInfo[]>(text, JsonSettings);
+        var newTests = JsonConvert.DeserializeObject<TestInfo[]>(text, JsonSettings);
+        _totalCount = response.TotalCount.ToInt32();
+
+        _tests = _tests == null
+            ? newTests
+            : _tests.Concat(newTests).ToArray();
+    }
+
+    async Task onShowMoreAsync(int count)
+    {
+        await addTestsAsync(_tests.Length, _tests.Length + count);
+
+        StateHasChanged();
     }
 }
+

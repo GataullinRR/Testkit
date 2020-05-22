@@ -27,84 +27,130 @@ else
                 <tbody>
                     @foreach (var test in Tests)
                     {
-                    <tr>
-                        <td>
-                            @if (test.LastResult != null)
-                            {
-                                @($"{test.LastResult.Result} in {test.LastResult.Duration.TotalSeconds:F0}s")
-                            }
-                        </td>
+                        <tr>
+                            <td>
+                                @if (test.LastResult != null)
+                                {
+                                    @($"{test.LastResult.Result} in {test.LastResult.Duration.TotalSeconds:F0}s")
+                                }
+                            </td>
 
-                        <td>
-                            @test.State.State
-                        </td>
+                            <td>
+                                @test.State.State
+                            </td>
 
-                        <td>
-                            <NavLink href="@TestTarget.BuildPath(test.TestId)">@test.TestId</NavLink>
-                        </td>
+                            <td>
+                                <NavLink href="@TestTarget.BuildPath(test.TestId)">@test.TestId</NavLink>
+                            </td>
 
-                        <td>@test.Target.DisplayName</td>
+                            <td>@test.Target.DisplayName</td>
 
-                        <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString())</td>
+                            <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString())</td>
 
-                        <td>
-                            @switch (test.RunPlan.RunPlan)
-                            {
-                                case RunPlan.Manual:
-                                    <span>Manual</span>
-                                    break;
-                                case RunPlan.Periodic:
-                                    <span>
-                                        @(test.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())
-                                    </span>
-                                    break;
+                            <td>
+                                @switch (test.RunPlan.RunPlan)
+                                {
+                                    case RunPlan.Manual:
+                                        <span>Manual</span>
+                                        break;
+                                    case RunPlan.Periodic:
+                                        <span>
+                                            @(test.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())
+                                        </span>
+                                        break;
 
-                                default:
-                                    throw new NotSupportedException();
-                            }
-                        </td>
+                                    default:
+                                        throw new NotSupportedException();
+                                }
+                            </td>
 
-                        <td>
-                            <NavLink href="@UI.Pages.Profile.BuildPath(test.Author.UserName)">@test.Author.UserName</NavLink>
-                        </td>
+                            <td>
+                                <NavLink href="@UI.Pages.Profile.BuildPath(test.Author.UserName)">@test.Author.UserName</NavLink>
+                            </td>
 
-                        <td>
-                            @switch (test.State.State)
-                            {
-                                case State.JustCreated:
-                                case State.Ready:
-                                    <InlineButton class="action-primary" @onclick="() => runAsync(test.TestId)">Run</InlineButton>
-                                    break;
-                                case State.AwaitingStart:
-                                case State.Running:
-                                    @*<InlineButton class="action-danger">Cancel</InlineButton>*@
-                                    <span>Running...</span>
-                                    break;
+                            <td>
+                                @switch (test.State.State)
+                                {
+                                    case State.JustCreated:
+                                    case State.Ready:
+                                        <InlineButton class="action-primary" @onclick="() => runAsync(test.TestId)">Run</InlineButton>
+                                        break;
+                                    case State.AwaitingStart:
+                                    case State.Running:
+                                        @*<InlineButton class="action-danger">Cancel</InlineButton>*@
+                                        <span>Running...</span>
+                                        break;
 
-                                default:
-                                    throw new NotSupportedException();
-                            }
-                        </td>
-                    </tr>
+                                    default:
+                                        throw new NotSupportedException();
+                                }
+                            </td>
+                        </tr>
                     }
                 </tbody>
             </table>
+        </div>
+
+        <div class="row px-3">
+            <div class="col ml-auto">Shown @shownCount of @TotalCount tests</div>
+            @if (TotalCount - shownCount > 0)
+            {
+                for (int i = 0; i < ADD_MORE_BUTTONS_COUNT; i++)
+                {
+                    var addCount = getCount(i);
+                    <div class="col-1 text-center">
+                        <InlineButton @onclick="() => onAdd(addCount)">Add @addCount</InlineButton>
+                    </div>
+                }
+            }
         </div>
     </div>
 }
 
 @code {
+    const int ADD_MORE_BUTTONS_COUNT = 3;
+
+    int shownCount { get; set; }
+
     [Parameter]
     public IEnumerable<TestInfo> Tests { get; set; }
 
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    [Parameter]
+    public Func<int, Task> OnAddRequestedAsync { get; set; }
+
+    protected override Task OnParametersSetAsync()
+    {
+        shownCount = Tests?.Count() ?? 0;
+
+        return base.OnParametersSetAsync();
+    }
+
+    async Task onAdd(int count)
+    {
+        await OnAddRequestedAsync(count);
+
+        StateHasChanged();
+    }
+
     async Task runAsync(string testId)
     {
-        var response = await PresentationService.RunTestAsync(new PresentationService.API2.RunTestRequest() 
-        { 
+        var response = await PresentationService.RunTestAsync(new PresentationService.API2.RunTestRequest()
+        {
             Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
-            TestId = testId 
+            TestId = testId
         });
 
         MessageService.AddMessage(response.Status.Code.ToString());
+    }
+
+    int getCount(int buttonIndex)
+    {
+        var x = Math.Log(TotalCount - shownCount);
+        var xk = x / ADD_MORE_BUTTONS_COUNT;
+
+        return Math.Exp((buttonIndex + 1) * xk).Round();
     }
 }
