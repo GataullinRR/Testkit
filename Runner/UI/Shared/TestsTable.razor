@@ -1,5 +1,6 @@
 ﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
 @inject IMessageService MessageService;
+@inject ICookieStorage Cookies;
 
 @if (Tests == null)
 {
@@ -76,7 +77,8 @@ else
                                     break;
                                 case State.AwaitingStart:
                                 case State.Running:
-                                    <InlineButton class="action-danger">Cancel</InlineButton>
+                                    @*<InlineButton class="action-danger">Cancel</InlineButton>*@
+                                    <span>Running...</span>
                                     break;
 
                                 default:
@@ -97,7 +99,11 @@ else
 
     async Task runAsync(string testId)
     {
-        var response = await PresentationService.RunTestAsync(new PresentationService.API2.RunTestRequest() { TestId = testId });
+        var response = await PresentationService.RunTestAsync(new PresentationService.API2.RunTestRequest() 
+        { 
+            Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
+            TestId = testId 
+        });
 
         MessageService.AddMessage(response.Status.Code.ToString());
     }

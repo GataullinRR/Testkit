@@ -30,7 +30,11 @@ namespace PresentationService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSignalR();
+            services.AddSignalR()
+                    .AddNewtonsoftJsonProtocol(options =>
+                    {
+                        options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All; // Adding one more security breach!
+                    });
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(

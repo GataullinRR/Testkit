@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API2;
+using Protobuf;
 using RunnerService.APIModels;
 using RunnerService.Db;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,7 +38,16 @@ namespace PresentationService
         {
             Logger.LogTrace("ListRequest");
 
-            //await Hub.Clients.All.TestRecorded(new API.TestRecordedWebMessage() { DisplayName = "HELLO!" }); // for test
+            //await Hub.Clients.Group(request.Token).TestRecorded(new API.TestRecordedWebMessage() { DisplayName = "Msg by token!" }); // for test
+
+            var uInfReq = new GetUserInfoRequest();
+            uInfReq.Token = request.Token;
+            var uInfResp = await UserService.GetUserInfoAsync(uInfReq);
+
+            //await Hub.Clients.Group(uInfResp.UserName).TestRecorded(new API.TestRecordedWebMessage() { DisplayName = $"Msg by name! {uInfResp.UserName}" }); // for test
+            //await Hub.Clients.Group(uInfResp.UserName).TestCompleted2(new API.TestCompletedWebMessage() { TestId = $"Msg by name! {uInfResp.UserName}" , 
+            //     RunResult = new PassedResult() }); // for test
+            //await Hub.Clients.All.TestCompleted2(new API.TestCompletedWebMessage() { TestId = $"Msg by name! {uInfResp.UserName}" , RunResult = new PassedResult() }); // for test
 
             var response = new ListTestsResponse()
             {
@@ -100,9 +111,14 @@ namespace PresentationService
             var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest() { Token = request.Token });
             if (result.Valid)
             {
-                var beginRecRequet = new TestsSourceService.API.BeginRecordingRequest();
-                beginRecRequet.Filter.Add(request.Filter);
-                var recResult = await TestsSourceService.BeginRecordingAsync(beginRecRequet);
+                var userInfResp = await UserService.GetUserInfoAsync(new  GetUserInfoRequest() { Token = request.Token });
+
+                var beginRecReq = new TestsSourceService.API.BeginRecordingRequest();
+                beginRecReq.Filter.Add(request.Filter);
+                beginRecReq.OperationContext = new OperationContext();
+                beginRecReq.OperationContext.UserName = userInfResp.UserName;
+                beginRecReq.OperationContext.OperationId = DateTime.UtcNow.Ticks.ToString();
+                var recResult = await TestsSourceService.BeginRecordingAsync(beginRecReq);
 
                 response.Status = recResult.Status;
             }
@@ -116,12 +132,31 @@ namespace PresentationService
 
         public override async Task<RunTestResponse> RunTest(RunTestRequest request, ServerCallContext context)
         {
-            var runResponse = await RunnerService.RunTestAsync(new RunnerService.API.RunTestRequest() { TestId = request.TestId });
-
-            return new RunTestResponse()
+            var response = new RunTestResponse()
             {
-                Status = new Protobuf.ResponseStatus()
+                Status = new ResponseStatus()
             };
+
+            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest() { Token = request.Token });
+            if (result.Valid)
+            {
+                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest() { Token = request.Token });
+
+                var runReq = new RunnerService.API.RunTestRequest();
+                runReq.TestId = request.TestId;
+                runReq.Context = new OperationContext();
+                runReq.Context.UserName = userInfResp.UserName;
+                runReq.Context.OperationId = DateTime.UtcNow.Ticks.ToString();
+                var runResponse = await RunnerService.RunTestAsync(runReq);
+
+                response.Status.Code = runResponse.Status.Code;
+            }
+            else
+            {
+                response.Status.Code = Protobuf.StatusCode.NotAuthorized;
+            }
+
+            return response;
         }
     }
 }

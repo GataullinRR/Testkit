@@ -17,6 +17,12 @@ namespace Runner
             di.ResolveProperties(this);
 
             WebMessageHub.TestRecordedAsync += WebMessageHub_TestRecordedAsync;
+            WebMessageHub.TestCompletedAsync += WebMessageHub_TestCompletedAsync;
+        }
+
+        async Task WebMessageHub_TestCompletedAsync(TestCompletedWebMessage arg)
+        {
+            MessageService.AddMessage($"{arg.TestId} completed with state {arg.RunResult}");
         }
 
         async Task WebMessageHub_TestRecordedAsync(TestRecordedWebMessage arg)

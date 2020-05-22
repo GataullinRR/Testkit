@@ -29,3 +29,8 @@ message UIntRange {
   uint32 from = 1;
   uint32 to = 2; 
 }
+
+message OperationContext {
+  string operation_id = 1;
+  string user_name = 2;
+}

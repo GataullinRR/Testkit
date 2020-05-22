@@ -1,6 +1,6 @@
 ﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationServiceCleint;
 @inject JsonSerializerSettings JsonSettings;
-@inject IWebMessageHub Hub;
+@inject ICookieStorage Cookies;
 @inject IMessageService Messages;
 @inject NavigationManager NavigationManager
 @inject IAppInitializationAwaiter AppInitializer;
@@ -24,6 +24,7 @@
     {
         var response = await PresentationServiceCleint.ListTestsAsync(new PresentationService.API2.ListTestsRequest()
         {
+            Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
             Range = new UIntRange() { From = 0, To = 10 }
         });
         var text = response.TestInfos.ToStringUtf8();

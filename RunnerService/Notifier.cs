@@ -47,6 +47,7 @@ namespace RunnerService
 
             MessageProducer.FireTestCompleted(new TestCompletedMessage() 
             { 
+                OperationContext = arg.OperationContext,
                 TestId = runInfo.TestId, 
                 Result = runInfo.LastRun 
             });

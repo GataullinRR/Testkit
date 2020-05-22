@@ -39,7 +39,15 @@ namespace ExampleTestsSourceService
             }
             else
             {
-                MessageProducer.FireTestAcquired(new TestAcquiredMessage() { Test = testCase });
+                MessageProducer.FireTestAcquired(new TestAcquiredMessage() 
+                {
+                    OperationContext = new MessageHub.OperationContext()
+                    {
+                         OperationId = request.OperationContext.OperationId,
+                         UserName = request.OperationContext.UserName,
+                    },
+                    Test = testCase
+                });
             }
 
             return response;
@@ -60,6 +68,11 @@ namespace ExampleTestsSourceService
             {
                 MessageProducer.FireTestCompletedOnSource(new TestCompletedOnSourceMessage()
                 {
+                    OperationContext = new MessageHub.OperationContext()
+                    {
+                        OperationId = request.OperationContext.OperationId,
+                        UserName = request.OperationContext.UserName,
+                    },
                     TestSourceId = request.TestSourceId,
                     Result = new PassedResult()
                     {

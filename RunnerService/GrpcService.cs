@@ -72,6 +72,7 @@ namespace RunnerService
                 var beginRequest = new TestsSourceService.API.BeginTestRequest();
                 beginRequest.TestData = ByteString.CopyFrom(caseInfo.CaseInfo.Data);
                 beginRequest.TestSourceId = caseInfo.CaseInfo.CaseSourceId;
+                beginRequest.OperationContext = request.Context;
                 var beginResponse = await TestsSourceService.BeginTestAsync(beginRequest);
             }
 

@@ -19,17 +19,26 @@ namespace PresentationService.API
         readonly IDisposable _subscriptions;
 
         public event Func<TestRecordedWebMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
+        public event Func<TestCompletedWebMessage, Task> TestCompletedAsync = m => Task.CompletedTask;
 
-        [Inject] public IWebMessageHubConnectionProvider ConnectionProvider {get; set;}
+        [Inject] public IWebMessageHubConnectionProvider ConnectionProvider { get; set; }
 
         public WebMessageHub(IDependencyResolver di)
         {
             di.ResolveProperties(this);
 
-            _subscriptions = ConnectionProvider.Connection.On<TestRecordedWebMessage>("TestRecorded", async (message) =>
+            _subscriptions = new DisposingActions()
             {
-                await TestRecordedAsync.InvokeAndWaitAsync(message);
-            });
+                ConnectionProvider.Connection.On<TestRecordedWebMessage>("TestRecorded", async (message) =>
+                {
+                    await TestRecordedAsync.InvokeAndWaitAsync(message);
+                }),
+
+                ConnectionProvider.Connection.On<TestCompletedWebMessage>("TestCompleted", async (message) =>
+                {
+                   await TestCompletedAsync.InvokeAndWaitAsync(message);
+                })
+            };
         }
 
         public void Dispose()

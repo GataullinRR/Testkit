@@ -36,7 +36,7 @@ namespace TestsStorageService
 
             var testCase = new TestCase() 
             { 
-                AuthorName = "Not yet supported",
+                AuthorName = arg.OperationContext.UserName,
                 Id = arg.Test.CaseSourceId,
                 CaseInfo = arg.Test 
             };
@@ -48,7 +48,7 @@ namespace TestsStorageService
 
             MessageProducer.FireTestRecorded(new TestRecordedMessage()
             {
-                TestId = "Id" + arg.Test.CaseSourceId
+                TestId = testCase.Id
             });
         }
     }
