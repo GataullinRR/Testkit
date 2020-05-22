@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API2;
 using RunnerService.APIModels;
+using RunnerService.Db;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace PresentationService
         [Inject] public RunnerService.API.RunnerService.RunnerServiceClient RunnerService { get; set; }
         [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
         [Inject] public ILogger<GrpcService> Logger { get; set; }
+        [Inject] public JsonSerializerSettings JsonSettings { get; set; }
 
         public GrpcService(IDependencyResolver di)
         {
@@ -41,45 +43,47 @@ namespace PresentationService
                 Status = new Protobuf.ResponseStatus()
             };
 
-            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest() { Token = request.Token });
-
-
-            //var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest() { Token = request.Token });
-            //if (result.Valid)
-            //{
             var tests = await TestsStorageService.ListTestsDataAsync(new ListTestsDataRequest()
             {
                 ByRange = request.Range,
                 IncludeData = false,
             });
 
-            var jset = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.All };
-            string json = JsonConvert.SerializeObject(ddd().ToArray(), jset);
+            var ff = JsonConvert
+                .DeserializeObject<TestCase[]>(tests.Tests.ToStringUtf8())
+                .OrderBy(t => t.Id);
+
+            var testsIds = ff.Select(c => c.Id).ToArray();
+            var getInfosR = new RunnerService.API.GetTestsInfoRequest();
+            getInfosR.TestsIds.AddRange(testsIds);
+            var getInfosResp = await RunnerService.GetTestsInfoAsync(getInfosR);
+            var infos = JsonConvert
+                .DeserializeObject<TestRunInfo[]>(getInfosResp.Infos.ToStringUtf8(), JsonSettings)
+                .OrderBy(i => i.TestId);
+
+            var fullInfos = ff.Zip(infos, (Case, RunInfo) => (Case, RunInfo));
+
+            var testInfos = ddd().ToArray();
+            string json = JsonConvert.SerializeObject(testInfos, JsonSettings);
 
             response.TotalCount = tests.Count;
             response.TestInfos = ByteString.CopyFromUtf8(json);
 
             IEnumerable<TestInfo> ddd()
             {
-                var ff = JsonConvert.DeserializeObject<TestCase[]>(tests.Tests.ToStringUtf8());
-                foreach (var f in ff)
+                foreach (var info in fullInfos)
                 {
                     yield return new TestInfo()
                     {
-                        TestId = f.Id,
-                        Author = new CSUserInfo() { UserName = f.AuthorName },
-                        Target = f.CaseInfo,
-                        State = new ReadyState(),
-                        LastResult = new PassedResult(),
-                        RunPlan = new PeriodicRunPlan(),
+                        TestId = info.Case.Id,
+                        Author = new CSUserInfo() { UserName = info.Case.AuthorName },
+                        Target = info.Case.CaseInfo,
+                        State = info.RunInfo.State,
+                        LastResult = info.RunInfo.LastRun,
+                        RunPlan = info.RunInfo.RunPlan
                     };
                 }
             }
-            //}
-            //else
-            //{
-            //    response.Status.Code = Protobuf.StatusCode.NotAuthorized;
-            //}
 
             return response;
         }

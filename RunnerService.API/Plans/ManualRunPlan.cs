@@ -2,6 +2,9 @@
 {
     public class ManualRunPlan : RunPlanBase
     {
-        public override RunPlan RunPlan => RunPlan.Manual;
+        public ManualRunPlan() : base(RunPlan.Manual)
+        {
+
+        }
     }
 }

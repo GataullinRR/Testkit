@@ -15,5 +15,8 @@ namespace RunnerService.Db
         
         [Required]
         public StateBase State { get; set; }
+
+        [Required]
+        public RunPlanBase RunPlan { get; set; }
     }
 }

@@ -12,7 +12,8 @@ else
             <table class="table table-striped table-borderless">
                 <thead>
                     <tr>
-                        <th></th>
+                        <th>Last result</th>
+                        <th>State</th>
                         <th>Target</th>
                         <th>Description</th>
                         <th>Last run</th>
@@ -25,57 +26,64 @@ else
                 <tbody>
                     @foreach (var test in Tests)
                     {
-                        <tr>
-                            <td>
-                                @test.LastResult.Result
-                            </td>
+                    <tr>
+                        <td>
+                            @if (test.LastResult != null)
+                            {
+                                @($"{test.LastResult.Result} in {test.LastResult.Duration.TotalSeconds:F0}s")
+                            }
+                        </td>
 
-                            <td>
-                                <NavLink href="@TestTarget.BuildPath(test.TestId)">@test.TestId</NavLink>
-                            </td>
+                        <td>
+                            @test.State.State
+                        </td>
 
-                            <td>@test.Target.DisplayName</td>
+                        <td>
+                            <NavLink href="@TestTarget.BuildPath(test.TestId)">@test.TestId</NavLink>
+                        </td>
 
-                            <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString())</td>
+                        <td>@test.Target.DisplayName</td>
 
-                            <td>
-                                @switch (test.RunPlan.RunPlan)
-                                {
-                                    case RunPlan.Manual:
-                                        <span>Manual</span>
-                                        break;
-                                    case RunPlan.Periodic:
-                                        <span>
-                                            @(test.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())
-                                        </span>
-                                        break;
+                        <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString())</td>
 
-                                    default:
-                                        throw new NotSupportedException();
-                                }
-                            </td>
+                        <td>
+                            @switch (test.RunPlan.RunPlan)
+                            {
+                                case RunPlan.Manual:
+                                    <span>Manual</span>
+                                    break;
+                                case RunPlan.Periodic:
+                                    <span>
+                                        @(test.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())
+                                    </span>
+                                    break;
 
-                            <td>
-                                <NavLink href="@UI.Pages.Profile.BuildPath(test.Author.UserName)">@test.Author.UserName</NavLink>
-                            </td>
+                                default:
+                                    throw new NotSupportedException();
+                            }
+                        </td>
 
-                            <td>
-                                @switch (test.State.State)
-                                {
-                                    case State.JustCreated:
-                                    case State.Ready:
-                                        <InlineButton class="action-primary" @onclick="() => runAsync(test.TestId)">Run</InlineButton>
-                                        break;
-                                    case State.AwaitingStart:
-                                    case State.Running:
-                                        <InlineButton class="action-danger">Cancel</InlineButton>
-                                        break;
+                        <td>
+                            <NavLink href="@UI.Pages.Profile.BuildPath(test.Author.UserName)">@test.Author.UserName</NavLink>
+                        </td>
 
-                                    default:
-                                        throw new NotSupportedException();
-                                }
-                            </td>
-                        </tr>
+                        <td>
+                            @switch (test.State.State)
+                            {
+                                case State.JustCreated:
+                                case State.Ready:
+                                    <InlineButton class="action-primary" @onclick="() => runAsync(test.TestId)">Run</InlineButton>
+                                    break;
+                                case State.AwaitingStart:
+                                case State.Running:
+                                    <InlineButton class="action-danger">Cancel</InlineButton>
+                                    break;
+
+                                default:
+                                    throw new NotSupportedException();
+                            }
+                        </td>
+                    </tr>
                     }
                 </tbody>
             </table>

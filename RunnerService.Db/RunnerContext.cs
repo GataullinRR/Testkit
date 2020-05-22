@@ -22,11 +22,14 @@ namespace RunnerService.Db
             builder.Entity<TestRunInfo>()
                 .HasKey(r => r.TestSourceId);
 
+            builder.Entity<TestRunInfo>()
+                .HasKey(r => r.TestId);
+
             builder.Entity<StateBase>()
                 .Property<int>("_Id")
                 .UseIdentityColumn();
             builder.Entity<StateBase>()
-               .HasKey("_Id");
+                .HasKey("_Id");
             //builder.Entity<StateBase>()
             //    .Property(s => s.State)
             //    .UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -51,6 +54,16 @@ namespace RunnerService.Db
                 .HasValue<AbortedByUserResult>(RunResult.AbortedByUser)
                 .HasValue<RunnerErrorResult>(RunResult.RunnerError)
                 .HasValue<SUTErrorResult>(RunResult.SUTError);
+
+            builder.Entity<RunPlanBase>()
+                .Property<int>("_Id")
+                .UseIdentityColumn();
+            builder.Entity<RunPlanBase>()
+                .HasKey("_Id");
+            builder.Entity<RunPlanBase>()
+                .HasDiscriminator(r => r.RunPlan)
+                .HasValue<ManualRunPlan>(RunPlan.Manual)
+                .HasValue<PeriodicRunPlan>(RunPlan.Periodic);
 
             base.OnModelCreating(builder);
         }

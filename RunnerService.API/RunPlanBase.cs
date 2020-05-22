@@ -2,6 +2,11 @@
 {
     public abstract class RunPlanBase
     {
-        public abstract RunPlan RunPlan { get; }
+        protected RunPlanBase(RunPlan runPlan)
+        {
+            RunPlan = runPlan;
+        }
+
+        public RunPlan RunPlan { get; set; }
     }
 }

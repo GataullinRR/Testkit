@@ -5,6 +5,7 @@ package userservice.api;
 
 service RunnerService {
   rpc RunTest (RunTestRequest) returns (RunTestResponse);
+  rpc GetTestsInfo (GetTestsInfoRequest) returns (GetTestsInfoResponse);
 }
 
 message RunTestRequest {
@@ -12,4 +13,12 @@ message RunTestRequest {
 }
 message RunTestResponse {
   common.ResponseStatus status = 1;
+}
+
+message GetTestsInfoRequest {
+  repeated string tests_ids = 1;
+}
+message GetTestsInfoResponse {
+  common.ResponseStatus status = 1;
+  bytes infos = 2;
 }

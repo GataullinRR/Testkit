@@ -8,6 +8,7 @@ using Utilities;
 using Utilities.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace MessageHub
 {
@@ -16,11 +17,11 @@ namespace MessageHub
     {
         readonly ILogger<MessageConsumer> _logger;
 
-        public event Func<TestRecordedMessage, Task> TestRecordedAsync;
-        public event Func<TestExecutedMessage, Task> TestExecutedAsync;
-        public event Func<TestAcquiredMessage, Task> TestAcquiredAsync;
-        public event Func<TestCompletedMessage, Task> TestCompletedAsync;
-        public event Func<TestCompletedOnSourceMessage, Task> TestCompletedOnSourceAsync;
+        public event Func<TestRecordedMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
+        public event Func<TestExecutedMessage, Task> TestExecutedAsync = m => Task.CompletedTask;
+        public event Func<TestAcquiredMessage, Task> TestAcquiredAsync = m => Task.CompletedTask;
+        public event Func<TestCompletedMessage, Task> TestCompletedAsync = m => Task.CompletedTask;
+        public event Func<TestCompletedOnSourceMessage, Task> TestCompletedOnSourceAsync = m => Task.CompletedTask;
 
         public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options)
         {
@@ -28,7 +29,7 @@ namespace MessageHub
 
             var conf = new ConsumerConfig
             {
-                GroupId = "test-consumer-group",
+                GroupId = Assembly.GetEntryAssembly().FullName.GetHashCode().ToString(), //"test-consumer-group",
                 BootstrapServers = options.ServerURI,
                 // Note: The AutoOffsetReset property determines the start offset in the event
                 // there are not yet any committed offsets for the consumer group for the
