@@ -13,21 +13,20 @@ using Microsoft.AspNetCore.Components;
 
 namespace PresentationService.API
 {
-    [Service(ServiceLifetime.Scoped)]
-    class WebMessageHub : IWebMessageHub, IInitializibleService, IDisposable
+    [Service(ServiceLifetime.Transient)]
+    class WebMessageHub : IWebMessageHub, IDisposable
     {
+        readonly IDisposable _subscriptions;
+
         public event Func<TestRecordedWebMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
 
         [Inject] public IWebMessageHubConnectionProvider ConnectionProvider {get; set;}
 
-        public WebMessageHub()//IDependencyResolver di)
+        public WebMessageHub(IDependencyResolver di)
         {
-            //di.ResolveProperties(this);
-        }
+            di.ResolveProperties(this);
 
-        public async Task InitializeAsync()
-        {
-            ConnectionProvider.Connection.On<TestRecordedWebMessage>("TestRecorded", async (message) =>
+            _subscriptions = ConnectionProvider.Connection.On<TestRecordedWebMessage>("TestRecorded", async (message) =>
             {
                 await TestRecordedAsync.InvokeAndWaitAsync(message);
             });
@@ -35,7 +34,7 @@ namespace PresentationService.API
 
         public void Dispose()
         {
-            TestRecordedAsync = m => Task.CompletedTask;
+            _subscriptions.Dispose();
         }
     }
 }

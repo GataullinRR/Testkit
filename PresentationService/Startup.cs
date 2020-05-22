@@ -56,7 +56,7 @@ namespace PresentationService
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<GrpcService>().EnableGrpcWeb();
-                endpoints.MapHub<SignalRHub>("/SignalRHub");
+                endpoints.MapHub<SignalRHub>("/signalRHub");
             });
         }
     }

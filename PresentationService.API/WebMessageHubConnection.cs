@@ -11,11 +11,15 @@ namespace PresentationService.API
     {
         public HubConnection Connection { get; private set; }
 
-        public async Task InitializeAsync()
+        public WebMessageHubConnection()
         {
             Connection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:5011/SignalRHub")
+                .WithUrl("https://localhost:5011/signalRHub")
                 .Build();
+        }
+
+        public async Task InitializeAsync()
+        {
             await Connection.StartAsync();
         }
 

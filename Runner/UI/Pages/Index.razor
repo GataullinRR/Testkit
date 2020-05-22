@@ -1,5 +1,9 @@
 ﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationServiceCleint;
 @inject JsonSerializerSettings JsonSettings;
+@inject IWebMessageHub Hub;
+@inject IMessageService Messages;
+@inject NavigationManager NavigationManager
+@inject IAppInitializationAwaiter AppInitializer;
 @page "/"
 
 <TestsTable Tests="_tests"></TestsTable>
@@ -10,6 +14,13 @@
     IEnumerable<TestInfo> _tests;
 
     protected override async Task OnInitializedAsync()
+    {
+        await AppInitializer.AwaitInitializedAsync();
+
+        await loadTests();
+    }
+
+    async Task loadTests()
     {
         var response = await PresentationServiceCleint.ListTestsAsync(new PresentationService.API2.ListTestsRequest()
         {

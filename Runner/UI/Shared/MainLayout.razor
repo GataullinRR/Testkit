@@ -13,3 +13,12 @@
         @Body
     </div>
 </div>
+
+@code{
+    protected override async Task OnInitializedAsync()
+        {
+        await Task.Delay(10000);
+
+            await base.OnInitializedAsync();
+        }
+}
