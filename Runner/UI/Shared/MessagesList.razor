@@ -1,30 +1,16 @@
 ﻿@inject IMessageService MessageService
 
-<RootContainer UseVerticalPadding="false">
+<div class="col-12">
     @foreach (var msg in MessageService.Messages)
     {
-        <div class="message container-fluid">
-            <div class="row justify-content-center py-3">
-                <div class="col container-main">
-                    <div class="d-flex flex-sm-row d-flex">
-                        <div class="d-flex flex-sm-column flex-grow-1">
-                            <span>@msg.Text</span>
-                        </div>
-                        @*@foreach (var jsAction in Model.JSActions)
-                        {
-                            <div class="d-flex flex-sm-column align-self-center ml-2">
-                                <span><a href="" style="margin-right:10px" class="no-redirect" onclick="@jsAction.FunctionName">@jsAction.Name</a> |</span>
-                            </div>
-                        }*@
-                        <div class="d-flex flex-sm-column align-self-center ml-2">
-                            <InlineButton class="action-primary" style="float:right;" @onclick="() => close(msg)">Dismiss</InlineButton>
-                        </div>
-                    </div>
-                </div>
+        <div class="d-flex p-3 message">
+            <div class="flex-grow-1">@msg.Text</div>
+            <div class="ml-2">
+                <InlineButton class="action-primary" @onclick="() => close(msg)">Dismiss</InlineButton>
             </div>
         </div>
     }
-</RootContainer>
+</div>
 
 @code {
     protected override void OnInitialized()
