@@ -19,11 +19,6 @@ namespace RunnerService.Db
         {
             builder.Entity<TestRunInfo>()
                 .HasKey(r => r.TestId);
-            builder.Entity<TestRunInfo>()
-                .HasKey(r => r.TestSourceId);
-
-            builder.Entity<TestRunInfo>()
-                .HasKey(r => r.TestId);
 
             builder.Entity<StateBase>()
                 .Property<int>("_Id")

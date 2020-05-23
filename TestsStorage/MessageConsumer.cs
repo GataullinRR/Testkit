@@ -12,6 +12,8 @@ using TestsStorageService.Db;
 using Utilities;
 using Utilities.Types;
 using Utilities.Extensions;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestsStorageService
 {
@@ -30,25 +32,22 @@ namespace TestsStorageService
             consumer.TestAcquiredAsync += Consumer_TestAcquiredAsync;
         }
 
-        async Task Consumer_TestAcquiredAsync(TestAcquiredMessage arg)
+        async Task Consumer_TestAcquiredAsync(TestAcquiringResultMessage arg)
         {
-            Logger.LogTrace("Got test: {0}", arg.Test.DisplayName);
-
-            var testCase = new TestCase() 
-            { 
-                AuthorName = arg.OperationContext.UserName,
-                Id = arg.Test.CaseSourceId,
-                CaseInfo = arg.Test 
-            };
-
             using var scope = ScopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<TestsContext>();
-            await db.Cases.AddAsync(testCase);
+            var test = await db.Cases.FirstAsync(c => c.TestId == arg.TestId && c.State == TestCaseState.NotRecorded);
+            test.State = TestCaseState.Recorder;
+            test.Data = new TestCaseData()
+            {
+                Type = arg.TestType,
+                Data = arg.TestData
+            };
             await db.SaveChangesAsync();
 
             MessageProducer.FireTestRecorded(new TestRecordedMessage()
             {
-                TestId = testCase.Id
+                TestId = arg.TestId  
             });
         }
     }

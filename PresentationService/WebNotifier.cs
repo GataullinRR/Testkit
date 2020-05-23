@@ -28,10 +28,10 @@ namespace PresentationService
 
         async Task MessageConsumer_TestCompletedAsync(TestCompletedMessage arg)
         {
-           // var test = await getAuthorNameAsync(arg.TestId);
+            var test = await getAuthorNameAsync(arg.TestId);
            
             await Hub.Clients
-                .Group(arg.OperationContext.UserName)
+                .Group(test.AuthorName)
                 .TestCompleted(new TestCompletedWebMessage()
                 { 
                     TestId = arg.TestId, 
@@ -45,16 +45,16 @@ namespace PresentationService
 
             await Hub.Clients
                 .Group(test.AuthorName)
-                .TestRecorded(new TestRecordedWebMessage() { DisplayName = test.CaseInfo.DisplayName });
+                .TestRecorded(new TestRecordedWebMessage() { TestId = test.TestId });
         }
 
-        async Task<TestCase> getAuthorNameAsync(string testId)
+        async Task<TestsStorageService.Db.TestCase> getAuthorNameAsync(string testId)
         {
             var lstReq = new ListTestsDataRequest();
             lstReq.ByIds.Add(testId);
             var lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
-            return JsonConvert.DeserializeObject<TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings)[0];
+            return JsonConvert.DeserializeObject<TestsStorageService.Db.TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings)[0];
         }
     }
 }

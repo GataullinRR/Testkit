@@ -5,6 +5,17 @@ package userservice.api;
 
 service TestsStorageService {
   rpc ListTestsData (ListTestsDataRequest) returns (ListTestsDataResponse);
+  rpc TryCreateTest (TryCreateTestRequest) returns (TryCreateTestResponse);
+}
+
+message TryCreateTestRequest {
+  string test_id = 1;
+  string display_name = 2;
+  string author = 3;
+}
+message TryCreateTestResponse {
+  common.ResponseStatus status = 1;
+  bool is_already_added = 2;
 }
 
 message ListTestsDataRequest {
@@ -12,7 +23,6 @@ message ListTestsDataRequest {
   common.UIntRange by_range = 2; // oneof
   repeated string by_ids = 3;
 }
-
 message ListTestsDataResponse {
   common.ResponseStatus status = 1;
   bytes tests = 2;

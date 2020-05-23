@@ -20,7 +20,7 @@ namespace MessageHub
 
         public event Func<TestRecordedMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
         public event Func<TestExecutedMessage, Task> TestExecutedAsync = m => Task.CompletedTask;
-        public event Func<TestAcquiredMessage, Task> TestAcquiredAsync = m => Task.CompletedTask;
+        public event Func<TestAcquiringResultMessage, Task> TestAcquiredAsync = m => Task.CompletedTask;
         public event Func<TestCompletedMessage, Task> TestCompletedAsync = m => Task.CompletedTask;
         public event Func<TestCompletedOnSourceMessage, Task> TestCompletedOnSourceAsync = m => Task.CompletedTask;
 
@@ -49,9 +49,9 @@ namespace MessageHub
                 .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
                 .SetValueDeserializer(new JsonNETKafkaSerializer<TestRecordedMessage>(serializerSettings))
                 .Build();
-            var testAcquired = new ConsumerBuilder<Ignore, TestAcquiredMessage>(conf)
+            var testAcquired = new ConsumerBuilder<Ignore, TestAcquiringResultMessage>(conf)
                 .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
-                .SetValueDeserializer(new JsonNETKafkaSerializer<TestAcquiredMessage>(serializerSettings))
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestAcquiringResultMessage>(serializerSettings))
                 .Build();
             var testCompleted = new ConsumerBuilder<Ignore, TestCompletedMessage>(conf)
                 .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))

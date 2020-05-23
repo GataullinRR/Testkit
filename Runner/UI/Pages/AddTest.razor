@@ -3,45 +3,51 @@
 @inject IMessageService Messages;
 @page "/add-case"
 
-    <RootContainer>
-        <FormBase Title="Lookup parameters" ButtonName="Add" Model="Model" Fields="_fields" OnSubmit="onSubmit">
+<RootContainer>
+    <FormTemplate Model="_model" OnSubmit="onSubmit">
+        <FormHeader Name="Test information"/>
+        <FormTextInput Name="Id" @bind-Value="@_model.Id"/>
+        <FormTextInput Name="Description" @bind-Value="_model.Description"/>
 
-        </FormBase>
-    </RootContainer>
+        <FormHeader Name="Lookup parameters"/>
+        <FormTextInput Name="UserId" @bind-Value="_model.UserId"/>
 
-    @code {
-        public static string BuildPath()
-        {
-            return $"/add-case";
-        }
+        <FormValidator/>
 
-        class LookupParameters
-        {
-            public string UserId { get; set; } = "EX1";
-        }
+        <FormSubmitButton Name="Add"/>
+    </FormTemplate>
+</RootContainer>
 
-        LookupParameters Model { get; set; } = new LookupParameters();
-
-        IEnumerable<FormBase.Field> _fields { get; set; }
-
-        protected override void OnInitialized()
-        {
-            _fields = new FormBase.Field[]
-            {
-            new FormBase.Field("UserId", @<InputText class="form-control" @bind-Value="Model.UserId" />),
-            };
-
-            base.OnInitialized();
-        }
-
-        async void onSubmit()
-        {
-            var request = new PresentationService.API2.BeginRecordingRequest();
-            request.Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "";
-            request.Filter.Add("UserId", Model.UserId);
-
-            var response = await PresentationServiceCleint.BeginRecordingAsync(request);
-
-            Messages.AddMessage(response.Status.Code.ToString());
-        }
+@code {
+    public static string BuildPath()
+    {
+        return $"/add-case";
     }
+
+    class LookupParameters
+    {
+        [Required]
+        public string Id { get; set; }
+
+        [Required]
+        public string Description { get; set; }
+
+        [Required]
+        public string UserId { get; set; }
+    }
+
+    readonly LookupParameters _model = new LookupParameters();
+
+    async void onSubmit()
+    {
+        var request = new PresentationService.API2.BeginRecordingRequest();
+        request.Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "";
+        request.DisplayName = _model.Description;
+        request.TestId = _model.Id;
+        request.Filter.Add("UserId", _model.UserId);
+
+        var response = await PresentationServiceCleint.BeginRecordingAsync(request);
+
+        Messages.AddMessage(response.Status.Code.ToString());
+    }
+}

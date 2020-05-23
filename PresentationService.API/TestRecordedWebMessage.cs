@@ -2,6 +2,6 @@
 {
     public class TestRecordedWebMessage
     {
-        public string DisplayName { get; set; }
+        public string TestId { get; set; }
     };
 }

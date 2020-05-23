@@ -1,5 +1,5 @@
-﻿<FormBase Title="Sign in" ButtonName="Sign in!" Model="_model" Fields="_fields" OnSubmit="onSubmit">
-    <InlineButton @onclick="OnRegistrationRequest">I don't have an account :(</InlineButton>
+﻿<FormBase Title="Sign in" ButtonName="Sign in!" Model="_model" Entries="_fields" OnSubmit="onSubmit">
+    <InlineButton @onclick="OnRegistrationRequest">I don't have an account</InlineButton>
 </FormBase>
 
 @code {
@@ -10,7 +10,7 @@
 
     readonly SignInPresentationModel _model = new SignInPresentationModel();
 
-    IEnumerable<FormBase.Field> _fields { get; set; }
+    IEnumerable<FormBase.FieldEntry> _fields { get; set; }
 
     [Parameter]
     public Action<SignInPresentationModel> OnSubmit { get; set; } = delegate { };
@@ -20,10 +20,10 @@
 
     protected override void OnInitialized()
     {
-        _fields = new FormBase.Field[]
+        _fields = new FormBase.FieldEntry[]
         {
-            new FormBase.Field("Your name", @<InputText class="form-control" @bind-Value="_model.UserName" />),
-            new FormBase.Field("Password", @<InputText class="form-control" type="password" @bind-Value="_model.Password" />)
+            new FormBase.FieldEntry("Your name", @<InputText class="form-control" @bind-Value="_model.UserName" />),
+            new FormBase.FieldEntry("Password", @<InputText class="form-control" type="password" @bind-Value="_model.Password" />)
         };
 
         base.OnInitialized();

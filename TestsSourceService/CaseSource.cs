@@ -26,7 +26,6 @@ namespace ExampleTestsSourceService
                     {
                         "EX1" => new CSTestCaseInfo()
                         {
-                            CaseSourceId = "La1",
                             Data = "Hello1".GetASCIIBytes(),
                             DisplayName = "EX1 Case",
                             TargetType = "UI.OrderForm",
@@ -34,7 +33,6 @@ namespace ExampleTestsSourceService
 
                         "EX2" => new CSTestCaseInfo()
                         {
-                            CaseSourceId = "La2",
                             Data = "Hello2".GetASCIIBytes(),
                             DisplayName = "EX2 Case",
                             TargetType = "Microservice.Order",
@@ -44,7 +42,6 @@ namespace ExampleTestsSourceService
                     };
                     testCase = testCase ?? new CSTestCaseInfo()
                     {
-                        CaseSourceId = "" + kvp.Value,
                         DisplayName = "Case with user:" + kvp.Value,
                         Data = ("Case with user:" + kvp.Value).GetASCIIBytes(),
                         TargetType = "None"

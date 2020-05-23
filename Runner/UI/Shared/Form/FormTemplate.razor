@@ -1,0 +1,18 @@
+﻿<div class="form-sm align-middle">
+    <div class="container">
+        <EditForm Model="Model" OnValidSubmit="OnSubmit">
+            @ChildContent
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public object Model { get; set; } = new object();
+
+    [Parameter]
+    public Action OnSubmit { get; set; } = delegate { };
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

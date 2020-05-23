@@ -7,9 +7,6 @@ namespace TestsStorageService.API
     public class CSTestCaseInfo
     {
         [Required]
-        public string CaseSourceId { get; set; }
-
-        [Required]
         public string DisplayName { get; set; }
 
         [Required]

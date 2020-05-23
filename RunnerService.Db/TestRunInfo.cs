@@ -8,9 +8,6 @@ namespace RunnerService.Db
         [Key]
         public string TestId { get; set; }
 
-        [Key]
-        public string TestSourceId { get; set; }
-
         public RunResultBase LastRun { get; set; }
         
         [Required]

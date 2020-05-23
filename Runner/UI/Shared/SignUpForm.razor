@@ -1,5 +1,5 @@
-﻿<FormBase Title="Registration" ButtonName="Sign me up!" Model="_model" Fields="_fields" OnSubmit="onSubmit">
-    <InlineButton @onclick="OnSignInRequest">I already have an account!</InlineButton>
+﻿<FormBase Title="Registration" ButtonName="Sign me up!" Model="_model" Entries="_fields" OnSubmit="onSubmit">
+    <InlineButton @onclick="OnSignInRequest">I already have an account</InlineButton>
 </FormBase>
 
 @code {
@@ -11,7 +11,7 @@
 
     SignUpPresentationModel _model { get; } = new SignUpPresentationModel();
 
-    IEnumerable<FormBase.Field> _fields { get; set; }
+    IEnumerable<FormBase.FieldEntry> _fields { get; set; }
 
     [Parameter]
     public Action<SignUpPresentationModel> OnSubmit { get; set; } = delegate { };
@@ -21,13 +21,13 @@
 
     protected override void OnInitialized()
     {
-        _fields = new FormBase.Field[]
+        _fields = new FormBase.FieldEntry[]
         {
-            new FormBase.Field("Your name", @<InputText class="form-control" @bind-Value="_model.UserName" />),
-            new FormBase.Field("Password", @<InputText class="form-control" type="password" @bind-Value="_model.Password" />),
-            new FormBase.Field("Password confirmation", @<InputText type="password" class="form-control" @bind-Value="_model.PasswordConfirmation" />),
-            new FormBase.Field("E-Mail", @<InputText class="form-control" @bind-Value="_model.Email" />),
-            new FormBase.Field("Phone", @<InputText class="form-control" @bind-Value="_model.Phone" />),
+            new FormBase.FieldEntry("Your name", @<InputText class="form-control" @bind-Value="_model.UserName" />),
+            new FormBase.FieldEntry("Password", @<InputText class="form-control" type="password" @bind-Value="_model.Password" />),
+            new FormBase.FieldEntry("Password confirmation", @<InputText type="password" class="form-control" @bind-Value="_model.PasswordConfirmation" />),
+            new FormBase.FieldEntry("E-Mail", @<InputText class="form-control" @bind-Value="_model.Email" />),
+            new FormBase.FieldEntry("Phone", @<InputText class="form-control" @bind-Value="_model.Phone" />),
         };
 
         base.OnInitialized();

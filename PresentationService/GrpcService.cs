@@ -61,10 +61,10 @@ namespace PresentationService
             });
 
             var ff = JsonConvert
-                .DeserializeObject<TestCase[]>(tests.Tests.ToStringUtf8())
-                .OrderBy(t => t.Id);
+                .DeserializeObject<TestsStorageService.Db.TestCase[]>(tests.Tests.ToStringUtf8())
+                .OrderBy(t => t.TestId);
 
-            var testsIds = ff.Select(c => c.Id).ToArray();
+            var testsIds = ff.Select(c => c.TestId).ToArray();
             var getInfosR = new RunnerService.API.GetTestsInfoRequest();
             getInfosR.TestsIds.AddRange(testsIds);
             var getInfosResp = await RunnerService.GetTestsInfoAsync(getInfosR);
@@ -86,12 +86,13 @@ namespace PresentationService
                 {
                     yield return new TestInfo()
                     {
-                        TestId = info.Case.Id,
+                        TestId = info.Case.TestId,
                         Author = new CSUserInfo() { UserName = info.Case.AuthorName },
-                        Target = info.Case.CaseInfo,
+                        Target = new CSTestCaseInfo() {  DisplayName = info.Case.DisplayName, TargetType = info.Case?.Data?.Type },
                         State = info.RunInfo.State,
                         LastResult = info.RunInfo.LastRun,
-                        RunPlan = info.RunInfo.RunPlan
+                        RunPlan = info.RunInfo.RunPlan,
+                        CreationState = info.Case.State
                     };
                 }
             }
@@ -105,7 +106,7 @@ namespace PresentationService
 
             var response = new BeginRecordingResponse()
             {
-                Status = new Protobuf.ResponseStatus()
+                Status = new ResponseStatus()
             };
 
             var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest() { Token = request.Token });
@@ -113,14 +114,27 @@ namespace PresentationService
             {
                 var userInfResp = await UserService.GetUserInfoAsync(new  GetUserInfoRequest() { Token = request.Token });
 
-                var beginRecReq = new TestsSourceService.API.BeginRecordingRequest();
-                beginRecReq.Filter.Add(request.Filter);
-                beginRecReq.OperationContext = new OperationContext();
-                beginRecReq.OperationContext.UserName = userInfResp.UserName;
-                beginRecReq.OperationContext.OperationId = DateTime.UtcNow.Ticks.ToString();
-                var recResult = await TestsSourceService.BeginRecordingAsync(beginRecReq);
+                var crTestReq = new TryCreateTestRequest()
+                {
+                    Author = userInfResp.UserName,
+                    DisplayName = request.DisplayName,
+                    TestId = request.TestId
+                };
+                var crTestResp = await TestsStorageService.TryCreateTestAsync(crTestReq);
+                if (crTestResp.IsAlreadyAdded)
+                {
+                    response.Status.Code = Protobuf.StatusCode.Error;
+                    response.Status.Description = $"Test with id \"{request.TestId}\" already exists";
+                }
+                else
+                {
+                    var beginRecReq = new TestsSourceService.API.BeginRecordingRequest();
+                    beginRecReq.Filter.Add(request.Filter);
+                    beginRecReq.TestId = request.TestId;
+                    var recResult = await TestsSourceService.BeginRecordingAsync(beginRecReq);
 
-                response.Status = recResult.Status;
+                    response.Status = recResult.Status;
+                }
             }
             else
             {
@@ -140,13 +154,10 @@ namespace PresentationService
             var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest() { Token = request.Token });
             if (result.Valid)
             {
-                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest() { Token = request.Token });
+                //var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest() { Token = request.Token });
 
                 var runReq = new RunnerService.API.RunTestRequest();
                 runReq.TestId = request.TestId;
-                runReq.Context = new OperationContext();
-                runReq.Context.UserName = userInfResp.UserName;
-                runReq.Context.OperationId = DateTime.UtcNow.Ticks.ToString();
                 var runResponse = await RunnerService.RunTestAsync(runReq);
 
                 response.Status.Code = runResponse.Status.Code;

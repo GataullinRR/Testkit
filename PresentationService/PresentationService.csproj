@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -20,6 +20,7 @@
     <ProjectReference Include="..\Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
+    <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
   </ItemGroup>
 

@@ -19,7 +19,7 @@ namespace TestsStorageService.Db
         {
             builder
                 .Entity<TestCase>()
-                .OwnsOne(p => p.CaseInfo);
+                .OwnsOne(p => p.Data);
 
             base.OnModelCreating(builder);
         }

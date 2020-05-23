@@ -10,7 +10,6 @@ service RunnerService {
 
 message RunTestRequest {
   string test_id = 1;
-  common.OperationContext context = 2;
 }
 message RunTestResponse {
   common.ResponseStatus status = 1;

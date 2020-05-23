@@ -16,7 +16,7 @@ namespace MessageHub
 
         readonly IProducer<Null, TestRecordedMessage> _testRecordedProducer;
         readonly IProducer<Null, TestExecutedMessage> _testExecutedProducer;
-        readonly IProducer<Null, TestAcquiredMessage> _testAcquiredProducer;
+        readonly IProducer<Null, TestAcquiringResultMessage> _testAcquiredProducer;
         readonly IProducer<Null, TestCompletedMessage> _testCompletedProducer;
         readonly IProducer<Null, TestCompletedOnSourceMessage> _testCompletedOnSourceProducer;
 
@@ -35,9 +35,9 @@ namespace MessageHub
                 .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
                 .SetValueSerializer(new JsonNETKafkaSerializer<TestExecutedMessage>(serializerSettings))
                 .Build();
-            _testAcquiredProducer = new ProducerBuilder<Null, TestAcquiredMessage>(conf)
+            _testAcquiredProducer = new ProducerBuilder<Null, TestAcquiringResultMessage>(conf)
                 .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
-                .SetValueSerializer(new JsonNETKafkaSerializer<TestAcquiredMessage>(serializerSettings))
+                .SetValueSerializer(new JsonNETKafkaSerializer<TestAcquiringResultMessage>(serializerSettings))
                 .Build();
             _testCompletedProducer = new ProducerBuilder<Null, TestCompletedMessage>(conf)
                 .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
@@ -63,16 +63,16 @@ namespace MessageHub
             _testRecordedProducer.Produce(_options.TestRecordedTopic, new Message<Null, TestRecordedMessage> { Value = args });
         }
 
-        public void FireTestAcquired(TestAcquiredMessage args)
+        public void FireTestAcquired(TestAcquiringResultMessage args)
         {
             _logger.LogTrace("Sending: {0}", args);
 
-            Action<DeliveryReport<Null, TestAcquiredMessage>> handler = r =>
+            Action<DeliveryReport<Null, TestAcquiringResultMessage>> handler = r =>
             Console.WriteLine(!r.Error.IsError
                 ? $"Delivered message to {r.TopicPartitionOffset}"
                 : $"Delivery Error: {r.Error.Reason}");
 
-            _testAcquiredProducer.Produce(_options.TestAcquiredTopic, new Message<Null, TestAcquiredMessage> { Value = args }, handler);
+            _testAcquiredProducer.Produce(_options.TestAcquiredTopic, new Message<Null, TestAcquiringResultMessage> { Value = args }, handler);
         }
 
         public void FireTestCompleted(TestCompletedMessage args)

@@ -34,7 +34,7 @@ namespace RunnerService
                 .Include(r => r.LastRun)
                 .Include(r => r.State)
                 .Include(r => r.RunPlan)
-                .FirstAsync(r => r.TestSourceId == arg.TestSourceId);
+                .FirstAsync(r => r.TestId == arg.TestId);
             runInfo.LastRun = arg.Result;
             runInfo.State = new ReadyState();
             await db.SaveChangesAsync();
@@ -47,9 +47,8 @@ namespace RunnerService
 
             MessageProducer.FireTestCompleted(new TestCompletedMessage() 
             { 
-                OperationContext = arg.OperationContext,
                 TestId = runInfo.TestId, 
-                Result = runInfo.LastRun 
+                Result = runInfo.LastRun
             });
         }
     }

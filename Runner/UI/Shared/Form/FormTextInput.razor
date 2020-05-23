@@ -1,0 +1,30 @@
+﻿@using System.Linq.Expressions;
+
+<div class="row mb-2">
+    <div class="col-md-7 my-auto">
+        <label>@Name</label>
+    </div>
+
+    <div class="col-md-5">
+        <InputText class="form-control" @attributes="@AdditionalAttributes" Value="@Value" ValueChanged="@ValueChanged" ValueExpression="@ValueExpression"/>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public string Name { get; set; }
+
+    // from https://github.com/dotnet/aspnetcore/issues/8386
+    [Parameter] 
+    public string Value { get; set; }
+
+    [Parameter] 
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter] 
+    public Expression<Func<string>> ValueExpression { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
+}

@@ -27,7 +27,7 @@ namespace Runner
 
         async Task WebMessageHub_TestRecordedAsync(TestRecordedWebMessage arg)
         {
-            MessageService.AddMessage($"\"{arg.DisplayName}\" has been added");
+            MessageService.AddMessage($"\"{arg.TestId}\" has been added");
         }
     }
 }

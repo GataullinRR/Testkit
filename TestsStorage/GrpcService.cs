@@ -33,12 +33,14 @@ namespace TestsStorageService
                 Status = new Protobuf.ResponseStatus()
             };
 
+            var cases = Db.Cases
+                .AsNoTracking()
+                .OrderByDescending(c => c.CreationDate);
             if (request.ByIds.Count > 0)
             {
                 var ids = request.ByIds.ToArray();
-                var result = await Db.Cases
-                    .AsNoTracking()
-                    .Where(c => ids.Contains(c.Id))
+                var result = await cases
+                    .Where(c => ids.Contains(c.TestId))
                     .ToArrayAsync();
                 var serialized = JsonConvert.SerializeObject(result);
 
@@ -48,14 +50,41 @@ namespace TestsStorageService
             {
                 var count = ((int)request.ByRange.To - (int)request.ByRange.From)
                     .NegativeToZero();
-                var result = await Db.Cases
-                    .AsNoTracking()
-                    .OrderBy(e => e.Id)
+                var result = await cases
                     .Take(count)
                     .ToArrayAsync();
                 var serialized = JsonConvert.SerializeObject(result);
 
                 response.Tests = ByteString.CopyFromUtf8(serialized);
+            }
+
+            return response;
+        }
+
+        public override async Task<TryCreateTestResponse> TryCreateTest(TryCreateTestRequest request, ServerCallContext context)
+        {
+            var response = new TryCreateTestResponse()
+            {
+                Status = new Protobuf.ResponseStatus()
+            };
+
+            bool exists = await Db.Cases.AnyAsync(c => c.TestId == request.TestId);
+            if (exists)
+            {
+                response.IsAlreadyAdded = true;
+                response.Status.Code = Protobuf.StatusCode.Error;
+            }
+            else
+            {
+                await Db.Cases.AddAsync(new Db.TestCase()
+                {
+                    TestId = request.TestId,
+                    AuthorName = request.Author,
+                    DisplayName = request.DisplayName,
+                    State = TestCaseState.NotRecorded,
+                    CreationDate = DateTime.UtcNow,
+                });
+                await Db.SaveChangesAsync();
             }
 
             return response;

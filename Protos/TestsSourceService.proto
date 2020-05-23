@@ -9,7 +9,7 @@ service TestsSourceService {
 }
 
 message BeginRecordingRequest {
-  common.OperationContext operation_context = 1;
+  string test_id = 1;
   map<string, string> filter = 2;
 }
 message BeginRecordingResponse {
@@ -17,8 +17,8 @@ message BeginRecordingResponse {
 }
 
 message BeginTestRequest {
-  common.OperationContext operation_context = 1;
-  string test_source_id = 2;
+  string test_id = 1;
+  string test_type = 2;
   bytes test_data = 3;
 }
 message BeginTestResponse {

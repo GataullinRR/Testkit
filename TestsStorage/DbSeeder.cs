@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using TestsStorageService.API;
@@ -15,43 +16,41 @@ namespace UserService
         {
             if (db.Cases.Count() == 0)
             {
-                db.Cases.AddRange(new TestCase[]
+                db.Cases.AddRange(new TestsStorageService.Db.TestCase[]
                 {
-                    new TestCase()
+                    new TestsStorageService.Db.TestCase()
                     {
-                         Id = "RP001",
+                         TestId = "RP001.C1",
                          AuthorName = "GataullinRR",
-                         CaseInfo = new TestsStorageService.API.CSTestCaseInfo()
-                         {
-                             CaseSourceId = "7710",
-                             DisplayName = "RussiaPost package status checker service",
-                             Data = "LaLaLa".GetASCIIBytes(),
-                             TargetType = "REST"
-                         },
+                         CreationDate = DateTime.UtcNow.AddDays(-100),
+                         DisplayName = "RussiaPost package status checker service",
+                         State = TestCaseState.NotRecorded,
                     },
-                    new TestCase()
+                    new TestsStorageService.Db.TestCase()
                     {
-                         Id = "B9123",
-                         AuthorName = "LibovskyKM",
-                         CaseInfo = new TestsStorageService.API.CSTestCaseInfo()
-                         {
-                             CaseSourceId = "S989-221",
-                             DisplayName = "Bugfix #12 check",
-                             Data = "HiHiHi".GetASCIIBytes(),
-                             TargetType = "REST"
-                         },
+                        TestId = "B9123",
+                        AuthorName = "LibovskyKM",
+                        CreationDate = DateTime.UtcNow.AddDays(0),
+                        DisplayName = "Bugfix #12 check",
+                        State = TestCaseState.Recorder,
+                        Data = new TestCaseData()
+                        {
+                            Type = "REST",
+                            Data = "HiHiHi".GetASCIIBytes(),
+                        }
                     },
-                    new TestCase()
+                    new TestsStorageService.Db.TestCase()
                     {
-                         Id = "B3133",
-                         AuthorName = "AA",
-                         CaseInfo = new TestsStorageService.API.CSTestCaseInfo()
-                         {
-                             CaseSourceId = "921",
-                             DisplayName = "Delivery status does not updates on order cancel",
-                             Data = "MeMeMe".GetASCIIBytes(),
-                             TargetType = "UI"
-                         },
+                        TestId = "RP001.C2",
+                        AuthorName = "AA",
+                        CreationDate = DateTime.UtcNow.AddDays(0),
+                        DisplayName = "Delivery status does not updates on order cancel",
+                        State = TestCaseState.Recorder,
+                        Data = new TestCaseData()
+                        {
+                            Type = "UI",
+                            Data = "MeMeMe".GetASCIIBytes(),
+                        }
                     }
                 });
 

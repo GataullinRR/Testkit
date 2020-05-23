@@ -5,9 +5,10 @@
         </div>
 
         <EditForm Model="@Model" OnValidSubmit="OnSubmit">
-            @foreach (var kvp in Fields)
+            @foreach (var kvp in Entries)
             {
-                <div class="row mb-2">
+                @kvp.GetFragment()
+                @*<div class="row mb-2">
                     <div class="@LABEL_COL_CLASS">
                         <label>@kvp.Name</label>
                     </div>
@@ -15,7 +16,7 @@
                     <div class="@INPUT_COL_CLASS">
                         @kvp.Input
                     </div>
-                </div>
+                </div>*@
             }
 
             <div class="row">
@@ -35,15 +36,48 @@
 </div>
 
 @code {
-    public class Field
+    public abstract class Entry
+    {
+        public abstract RenderFragment GetFragment();
+    }
+
+    public class FieldEntry : Entry
     {
         public string Name { get; }
         public RenderFragment Input { get; }
 
-        public Field(string name, RenderFragment input)
+        public FieldEntry(string name, RenderFragment input)
         {
             Name = name;
             Input = input;
+        }
+
+        public override RenderFragment GetFragment()
+        {
+            return@<div class="row mb-2">
+        <div class="@LABEL_COL_CLASS">
+            <label>@Name</label>
+        </div>
+
+        <div class="@INPUT_COL_CLASS">
+            @Input
+        </div>
+    </div>;
+        }
+    }
+
+    public class HeaderEntry : Entry
+    {
+        public string Name { get; }
+
+        public HeaderEntry(string name)
+        {
+            Name = name;
+        }
+
+        public override RenderFragment GetFragment()
+        {
+            return @<div class="row mb-2"><h3>@Name</h3></div>;
         }
     }
 
@@ -60,7 +94,7 @@
     public string ButtonName { get; set; } = "Submit";
 
     [Parameter]
-    public IEnumerable<Field> Fields { get; set; } = new Field[0];
+    public IEnumerable<Entry> Entries { get; set; } = new Entry[0];
 
     [Parameter]
     public Action OnSubmit { get; set; } = delegate { };

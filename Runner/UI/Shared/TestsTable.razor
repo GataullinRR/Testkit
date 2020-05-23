@@ -15,7 +15,7 @@ else
                     <tr>
                         <th>Last result</th>
                         <th>State</th>
-                        <th>Target</th>
+                        <th>Test Id</th>
                         <th>Description</th>
                         <th>Last run</th>
                         <th>Next run</th>
@@ -36,7 +36,14 @@ else
                             </td>
 
                             <td>
-                                @test.State.State
+                                @if (test.CreationState == TestsStorageService.Db.TestCaseState.NotRecorded)
+                                {
+                                    <span>NotRecorded</span>
+                                }
+                                else
+                                {
+                                    @test.State.State
+                                }
                             </td>
 
                             <td>
@@ -45,7 +52,7 @@ else
 
                             <td>@test.Target.DisplayName</td>
 
-                            <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString())</td>
+                            <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString("hh:mm:ss dd.MM.yyyy"))</td>
 
                             <td>
                                 @switch (test.RunPlan.RunPlan)
@@ -69,20 +76,23 @@ else
                             </td>
 
                             <td>
-                                @switch (test.State.State)
+                                @if (test.CreationState == TestsStorageService.Db.TestCaseState.Recorder)
                                 {
-                                    case State.JustCreated:
-                                    case State.Ready:
-                                        <InlineButton class="action-primary" @onclick="() => runAsync(test.TestId)">Run</InlineButton>
-                                        break;
-                                    case State.AwaitingStart:
-                                    case State.Running:
-                                        @*<InlineButton class="action-danger">Cancel</InlineButton>*@
-                                        <span>Running...</span>
-                                        break;
+                                    @switch (test.State.State)
+                                    {
+                                        case State.JustCreated:
+                                        case State.Ready:
+                                            <InlineButton class="action-primary" @onclick="() => runAsync(test.TestId)">Run</InlineButton>
+                                            break;
+                                        case State.AwaitingStart:
+                                        case State.Running:
+                                            @*<InlineButton class="action-danger">Cancel</InlineButton>*@
+                                            <span>Running...</span>
+                                            break;
 
-                                    default:
-                                        throw new NotSupportedException();
+                                        default:
+                                            throw new NotSupportedException();
+                                    }
                                 }
                             </td>
                         </tr>

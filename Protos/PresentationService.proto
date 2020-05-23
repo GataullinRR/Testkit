@@ -21,7 +21,9 @@ message ListTestsResponse {
 
 message BeginRecordingRequest {
   string token = 1;
-  map<string, string> filter = 2;
+  string test_id = 2;
+  string display_name = 3;
+  map<string, string> filter = 4;
 }
 message BeginRecordingResponse {
   common.ResponseStatus status = 1;

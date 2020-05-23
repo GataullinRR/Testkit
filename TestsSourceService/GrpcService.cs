@@ -36,17 +36,19 @@ namespace ExampleTestsSourceService
             if (testCase == null)
             {
                 response.Status.Code = Protobuf.StatusCode.NotFound;
+
+                MessageProducer.FireTestAcquired(new TestAcquiringResultMessage()
+                {
+                    ResultCode = AcquiringResult.TargetNotFound
+                });
             }
             else
             {
-                MessageProducer.FireTestAcquired(new TestAcquiredMessage() 
+                MessageProducer.FireTestAcquired(new TestAcquiringResultMessage()
                 {
-                    OperationContext = new MessageHub.OperationContext()
-                    {
-                         OperationId = request.OperationContext.OperationId,
-                         UserName = request.OperationContext.UserName,
-                    },
-                    Test = testCase
+                    TestId = request.TestId,
+                    TestData = testCase.Data,
+                    TestType = testCase.TargetType,
                 });
             }
 
@@ -60,7 +62,7 @@ namespace ExampleTestsSourceService
                 Status = new Protobuf.ResponseStatus()
             };
 
-            if (request.TestSourceId == "ER1")
+            if (request.TestId == "ER1")
             {
                 response.Status.Code = Protobuf.StatusCode.Error;
             }
@@ -68,12 +70,7 @@ namespace ExampleTestsSourceService
             {
                 MessageProducer.FireTestCompletedOnSource(new TestCompletedOnSourceMessage()
                 {
-                    OperationContext = new MessageHub.OperationContext()
-                    {
-                        OperationId = request.OperationContext.OperationId,
-                        UserName = request.OperationContext.UserName,
-                    },
-                    TestSourceId = request.TestSourceId,
+                    TestId = request.TestId,
                     Result = new PassedResult()
                     {
                         StartTime = DateTime.UtcNow,

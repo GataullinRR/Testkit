@@ -42,7 +42,7 @@ namespace RunnerService
             listRequest.ByIds.Add(request.TestId);
             listRequest.IncludeData = true;
             var listResponse = await TestsStorageService.ListTestsDataAsync(listRequest);
-            var caseInfo = JsonConvert.DeserializeObject<TestCase[]>(listResponse.Tests.ToStringUtf8(), JsonSettings)[0];
+            var caseInfo = JsonConvert.DeserializeObject<global::TestsStorageService.Db.TestCase[]>(listResponse.Tests.ToStringUtf8(), JsonSettings)[0];
 
             var test = await Db.TestRuns
                 .Include(r => r.State)
@@ -56,7 +56,6 @@ namespace RunnerService
                     State = new JustCreatedState(),
                     LastRun = null,
                     TestId = request.TestId,
-                    TestSourceId = caseInfo.CaseInfo.CaseSourceId,
                     RunPlan = new ManualRunPlan()
                 };
 
@@ -70,9 +69,9 @@ namespace RunnerService
                 await Db.SaveChangesAsync();
 
                 var beginRequest = new TestsSourceService.API.BeginTestRequest();
-                beginRequest.TestData = ByteString.CopyFrom(caseInfo.CaseInfo.Data);
-                beginRequest.TestSourceId = caseInfo.CaseInfo.CaseSourceId;
-                beginRequest.OperationContext = request.Context;
+                beginRequest.TestData = ByteString.CopyFrom(caseInfo.Data.Data);
+                beginRequest.TestType = caseInfo.Data.Type;
+                beginRequest.TestId = request.TestId;
                 var beginResponse = await TestsSourceService.BeginTestAsync(beginRequest);
             }
 
@@ -108,13 +107,12 @@ namespace RunnerService
                 var lstReq = new ListTestsDataRequest();
                 lstReq.ByIds.AddRange(missingIds);
                 var lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
-                var tests = JsonConvert.DeserializeObject<TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings);
+                var tests = JsonConvert.DeserializeObject<TestsStorageService.Db.TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings);
 
                 var missingRunInfos = tests
                     .Select(ti => new TestRunInfo()
                     {
-                        TestId = ti.Id,
-                        TestSourceId = ti.CaseInfo.CaseSourceId,
+                        TestId = ti.TestId,
                         State = new JustCreatedState(),
                         RunPlan = new ManualRunPlan(),
                         LastRun = null,
