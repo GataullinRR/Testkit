@@ -9,28 +9,18 @@ enum StatusCode {
   NotFound = 3;
 }
 
-message ResponseStatus {
+message GResponseStatus {
   StatusCode code = 1;
   string Description = 2;
-  repeated ValidationResult errors = 3;
+  repeated GValidationResult errors = 3;
 }
 
-message ValidationResult {
+message GValidationResult {
   string error_message = 1;
   repeated string member_names = 2; 
 }
 
-message Range {
+message GRange {
   int32 from = 1;
   int32 to = 2; 
-}
-
-message UIntRange {
-  uint32 from = 1;
-  uint32 to = 2; 
-}
-
-message OperationContext {
-  string operation_id = 1;
-  string user_name = 2;
 }

@@ -6,10 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <PackageReference Include="Grpc.Core" Version="2.29.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="3.1.4" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
+    <ProjectReference Include="..\..\GeneralPurposeLibs\Vectors\Vectors\Vectors.csproj" />
+    <ProjectReference Include="..\Protos\Protos.csproj" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
+    <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />

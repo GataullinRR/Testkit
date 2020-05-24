@@ -31,14 +31,14 @@ namespace RunnerService
             di.ResolveProperties(this);
         }
 
-        public override async Task<RunTestResponse> RunTest(RunTestRequest request, ServerCallContext context)
+        public override async Task<GRunTestResponse> RunTest(GRunTestRequest request, ServerCallContext context)
         {
-            var response = new RunTestResponse()
+            var response = new GRunTestResponse()
             {
-                Status = new Protobuf.ResponseStatus()
+                Status = new Protobuf.GResponseStatus()
             };
 
-            var listRequest = new TestsStorageService.API.ListTestsDataRequest();
+            var listRequest = new TestsStorageService.API.GListTestsDataRequest();
             listRequest.ByIds.Add(request.TestId);
             listRequest.IncludeData = true;
             var listResponse = await TestsStorageService.ListTestsDataAsync(listRequest);
@@ -68,7 +68,7 @@ namespace RunnerService
                 test.State = new RunningState();
                 await Db.SaveChangesAsync();
 
-                var beginRequest = new TestsSourceService.API.BeginTestRequest();
+                var beginRequest = new TestsSourceService.API.GBeginTestRequest();
                 beginRequest.TestData = ByteString.CopyFrom(caseInfo.Data.Data);
                 beginRequest.TestType = caseInfo.Data.Type;
                 beginRequest.TestId = request.TestId;
@@ -78,11 +78,11 @@ namespace RunnerService
             return response;
         }
 
-        public override async Task<GetTestsInfoResponse> GetTestsInfo(GetTestsInfoRequest request, ServerCallContext context)
+        public override async Task<GGetTestsInfoResponse> GetTestsInfo(GGetTestsInfoRequest request, ServerCallContext context)
         {
-            var response = new GetTestsInfoResponse()
+            var response = new GGetTestsInfoResponse()
             {
-                Status = new Protobuf.ResponseStatus()
+                Status = new Protobuf.GResponseStatus()
             };
 
             var infos = await ensureDbPopulated(request.TestsIds.ToArray());
@@ -104,7 +104,7 @@ namespace RunnerService
                 .ToArray();
             if (missingIds.Length > 0)
             {
-                var lstReq = new ListTestsDataRequest();
+                var lstReq = new GListTestsDataRequest();
                 lstReq.ByIds.AddRange(missingIds);
                 var lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
                 var tests = JsonConvert.DeserializeObject<TestsStorageService.Db.TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings);

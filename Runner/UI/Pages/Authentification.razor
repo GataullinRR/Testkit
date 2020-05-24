@@ -1,5 +1,4 @@
 ﻿@page "/auth";
-@inject IMapper Mapper;
 @inject UserService.UserServiceClient UserService;
 @inject IMessageService MessageService;
 @inject ICookieStorage Cookies;
@@ -41,11 +40,10 @@
 
     async void registerAsync(SignUpForm.SignUpPresentationModel model)
     {
-        var request = Mapper.Map<SignUpRequest>(model);
-        var response = await UserService.SignUpAsync(request);
+        var response = await UserService.SignUpAsync((SignUpRequest)model);
         if (response.Status.Code == StatusCode.Ok)
         {
-            MessageService.AddMessage("You've been succesfully registered, now you can sign in!");
+            MessageService.AddMessage("You've been succesfully registered, now you can sign in");
 
             signInRequested();
         }
@@ -57,8 +55,7 @@
 
     async void loginAsync(SignInForm.SignInPresentationModel model)
     {
-        var request = Mapper.Map<SignInRequest>(model);
-        var response = await UserService.SignInAsync(request);
+        var response = await UserService.SignInAsync((SignInRequest)model);
         if (response.Status.Code == StatusCode.Ok)
         {
             await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, response.Token);

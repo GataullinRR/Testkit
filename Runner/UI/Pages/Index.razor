@@ -23,18 +23,13 @@
 
     async Task addTestsAsync(int from, int to)
     {
-        var response = await PresentationServiceCleint.ListTestsAsync(new PresentationService.API2.ListTestsRequest()
-        {
-            Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
-            Range = new UIntRange() { From = from.ToUInt32(), To = to.ToUInt32() }
-        });
-        var text = response.TestInfos.ToStringUtf8();
-        var newTests = JsonConvert.DeserializeObject<TestInfo[]>(text, JsonSettings);
-        _totalCount = response.TotalCount.ToInt32();
+        var gResponse = await PresentationServiceCleint.ListTestsAsync(new ListTestsRequest(new IntInterval(from, to)));
+        ListTestsResponse response = gResponse;
 
+        _totalCount = response.TotalCount;
         _tests = _tests == null
-            ? newTests
-            : _tests.Concat(newTests).ToArray();
+            ? response.Tests
+            : _tests.Concat(response.Tests).ToArray();
     }
 
     async Task onShowMoreAsync(int count)

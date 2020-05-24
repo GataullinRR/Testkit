@@ -4,35 +4,35 @@ import "common.proto";
 package userservice.api;
 
 service PresentationService {
-  rpc ListTests (ListTestsRequest) returns (ListTestsResponse);
-  rpc BeginRecording (BeginRecordingRequest) returns (BeginRecordingResponse);
-  rpc RunTest (RunTestRequest) returns (RunTestResponse);
+  rpc ListTests (GListTestsRequest) returns (GListTestsResponse);
+  rpc BeginAddTest (GBeginRecordingRequest) returns (GBeginRecordingResponse);
+  rpc BeginTest (GRunTestRequest) returns (GRunTestResponse);
 }
 
-message ListTestsRequest {
+message GListTestsRequest {
   string token = 1;
-  common.UIntRange range = 2;
+  common.GRange range = 2;
 }
-message ListTestsResponse {
-  common.ResponseStatus status = 1;
+message GListTestsResponse {
+  common.GResponseStatus status = 1;
   bytes test_infos = 3;
-  uint32 total_count = 2;
+  int32 total_count = 2;
 }
 
-message BeginRecordingRequest {
+message GBeginRecordingRequest {
   string token = 1;
   string test_id = 2;
   string display_name = 3;
   map<string, string> filter = 4;
 }
-message BeginRecordingResponse {
-  common.ResponseStatus status = 1;
+message GBeginRecordingResponse {
+  common.GResponseStatus status = 1;
 }
 
-message RunTestRequest {
+message GRunTestRequest {
   string token = 1;
   string test_id = 2;
 }
-message RunTestResponse {
-  common.ResponseStatus status = 1;
+message GRunTestResponse {
+  common.GResponseStatus status = 1;
 }

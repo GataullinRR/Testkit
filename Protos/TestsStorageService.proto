@@ -4,27 +4,27 @@ import "common.proto";
 package userservice.api;
 
 service TestsStorageService {
-  rpc ListTestsData (ListTestsDataRequest) returns (ListTestsDataResponse);
-  rpc TryCreateTest (TryCreateTestRequest) returns (TryCreateTestResponse);
+  rpc ListTestsData (GListTestsDataRequest) returns (GListTestsDataResponse);
+  rpc TryCreateTest (GTryCreateTestRequest) returns (GTryCreateTestResponse);
 }
 
-message TryCreateTestRequest {
+message GTryCreateTestRequest {
   string test_id = 1;
   string display_name = 2;
   string author = 3;
 }
-message TryCreateTestResponse {
-  common.ResponseStatus status = 1;
+message GTryCreateTestResponse {
+  common.GResponseStatus status = 1;
   bool is_already_added = 2;
 }
 
-message ListTestsDataRequest {
+message GListTestsDataRequest {
   bool include_data = 1;
-  common.UIntRange by_range = 2; // oneof
+  common.GRange by_range = 2; // oneof
   repeated string by_ids = 3;
 }
-message ListTestsDataResponse {
-  common.ResponseStatus status = 1;
+message GListTestsDataResponse {
+  common.GResponseStatus status = 1;
   bytes tests = 2;
   uint32 count = 3;
 }

@@ -12,7 +12,7 @@ namespace DDD
     {
         public string TestId { get; set; }
         public TestCaseState CreationState { get; set; }
-        public CSUserInfo Author { get; set; }
+        public GetUserInfoResponse Author { get; set; }
         public RunPlanBase RunPlan { get; set; }
         public StateBase State { get; set; }
         public RunResultBase? LastResult { get; set; }

@@ -14,7 +14,6 @@ namespace Runner
         [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
         [Inject] public ICookieStorage Cookies { get; set; }
         [Inject] public Browser Browser { get; set; }
-        [Inject] public IMapper Mapper { get; set; }
 
         public Identity Identity { get; private set; } = new Identity();
 
@@ -38,7 +37,7 @@ namespace Runner
             }
             else
             {
-                var request = new GetUserInfoRequest()
+                var request = new GGetUserInfoRequest()
                 {
                     Token = token
                 };
@@ -46,8 +45,7 @@ namespace Runner
                 var response = await UserService.GetUserInfoAsync(request);
                 if (response.Status.Code == Protobuf.StatusCode.Ok)
                 {
-                    var user = Mapper.Map<CSUserInfo>(response);
-                    Identity = new Identity(true, user);
+                    Identity = new Identity(true, response);
                 }
             }
         }

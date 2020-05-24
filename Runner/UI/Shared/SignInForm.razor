@@ -3,9 +3,18 @@
 </FormBase>
 
 @code {
-    public class SignInPresentationModel : CSSignInRequest
+    public class SignInPresentationModel
     {
+        public static implicit operator SignInRequest(SignInPresentationModel model)
+        {
+            return new SignInRequest(model.UserName, model.Password);
+        }
 
+        [Required]
+        public string UserName { get; set; }
+
+        [Required, DataType(DataType.Password)]
+        public string Password { get; set; }
     }
 
     readonly SignInPresentationModel _model = new SignInPresentationModel();

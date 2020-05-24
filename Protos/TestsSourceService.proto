@@ -4,23 +4,23 @@ import "common.proto";
 package userservice.api;
 
 service TestsSourceService {
-  rpc BeginRecording (BeginRecordingRequest) returns (BeginRecordingResponse);
-  rpc BeginTest (BeginTestRequest) returns (BeginTestResponse);
+  rpc BeginRecording (GBeginRecordingRequest) returns (GBeginRecordingResponse);
+  rpc BeginTest (GBeginTestRequest) returns (GBeginTestResponse);
 }
 
-message BeginRecordingRequest {
+message GBeginRecordingRequest {
   string test_id = 1;
   map<string, string> filter = 2;
 }
-message BeginRecordingResponse {
-  common.ResponseStatus status = 1;
+message GBeginRecordingResponse {
+  common.GResponseStatus status = 1;
 }
 
-message BeginTestRequest {
+message GBeginTestRequest {
   string test_id = 1;
   string test_type = 2;
   bytes test_data = 3;
 }
-message BeginTestResponse {
-  common.ResponseStatus status = 1;
+message GBeginTestResponse {
+  common.GResponseStatus status = 1;
 }

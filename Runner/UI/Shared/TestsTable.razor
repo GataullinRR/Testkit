@@ -147,11 +147,7 @@ else
 
     async Task runAsync(string testId)
     {
-        var response = await PresentationService.RunTestAsync(new PresentationService.API2.RunTestRequest()
-        {
-            Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
-            TestId = testId
-        });
+        var response = await PresentationService.BeginTestAsync(new BeginTestRequest(testId));
 
         MessageService.AddMessage(response.Status.Code.ToString());
     }

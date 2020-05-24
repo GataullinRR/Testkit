@@ -11,13 +11,13 @@ using Utilities.Types;
 namespace PresentationService.API
 {
     [Service(ServiceLifetime.Singleton)]
-    class WebMessageHubConnection : IWebMessageHubConnectionProvider, IInitializibleService, IAsyncDisposable
+    class WebMessageHubConnectionProvider : IWebMessageHubConnectionProvider, IInitializibleService, IAsyncDisposable
     {
         readonly SemaphoreSlim _locker = new SemaphoreSlim(1);
 
         public HubConnection Connection { get; private set; }
 
-        public WebMessageHubConnection(IDependencyResolver di)
+        public WebMessageHubConnectionProvider(IDependencyResolver di)
         {
             di.ResolveProperties(this);
 

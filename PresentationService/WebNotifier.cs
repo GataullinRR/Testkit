@@ -50,7 +50,7 @@ namespace PresentationService
 
         async Task<TestsStorageService.Db.TestCase> getAuthorNameAsync(string testId)
         {
-            var lstReq = new ListTestsDataRequest();
+            var lstReq = new GListTestsDataRequest();
             lstReq.ByIds.Add(testId);
             var lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 

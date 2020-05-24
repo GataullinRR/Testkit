@@ -25,11 +25,11 @@ namespace ExampleTestsSourceService
             di.ResolveProperties(this);
         }
 
-        public override async Task<BeginRecordingResponse> BeginRecording(BeginRecordingRequest request, ServerCallContext context)
+        public override async Task<GBeginRecordingResponse> BeginRecording(GBeginRecordingRequest request, ServerCallContext context)
         {
-            var response = new BeginRecordingResponse()
+            var response = new GBeginRecordingResponse()
             {
-                Status = new Protobuf.ResponseStatus()
+                Status = new Protobuf.GResponseStatus()
             };
 
             var testCase = await CaseSource.GetCaseAsync(request.Filter, default);
@@ -55,11 +55,11 @@ namespace ExampleTestsSourceService
             return response;
         }
 
-        public override async Task<BeginTestResponse> BeginTest(BeginTestRequest request, ServerCallContext context)
+        public override async Task<GBeginTestResponse> BeginTest(GBeginTestRequest request, ServerCallContext context)
         {
-            var response = new BeginTestResponse()
+            var response = new GBeginTestResponse()
             {
-                Status = new Protobuf.ResponseStatus()
+                Status = new Protobuf.GResponseStatus()
             };
 
             if (request.TestId == "ER1")

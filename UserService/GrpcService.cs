@@ -23,25 +23,25 @@ using Utilities.Extensions;
 using Utilities.Types;
 using Protobuf;
 
-namespace UserService.Endpoints
+namespace UserService
 {
-    public class UserServiceEndpoints : API.UserService.UserServiceBase
+    public class GrpcService : API.UserService.UserServiceBase
     {
         [Inject] public SignInManager<User> SignInManager { get; set; }
         [Inject] public UserManager<User> UserManager { get; set; }
         [Inject] public IMapper Mapper { get; set; }
         [Inject] public Microsoft.Extensions.Configuration.IConfiguration Configuration { get; set; } 
 
-        public UserServiceEndpoints(IDependencyResolver di)
+        public GrpcService(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
 
-        public override async Task<SignInResponse> SignIn(SignInRequest request, ServerCallContext context)
+        public override async Task<GSignInResponse> SignIn(GSignInRequest request, ServerCallContext context)
         {
-            var response = new SignInResponse()
+            var response = new GSignInResponse()
             {
-                Status = new ResponseStatus()
+                Status = new GResponseStatus()
             };
 
             var result = await SignInManager.PasswordSignInAsync(request.UserName, request.Password, true, false);
@@ -84,9 +84,9 @@ namespace UserService.Endpoints
             }
         }
 
-        public override async Task<SignUpResponse> SignUp(SignUpRequest request, ServerCallContext context)
+        public override async Task<GSignUpResponse> SignUp(GSignUpRequest request, ServerCallContext context)
         {
-            var response = new SignUpResponse();
+            var response = new GSignUpResponse();
 
             var user = new User
             {
@@ -98,7 +98,7 @@ namespace UserService.Endpoints
             if (result.Succeeded)
             {
                 await UserManager.AddToRoleAsync(user, Roles.User);
-                response.Status = new ResponseStatus()
+                response.Status = new GResponseStatus()
                 {
                     Code = Protobuf.StatusCode.Ok,
                     Description = "Done!"
@@ -106,7 +106,7 @@ namespace UserService.Endpoints
             }
             else
             {
-                response.Status = new ResponseStatus()
+                response.Status = new GResponseStatus()
                 {
                     Code = Protobuf.StatusCode.Error,
                     Description = "Could not complete registration. Maybe the user with this name already exists."
@@ -116,11 +116,11 @@ namespace UserService.Endpoints
             return response;
         }
 
-        public override async Task<GetUserInfoResponse> GetUserInfo(GetUserInfoRequest request, ServerCallContext context)
+        public override async Task<GGetUserInfoResponse> GetUserInfo(GGetUserInfoRequest request, ServerCallContext context)
         {
-            var response = new GetUserInfoResponse()
+            var response = new GGetUserInfoResponse()
             {
-                Status = new ResponseStatus()
+                Status = new GResponseStatus()
             };
 
             var currentUser = await tryGetTokenOwnerAsync(request.Token);
@@ -169,9 +169,9 @@ namespace UserService.Endpoints
             return response;
         }
 
-        public override async Task<ValidateTokenResponse> ValidateToken(ValidateTokenRequest request, ServerCallContext context)
+        public override async Task<GValidateTokenResponse> ValidateToken(GValidateTokenRequest request, ServerCallContext context)
         {
-            var response = new ValidateTokenResponse()
+            var response = new GValidateTokenResponse()
             {
                 Valid = validateToken(request.Token)
             };

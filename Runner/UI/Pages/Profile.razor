@@ -3,7 +3,6 @@
 @inject IIdentityContext Context;
 @inject UserService.UserServiceClient UserService;
 @inject ICookieStorage Cookies;
-@inject IMapper Mapper;
 @inject IMessageService Messages;
 
     <RootContainer>
@@ -29,7 +28,7 @@
         return $"/profile/{userName}";
     }
 
-    CSUserInfo? _userInfo;
+    GetUserInfoResponse? _userInfo;
 
     [Parameter]
     public string? UserName { get; set; }
@@ -42,7 +41,7 @@
         }
         else
         {
-            var response = await UserService.GetUserInfoAsync(new GetUserInfoRequest()
+            var response = await UserService.GetUserInfoAsync(new GGetUserInfoRequest()
             {
                 Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
                 UserName = UserName
@@ -50,7 +49,7 @@
 
             if (response.Status.Code == StatusCode.Ok)
             {
-                _userInfo = Mapper.Map<CSUserInfo>(response);
+                _userInfo = response;
             }
             else
             {

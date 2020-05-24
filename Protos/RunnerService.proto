@@ -4,21 +4,21 @@ import "common.proto";
 package userservice.api;
 
 service RunnerService {
-  rpc RunTest (RunTestRequest) returns (RunTestResponse);
-  rpc GetTestsInfo (GetTestsInfoRequest) returns (GetTestsInfoResponse);
+  rpc RunTest (GRunTestRequest) returns (GRunTestResponse);
+  rpc GetTestsInfo (GGetTestsInfoRequest) returns (GGetTestsInfoResponse);
 }
 
-message RunTestRequest {
+message GRunTestRequest {
   string test_id = 1;
 }
-message RunTestResponse {
-  common.ResponseStatus status = 1;
+message GRunTestResponse {
+  common.GResponseStatus status = 1;
 }
 
-message GetTestsInfoRequest {
+message GGetTestsInfoRequest {
   repeated string tests_ids = 1;
 }
-message GetTestsInfoResponse {
-  common.ResponseStatus status = 1;
+message GGetTestsInfoResponse {
+  common.GResponseStatus status = 1;
   bytes infos = 2;
 }

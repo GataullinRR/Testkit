@@ -18,7 +18,6 @@ using Microsoft.IdentityModel.Tokens;
 using UserServiceDb;
 using UserService.Misc;
 using Microsoft.AspNetCore.Http;
-using UserService.Endpoints;
 using Utilities.Extensions;
 using AutoMapper;
 using System.Reflection;
@@ -102,7 +101,7 @@ namespace UserService
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<UserServiceEndpoints>().EnableGrpcWeb();
+                endpoints.MapGrpcService<GrpcService>().EnableGrpcWeb();
             });
         }
     }

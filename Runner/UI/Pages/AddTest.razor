@@ -10,6 +10,7 @@
         <FormTextInput Name="Description" @bind-Value="_model.Description"/>
 
         <FormHeader Name="Lookup parameters"/>
+        <FormTextInput Name="ServiceId" @bind-Value="_model.ServiceId"/>
         <FormTextInput Name="UserId" @bind-Value="_model.UserId"/>
 
         <FormValidator/>
@@ -33,6 +34,9 @@
         public string Description { get; set; }
 
         [Required]
+        public string ServiceId { get; set; }
+
+        [Required]
         public string UserId { get; set; }
     }
 
@@ -40,13 +44,16 @@
 
     async void onSubmit()
     {
-        var request = new PresentationService.API2.BeginRecordingRequest();
-        request.Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "";
-        request.DisplayName = _model.Description;
-        request.TestId = _model.Id;
-        request.Filter.Add("UserId", _model.UserId);
+        var request = new BeginAddTestRequest(
+            _model.Id,
+            _model.Description,
+            new Dictionary<string, string>() 
+            {
+                { "UserId", _model.UserId },
+                { "ServiceId", _model.ServiceId }
+            });
 
-        var response = await PresentationServiceCleint.BeginRecordingAsync(request);
+        var response = await PresentationServiceCleint.BeginAddTestAsync(request);
 
         Messages.AddMessage(response.Status.Code.ToString());
     }

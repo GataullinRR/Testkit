@@ -28,7 +28,6 @@ namespace Runner
 
             var services = builder.Services;
             services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            services.AddAutoMapper(typeof(MappingProfile));
             services.AddSingleton(sp => createUserServiceClient(sp.GetRequiredService<ICookieStorage>()));
             services.AddSingleton(sp => createPresentationServiceClient(sp.GetRequiredService<ICookieStorage>()));
 
@@ -39,13 +38,15 @@ namespace Runner
 
         static PresentationService.API2.PresentationService.PresentationServiceClient createPresentationServiceClient(ICookieStorage cookies)
         {
-            var token = cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE).Result;
             var credentials = CallCredentials.FromInterceptor((context, metadata) =>
             {
+                var token = cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE).Result;
                 if (token.IsNotNullOrEmpty())
                 {
                     metadata.Add("Authorization", $"Bearer {token}");
+                    metadata.Add("token", $"{token}");
                 }
+
                 return Task.CompletedTask;
             });
 
@@ -60,13 +61,15 @@ namespace Runner
 
         static UserService.API.UserService.UserServiceClient createUserServiceClient(ICookieStorage cookies)
         {
-            var token = cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE).Result;
             var credentials = CallCredentials.FromInterceptor((context, metadata) =>
             {
+                var token = cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE).Result;
                 if (token.IsNotNullOrEmpty())
                 {
                     metadata.Add("Authorization", $"Bearer {token}");
+                    metadata.Add("token", $"{token}");
                 }
+
                 return Task.CompletedTask;
             });
 

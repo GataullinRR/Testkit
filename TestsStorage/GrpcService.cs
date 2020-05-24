@@ -25,12 +25,12 @@ namespace TestsStorageService
             di.ResolveProperties(this);
         }
 
-        public override async Task<ListTestsDataResponse> ListTestsData(ListTestsDataRequest request, ServerCallContext context)
+        public override async Task<GListTestsDataResponse> ListTestsData(GListTestsDataRequest request, ServerCallContext context)
         {
-            var response = new ListTestsDataResponse()
+            var response = new GListTestsDataResponse()
             {
                 Count = (uint)await Db.Cases.CountAsync(),
-                Status = new Protobuf.ResponseStatus()
+                Status = new Protobuf.GResponseStatus()
             };
 
             var cases = Db.Cases
@@ -61,11 +61,11 @@ namespace TestsStorageService
             return response;
         }
 
-        public override async Task<TryCreateTestResponse> TryCreateTest(TryCreateTestRequest request, ServerCallContext context)
+        public override async Task<GTryCreateTestResponse> TryCreateTest(GTryCreateTestRequest request, ServerCallContext context)
         {
-            var response = new TryCreateTestResponse()
+            var response = new GTryCreateTestResponse()
             {
-                Status = new Protobuf.ResponseStatus()
+                Status = new Protobuf.GResponseStatus()
             };
 
             bool exists = await Db.Cases.AnyAsync(c => c.TestId == request.TestId);

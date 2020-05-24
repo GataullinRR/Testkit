@@ -23,7 +23,7 @@ namespace PresentationService
             var userName = "";
             if (authToken != null)
             {
-                var uInfReq = new GetUserInfoRequest();
+                var uInfReq = new GGetUserInfoRequest();
                 uInfReq.Token = authToken;
                 var uInfResp = await UserService.GetUserInfoAsync(uInfReq);
                 userName = uInfResp.UserName;
