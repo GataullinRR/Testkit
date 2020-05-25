@@ -3,6 +3,8 @@ using Grpc.Core;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using PresentationService.API;
+using Protobuf;
 using RunnerService.API;
 using RunnerService.APIModels;
 using RunnerService.Db;
@@ -45,23 +47,30 @@ namespace RunnerService
             var caseInfo = JsonConvert.DeserializeObject<global::TestsStorageService.Db.TestCase[]>(listResponse.Tests.ToStringUtf8(), JsonSettings)[0];
 
             var test = await Db.TestRuns
-                .Include(r => r.State)
-                .Include(r => r.LastRun)
-                .Include(r => r.RunPlan)
+                .IncludeGroup(EntityGroups.ALL, Db)
                 .FirstOrDefaultAsync(r => r.TestId == request.TestId);
             if (test == null)
             {
-                test = new TestRunInfo()
+                test = new Db.TestRunInfo()
                 {
                     State = new JustCreatedState(),
-                    LastRun = null,
                     TestId = request.TestId,
-                    RunPlan = new ManualRunPlan()
+                    RunPlan = new ManualRunPlan(),
                 };
 
                 Db.TestRuns.Add(test);
                 await Db.SaveChangesAsync();
             }
+
+            var result = new Result()
+            {
+                ResultBase = new PendingCompletionResult()
+                {
+                    StartTime = DateTime.UtcNow,
+                    StartedByUser = request.UserName
+                }
+            };
+            test.Results.Add(result);
 
             if (test.State.State.IsOneOf(State.JustCreated, State.AwaitingStart, State.Ready))
             {
@@ -72,7 +81,13 @@ namespace RunnerService
                 beginRequest.TestData = ByteString.CopyFrom(caseInfo.Data.Data);
                 beginRequest.TestType = caseInfo.Data.Type;
                 beginRequest.TestId = request.TestId;
+                beginRequest.ResultId = result.Id;
                 var beginResponse = await TestsSourceService.BeginTestAsync(beginRequest);
+            }
+            else
+            {
+                response.Status.Code = Protobuf.StatusCode.Error;
+                response.Status.Description = "Test already running or so...";
             }
 
             return response;
@@ -80,23 +95,26 @@ namespace RunnerService
 
         public override async Task<GGetTestsInfoResponse> GetTestsInfo(GGetTestsInfoRequest request, ServerCallContext context)
         {
-            var response = new GGetTestsInfoResponse()
-            {
-                Status = new Protobuf.GResponseStatus()
-            };
-
             var infos = await ensureDbPopulated(request.TestsIds.ToArray());
-            response.Infos = ByteString.CopyFromUtf8(JsonConvert.SerializeObject(infos, JsonSettings));
 
-            return response;
+            return new GetTestsInfoResponse(
+                infos
+                    .Select(i => new API.TestRunInfo(
+                        i.TestId,
+                        i.Results
+                            .OrderByDescending(r => r.ResultBase.StartTime)
+                            .FirstOrDefault(r => r.ResultBase?.Result != RunResult.PendingCompletion)
+                            ?.ResultBase,
+                        i.State,
+                        i.RunPlan))
+                    .ToArray(),
+                Protobuf.StatusCode.Ok);
         }
 
-        async Task<TestRunInfo[]> ensureDbPopulated(string[] testIds)
+        async Task<Db.TestRunInfo[]> ensureDbPopulated(string[] testIds)
         {
             var infos = await Db.TestRuns
-                .Include(r => r.LastRun)
-                .Include(r => r.State)
-                .Include(r => r.RunPlan)
+                .IncludeGroup(EntityGroups.ALL, Db)
                 .Where(r => testIds.Contains(r.TestId))
                 .ToArrayAsync();
             var missingIds = testIds
@@ -110,12 +128,11 @@ namespace RunnerService
                 var tests = JsonConvert.DeserializeObject<TestsStorageService.Db.TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings);
 
                 var missingRunInfos = tests
-                    .Select(ti => new TestRunInfo()
+                    .Select(ti => new Db.TestRunInfo()
                     {
                         TestId = ti.TestId,
                         State = new JustCreatedState(),
                         RunPlan = new ManualRunPlan(),
-                        LastRun = null,
                     }).ToArray();
                 if (missingRunInfos.Length > 0)
                 {
@@ -127,6 +144,22 @@ namespace RunnerService
             }
 
             return infos;
+        }
+
+        public override async Task<GGetTestDetailsResponse> GetTestDetails(GGetTestDetailsRequest gRequest, ServerCallContext context)
+        {
+            GetTestDetailsRequest request = gRequest;
+
+            var run = await Db.TestRuns
+                .IncludeGroup(EntityGroups.RESULTS, Db)
+                .FirstOrDefaultAsync(r => r.TestId == request.TestId);
+            var results = run.Results
+                .OrderByDescending(r => r.ResultBase.StartTime)
+                .Select(r => r.ResultBase)
+                .Take(request.CountFromEnd)
+                .ToArray();
+
+            return new GetTestDetailsResponse(results, run.Results.Count, Protobuf.StatusCode.Ok);
         }
     }
 }

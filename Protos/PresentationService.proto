@@ -7,10 +7,10 @@ service PresentationService {
   rpc ListTests (GListTestsRequest) returns (GListTestsResponse);
   rpc BeginAddTest (GBeginRecordingRequest) returns (GBeginRecordingResponse);
   rpc BeginTest (GRunTestRequest) returns (GRunTestResponse);
+  rpc GetTestDetails (common.GGetTestDetailsRequest) returns (common.GGetTestDetailsResponse);
 }
 
 message GListTestsRequest {
-  string token = 1;
   common.GRange range = 2;
 }
 message GListTestsResponse {
@@ -20,18 +20,16 @@ message GListTestsResponse {
 }
 
 message GBeginRecordingRequest {
-  string token = 1;
-  string test_id = 2;
-  string display_name = 3;
-  map<string, string> filter = 4;
+  string test_id = 1;
+  string display_name = 2;
+  map<string, string> filter = 3;
 }
 message GBeginRecordingResponse {
   common.GResponseStatus status = 1;
 }
 
 message GRunTestRequest {
-  string token = 1;
-  string test_id = 2;
+  string test_id = 1;
 }
 message GRunTestResponse {
   common.GResponseStatus status = 1;

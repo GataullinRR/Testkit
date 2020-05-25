@@ -1,0 +1,13 @@
+﻿@inject NavigationManager Navigation
+
+<InlineButton class="text-danger" @onclick="() => goToAsync()">Delete</InlineButton>
+
+@code {
+    [Parameter]
+    public string TestId { get; set; }
+
+    async Task goToAsync()
+    {
+
+    }
+}

@@ -24,3 +24,13 @@ message GRange {
   int32 from = 1;
   int32 to = 2; 
 }
+
+message GGetTestDetailsRequest {
+  string test_id = 1;
+  int32 count_from_end = 2;
+}
+message GGetTestDetailsResponse {
+  common.GResponseStatus status = 1;
+  bytes details = 2;
+  int32 total_count = 3;
+}

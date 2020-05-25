@@ -1,0 +1,102 @@
+﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+@inject IMessageService MessageService;
+@inject ICookieStorage Cookies;
+
+@if (Columns == null)
+{
+    <RootContainer>Loading...</RootContainer>
+}
+else
+{
+    <div class="col-12">
+        <div class="table-responsive">
+            <table class="table table-striped table-borderless">
+                <thead>
+                    <tr>
+                        @foreach (var column in Columns)
+                        {
+                            <th>@column.Name</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var row in Rows)
+                    {
+                        <tr>
+                            @foreach (var cell in row.Cells)
+                            {
+                                <td>@cell</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row px-3">
+            <div class="col ml-auto">Shown @shownCount of @TotalCount tests</div>
+            @if (TotalCount - shownCount > 0)
+            {
+                for (int i = 0; i < ADD_MORE_BUTTONS_COUNT; i++)
+                {
+                    var addCount = getCount(i);
+                    <div class="col-1 text-center">
+                        <InlineButton @onclick="() => onAdd(addCount)">Add @addCount</InlineButton>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+        const int ADD_MORE_BUTTONS_COUNT = 3;
+
+        int shownCount { get; set; }
+
+
+        public class Column
+        {
+            public string Name { get; set; }
+        }
+
+    public class Row
+    {
+        public RenderFragment[] Cells { get; set; }
+    }
+
+    [Parameter]
+    public IEnumerable<Column> Columns { get; set; }
+
+    [Parameter]
+    public IEnumerable<Row> Rows { get; set; }
+
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    [Parameter]
+    public Func<int, Task> OnAddRequestedAsync { get; set; }
+
+    protected override Task OnParametersSetAsync()
+    {
+        shownCount = Rows?.Count() ?? 0;
+
+        return base.OnParametersSetAsync();
+    }
+
+    async Task onAdd(int count)
+    {
+        await OnAddRequestedAsync(count);
+
+        StateHasChanged();
+    }
+
+    int getCount(int buttonIndex)
+    {
+        var x = Math.Log(TotalCount - shownCount);
+        var xk = x / ADD_MORE_BUTTONS_COUNT;
+
+        return Math.Exp((buttonIndex + 1) * xk).Round();
+    }
+}

@@ -17,9 +17,6 @@ namespace RunnerService.Db
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<TestRunInfo>()
-                .HasKey(r => r.TestId);
-
             builder.Entity<StateBase>()
                 .Property<int>("_Id")
                 .UseIdentityColumn();
@@ -35,11 +32,16 @@ namespace RunnerService.Db
                 .HasValue<RunningState>(State.Running)
                 .HasValue<JustCreatedState>(State.JustCreated);
 
-            builder.Entity<RunResultBase>()
-                .Property<int>("_Id")
-                .UseIdentityColumn();
-            builder.Entity<RunResultBase>()
-                .HasKey("_Id");
+            builder.Entity<Result>()
+               .HasOne(r => r.ResultBase);
+            //builder.Entity<RunResultBase>()
+            //    .Property<int>("_Id")
+            //    .UseIdentityColumn();
+            //builder.Entity<RunResultBase>()
+            //    .HasKey("_Id");
+
+            //builder.Entity<Result>()
+            //    .HasOne<RunResultBase>();
             //builder.Entity<RunResultBase>()
             //    .Property(r => r.Result)
             //    .UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -48,6 +50,7 @@ namespace RunnerService.Db
                 .HasValue<PassedResult>(RunResult.Passed)
                 .HasValue<AbortedByUserResult>(RunResult.AbortedByUser)
                 .HasValue<RunnerErrorResult>(RunResult.RunnerError)
+                .HasValue<PendingCompletionResult>(RunResult.PendingCompletion)
                 .HasValue<SUTErrorResult>(RunResult.SUTError);
 
             builder.Entity<RunPlanBase>()

@@ -68,15 +68,15 @@ namespace ExampleTestsSourceService
             }
             else
             {
-                MessageProducer.FireTestCompletedOnSource(new TestCompletedOnSourceMessage()
-                {
-                    TestId = request.TestId,
-                    Result = new PassedResult()
-                    {
-                        StartTime = DateTime.UtcNow,
-                        Duration = TimeSpan.FromSeconds(Global.Random.NextDouble(0, 10)),
-                    }
-                });
+                var completedMessage = new TestCompletedOnSourceMessage(
+                        request.TestId,
+                        request.ResultId,
+                        new PassedResult()
+                        {
+                            StartTime = DateTime.UtcNow,
+                            Duration = TimeSpan.FromSeconds(Global.Random.NextDouble(0, 10)),
+                        });
+                MessageProducer.FireTestCompletedOnSource(completedMessage);
             }
 
             return response;

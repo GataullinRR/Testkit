@@ -6,10 +6,12 @@ package userservice.api;
 service RunnerService {
   rpc RunTest (GRunTestRequest) returns (GRunTestResponse);
   rpc GetTestsInfo (GGetTestsInfoRequest) returns (GGetTestsInfoResponse);
+  rpc GetTestDetails (common.GGetTestDetailsRequest) returns (common.GGetTestDetailsResponse);
 }
 
 message GRunTestRequest {
   string test_id = 1;
+  string user_name = 2;
 }
 message GRunTestResponse {
   common.GResponseStatus status = 1;

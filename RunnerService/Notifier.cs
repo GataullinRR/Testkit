@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Protobuf;
 using RunnerService.APIModels;
 using RunnerService.Db;
+using System.Linq;
 using System.Threading.Tasks;
 using Utilities.Types;
+using Utilities.Extensions;
 
 namespace RunnerService
 {
@@ -28,27 +30,26 @@ namespace RunnerService
         {
             using var scope = ScopeFactory.CreateScope();
             var sp = scope.ServiceProvider;
-            var db = sp.GetRequiredService<RunnerContext>();
+            using var db = sp.GetRequiredService<RunnerContext>();
 
             var runInfo = await db.TestRuns
-                .Include(r => r.LastRun)
-                .Include(r => r.State)
-                .Include(r => r.RunPlan)
+                //.Include(r => r.State)
+                //.Include(r => r.RunPlan)
+                //.Include(r => r.Results).ThenInclude(r => r.ResultBase)
+                .IncludeGroup(EntityGroups.ALL, db)
                 .FirstAsync(r => r.TestId == arg.TestId);
-            runInfo.LastRun = arg.Result;
+            var result = runInfo.Results
+                .FirstOrDefault(r => r.Id == arg.ResultId);
+#warning MM
+            arg.Result.StartedByUser = result.ResultBase.StartedByUser;
+            result.ResultBase = arg.Result;
             runInfo.State = new ReadyState();
             await db.SaveChangesAsync();
-
-            var runInfo2 = await db.TestRuns
-                .Include(r => r.LastRun)
-                .Include(r => r.State)
-                .Include(r => r.RunPlan)
-                .ToArrayAsync();
 
             MessageProducer.FireTestCompleted(new TestCompletedMessage() 
             { 
                 TestId = runInfo.TestId, 
-                Result = runInfo.LastRun
+                Result = arg.Result
             });
         }
     }

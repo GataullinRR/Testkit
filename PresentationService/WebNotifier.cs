@@ -28,10 +28,8 @@ namespace PresentationService
 
         async Task MessageConsumer_TestCompletedAsync(TestCompletedMessage arg)
         {
-            var test = await getAuthorNameAsync(arg.TestId);
-           
             await Hub.Clients
-                .Group(test.AuthorName)
+                .Group(arg.Result.StartedByUser)
                 .TestCompleted(new TestCompletedWebMessage()
                 { 
                     TestId = arg.TestId, 

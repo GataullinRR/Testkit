@@ -55,14 +55,10 @@ namespace PresentationService
                 .OrderBy(t => t.TestId);
 
             var testsIds = ff.Select(c => c.TestId).ToArray();
-            var getInfosR = new RunnerService.API.GGetTestsInfoRequest();
-            getInfosR.TestsIds.AddRange(testsIds);
-            var getInfosResp = await RunnerService.GetTestsInfoAsync(getInfosR);
-            var infos = JsonConvert
-                .DeserializeObject<TestRunInfo[]>(getInfosResp.Infos.ToStringUtf8(), JsonSettings)
-                .OrderBy(i => i.TestId);
+            var getInfosR = new RunnerService.API.GetTestsInfoRequest(testsIds);
+            RunnerService.API.GetTestsInfoResponse getInfosResp = await RunnerService.GetTestsInfoAsync(getInfosR);
 
-            var fullInfos = ff.Zip(infos, (Case, RunInfo) => (Case, RunInfo));
+            var fullInfos = ff.Zip(getInfosResp.RunInfos, (Case, RunInfo) => (Case, RunInfo));
 
             return new ListTestsResponse(ddd().ToArray(), tests.Count.ToInt32(), Protobuf.StatusCode.Ok);
 
@@ -76,7 +72,7 @@ namespace PresentationService
                         Author = new GetUserInfoResponse(info.Case.AuthorName, null, null, Protobuf.StatusCode.Ok),
                         Target = new CSTestCaseInfo() {  DisplayName = info.Case.DisplayName, TargetType = info.Case?.Data?.Type },
                         State = info.RunInfo.State,
-                        LastResult = info.RunInfo.LastRun,
+                        LastResult = info.RunInfo.LastResult,
                         RunPlan = info.RunInfo.RunPlan,
                         CreationState = info.Case.State
                     };
@@ -129,8 +125,11 @@ namespace PresentationService
             var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
             if (result.Valid)
             {
+                var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
+
                 var runReq = new RunnerService.API.GRunTestRequest();
                 runReq.TestId = request.TestId;
+                runReq.UserName = userInfResp.UserName;
                 var runResponse = await RunnerService.RunTestAsync(runReq);
 
                 return new BeginTestResponse(runResponse.Status);
@@ -139,6 +138,11 @@ namespace PresentationService
             {
                 return new BeginTestResponse(Protobuf.StatusCode.NotAuthorized);
             }
+        }
+
+        public override async Task<GGetTestDetailsResponse> GetTestDetails(GGetTestDetailsRequest gRequest, ServerCallContext context)
+        {
+            return await RunnerService.GetTestDetailsAsync(gRequest);
         }
     }
 }

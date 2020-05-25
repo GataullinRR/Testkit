@@ -1,0 +1,16 @@
+﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+@inject IMessageService MessageService;
+
+<InlineButton @onclick="() => goToAsync()">Run</InlineButton>
+
+@code {
+    [Parameter]
+    public string TestId { get; set; }
+
+    async Task goToAsync()
+    {
+        var response = await PresentationService.BeginTestAsync(new BeginTestRequest(TestId));
+
+        MessageService.AddMessage(response.Status.Code.ToString());
+    }
+}

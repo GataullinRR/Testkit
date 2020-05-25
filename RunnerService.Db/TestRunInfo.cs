@@ -1,5 +1,7 @@
 ﻿using RunnerService.APIModels;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Utilities.Types;
 
 namespace RunnerService.Db
 {
@@ -8,12 +10,18 @@ namespace RunnerService.Db
         [Key]
         public string TestId { get; set; }
 
-        public RunResultBase LastRun { get; set; }
-        
         [Required]
-        public StateBase State { get; set; }
+        [Include(EntityGroups.ALL, EntityGroups.RESULTS)]
+        public List<Result> Results { get; set; } = new List<Result>();
 
         [Required]
+        [Include(EntityGroups.ALL)]
+        public StateBase State { get; set; }
+        
+        [Required]
+        [Include(EntityGroups.ALL)]
         public RunPlanBase RunPlan { get; set; }
+
+        public TestRunInfo() { } // For EF
     }
 }

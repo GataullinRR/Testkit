@@ -1,17 +1,78 @@
-﻿@page "/test/{TestId:int}"
+﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+@inject IMessageService MessageService;
+@page "/case/{TestId}"
 
 <RootContainer>
-    <h3>Test #@TestId</h3>
-
-    <p>This page is under construction!</p>
+    <h3>@TestId | <RunTestButton TestId="@TestId"/> | <DeleteTestButton TestId="@TestId"/></h3>
 </RootContainer>
 
+@if (_rows.Count == 0)
+{
+    <span>The is nothing to show yet :( Run test to see the result!</span>
+}
+else
+{ 
+    <TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" OnAddRequestedAsync="getMoreAsync" >
+
+    </TableBase>
+}
+
 @code {
-    public static string BuildPath(int testId)
+    public static string BuildPath(string testId)
     {
-        return $"/test/{testId}";
+        return $"/case/{testId}";
     }
 
+    readonly TableBase.Column[] _columns = new TableBase.Column[]
+    {
+        new TableBase.Column() { Name = "Outcome" },
+        new TableBase.Column() { Name = "Duration" },
+        new TableBase.Column() { Name = "Date" },
+        new TableBase.Column() { Name = "Started by" },
+    };
+    List<TableBase.Row> _rows = new List<TableBase.Row>();
+    int _totalCount = 0;
+
     [Parameter]
-    public int TestId { get; set; }
+    public string TestId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await addMoreAsync(10);
+
+        await base.OnInitializedAsync();
+    }
+
+    async Task getMoreAsync(int count)
+    {
+        await addMoreAsync(count);
+    }
+
+    async Task addMoreAsync(int count)
+    {
+        var newCount = _rows.Count + count;
+        GetTestDetailsResponse response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestId, newCount));
+
+        _totalCount = response.TotalCount;
+        _rows.Clear();
+
+        foreach (var result in response.RunResulsts.Reverse())
+        {
+            _rows.Add(new TableBase.Row()
+            {
+                Cells = new RenderFragment[]
+                {
+                    @<span>@result.Result</span>,
+                    @<span>@result.Duration.TotalSeconds.ToString("F1") secouns</span>,
+                    @<span>@result.StartTime.ToString("hh:mm dd.MM.yyy")</span>,
+                    @<UserProfileButton UserName="@result.StartedByUser" />
+                }
+            });
+        }
+    }
+
+    async Task runAsync(string testId)
+    {
+        var response = await PresentationService.BeginTestAsync(new BeginTestRequest(testId));
+    }
 }

@@ -1,0 +1,13 @@
+﻿@inject NavigationManager Navigation
+
+<InlineButton @onclick="() => goToProfileAsync()">@UserName</InlineButton>
+
+@code {
+    [Parameter]
+    public string UserName { get; set; }
+
+    async Task goToProfileAsync()
+    {
+        Navigation.NavigateTo(Profile.BuildPath(UserName));
+    }
+}

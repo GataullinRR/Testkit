@@ -47,7 +47,7 @@ else
                             </td>
 
                             <td>
-                                <NavLink href="@TestTarget.BuildPath(test.TestId)">@test.TestId</NavLink>
+                                <NavLink href="@Test.BuildPath(test.TestId)">@test.TestId</NavLink>
                             </td>
 
                             <td>@test.Target.DisplayName</td>
@@ -82,7 +82,7 @@ else
                                     {
                                         case State.JustCreated:
                                         case State.Ready:
-                                            <InlineButton class="action-primary" @onclick="() => runAsync(test.TestId)">Run</InlineButton>
+                                            <RunTestButton TestId="@test.TestId" />
                                             break;
                                         case State.AwaitingStart:
                                         case State.Running:
@@ -143,13 +143,6 @@ else
         await OnAddRequestedAsync(count);
 
         StateHasChanged();
-    }
-
-    async Task runAsync(string testId)
-    {
-        var response = await PresentationService.BeginTestAsync(new BeginTestRequest(testId));
-
-        MessageService.AddMessage(response.Status.Code.ToString());
     }
 
     int getCount(int buttonIndex)

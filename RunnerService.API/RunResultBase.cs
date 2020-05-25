@@ -11,8 +11,10 @@ namespace RunnerService.APIModels
             Result = result;
         }
 
+        public int Id { get; set; }
         public RunResult Result { get; set; }
         public DateTime StartTime { get; set; }
         public TimeSpan Duration { get; set; }
+        public string StartedByUser { get; set; }
     }
 }

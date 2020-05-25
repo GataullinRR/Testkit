@@ -18,8 +18,9 @@ message GBeginRecordingResponse {
 
 message GBeginTestRequest {
   string test_id = 1;
-  string test_type = 2;
-  bytes test_data = 3;
+  int32 result_id = 2;
+  string test_type = 3;
+  bytes test_data = 4;
 }
 message GBeginTestResponse {
   common.GResponseStatus status = 1;

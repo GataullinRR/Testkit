@@ -2,6 +2,7 @@
 {
     public enum RunResult
     {
+        PendingCompletion,
         Passed,
         AbortedByUser,
         SUTError,
