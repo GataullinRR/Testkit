@@ -144,5 +144,38 @@ namespace PresentationService
         {
             return await RunnerService.GetTestDetailsAsync(gRequest);
         }
+
+        public override async Task<Protobuf.GDeleteTestResponse> DeleteTest(Protobuf.GDeleteTestRequest request, ServerCallContext context)
+        {
+            var token = context.RequestHeaders.FirstOrDefault(h => h.Key == "token")?.Value ?? "";
+            var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
+            if (result.Valid)
+            {
+                var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
+                var userName = userInfResp.UserName;
+                var testAuthor = (await getAuthorNameAsync(request.TestId)).AuthorName;
+                if (userName == testAuthor)
+                {
+                    return await TestsStorageService.DeleteTestAsync(request);
+                }
+                else
+                {
+                    return new DeleteTestResponse(Protobuf.StatusCode.NotAuthorized);
+                }
+            }
+            else
+            {
+                return new DeleteTestResponse(Protobuf.StatusCode.NotAuthorized);
+            }
+        }
+
+        async Task<TestsStorageService.Db.TestCase> getAuthorNameAsync(string testId)
+        {
+            var lstReq = new GListTestsDataRequest();
+            lstReq.ByIds.Add(testId);
+            var lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
+
+            return JsonConvert.DeserializeObject<TestsStorageService.Db.TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings)[0];
+        }
     }
 }

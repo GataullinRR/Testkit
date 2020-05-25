@@ -12,12 +12,17 @@ using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using Google.Protobuf;
 using Shared;
+using Protobuf;
+using MessageHub;
+using PresentationService.API;
+using Shared.Types;
 
 namespace TestsStorageService
 {
     [GrpcService]
     public class GrpcService : API.TestsStorageService.TestsStorageServiceBase
     {
+        [Inject] public IMessageProducer MessageProducer { get; set; }
         [Inject] public TestsContext Db { get; set; }
         
         public GrpcService(IDependencyResolver di)
@@ -88,6 +93,22 @@ namespace TestsStorageService
             }
 
             return response;
+        }
+
+        public override async Task<GDeleteTestResponse> DeleteTest(GDeleteTestRequest gRequest, ServerCallContext context)
+        {
+            DeleteTestRequest request = gRequest;
+
+            var test = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
+            if (test!= null)
+            {
+                Db.Cases.Remove(test);
+            }
+            await Db.SaveChangesAsync();
+
+            MessageProducer.FireTestDeleted(new TestDeletedMessage(request.TestId));
+
+            return new DeleteTestResponse(Protobuf.StatusCode.Ok);
         }
     }
 }

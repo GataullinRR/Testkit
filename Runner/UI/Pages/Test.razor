@@ -3,14 +3,15 @@
 @page "/case/{TestId}"
 
 <RootContainer>
-    <h3>@TestId | <RunTestButton TestId="@TestId"/> | <DeleteTestButton TestId="@TestId"/></h3>
+    <h3>@TestId | <RunTestButton TestId="@TestId" /> | <DeleteTestButton TestId="@TestId" /></h3>
+
+    @if (_rows.Count == 0)
+    {
+        <span>The is nothing to show yet :( Run test to see the result!</span>
+    }
 </RootContainer>
 
-@if (_rows.Count == 0)
-{
-    <span>The is nothing to show yet :( Run test to see the result!</span>
-}
-else
+@if (_rows.Count != 0)
 { 
     <TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" OnAddRequestedAsync="getMoreAsync" >
 

@@ -7,5 +7,6 @@
         void FireTestAcquired(TestAcquiringResultMessage args);
         void FireTestCompleted(TestCompletedMessage args);
         void FireTestCompletedOnSource(TestCompletedOnSourceMessage args);
+        void FireTestDeleted(TestDeletedMessage args);
     }
 }

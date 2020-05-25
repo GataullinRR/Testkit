@@ -34,3 +34,10 @@ message GGetTestDetailsResponse {
   bytes details = 2;
   int32 total_count = 3;
 }
+
+message GDeleteTestRequest {
+  string test_id = 1;
+}
+message GDeleteTestResponse {
+  common.GResponseStatus status = 1;
+}

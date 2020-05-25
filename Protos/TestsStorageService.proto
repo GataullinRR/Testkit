@@ -6,6 +6,7 @@ package userservice.api;
 service TestsStorageService {
   rpc ListTestsData (GListTestsDataRequest) returns (GListTestsDataResponse);
   rpc TryCreateTest (GTryCreateTestRequest) returns (GTryCreateTestResponse);
+  rpc DeleteTest (common.GDeleteTestRequest) returns (common.GDeleteTestResponse);
 }
 
 message GTryCreateTestRequest {

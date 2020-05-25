@@ -16,5 +16,6 @@ namespace MessageHub
         public string TestAcquiredTopic { get; set; } = "test-acquired";
         public string TestCompletedTopic { get; set; } = "test-completed";
         public string TestCompletedOnSourceTopic { get; set; } = "test-completed-on-source";
+        public string TestDeletedTopic { get; set; } = "test-deleted";
     }
 }

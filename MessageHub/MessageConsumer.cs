@@ -23,6 +23,7 @@ namespace MessageHub
         public event Func<TestAcquiringResultMessage, Task> TestAcquiredAsync = m => Task.CompletedTask;
         public event Func<TestCompletedMessage, Task> TestCompletedAsync = m => Task.CompletedTask;
         public event Func<TestCompletedOnSourceMessage, Task> TestCompletedOnSourceAsync = m => Task.CompletedTask;
+        public event Func<TestDeletedMessage, Task> TestDeletedMessageAsync = m => Task.CompletedTask;
 
         public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options, 
             IOptions<MessageConsumerOptions> consumerOptions)
@@ -61,12 +62,17 @@ namespace MessageHub
                 .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
                 .SetValueDeserializer(new JsonNETKafkaSerializer<TestCompletedOnSourceMessage>(serializerSettings))
                 .Build();
+            var testDeleted = new ConsumerBuilder<Ignore, TestDeletedMessage>(conf)
+                .SetKeyDeserializer(new JsonNETKafkaSerializer<Ignore>(serializerSettings))
+                .SetValueDeserializer(new JsonNETKafkaSerializer<TestDeletedMessage>(serializerSettings))
+                .Build();
 
             cosumeDaemon(testExecuted, options.TestExecutedTopic, m => TestExecutedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testRecorded, options.TestRecordedTopic, m => TestRecordedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testAcquired, options.TestAcquiredTopic, m => TestAcquiredAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testCompleted, options.TestCompletedTopic, m => TestCompletedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testCompletedOnSource, options.TestCompletedOnSourceTopic, m => TestCompletedOnSourceAsync.InvokeAndWaitAsync(m));
+            cosumeDaemon(testDeleted, options.TestDeletedTopic, m => TestDeletedMessageAsync.InvokeAndWaitAsync(m));
         }
 
         async void cosumeDaemon<T>(IConsumer<Ignore, T> consumer, string topic, Func<T, Task> fireEventAsync)

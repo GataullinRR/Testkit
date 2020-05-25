@@ -24,6 +24,17 @@ namespace RunnerService
             di.ResolveProperties(this);
 
             MessageConsumer.TestCompletedOnSourceAsync += MessageConsumer_TestCompletedOnSourceAsync;
+            MessageConsumer.TestDeletedMessageAsync += MessageConsumer_TestDeletedAsync; 
+        }
+
+        async Task MessageConsumer_TestDeletedAsync(TestDeletedMessage arg)
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var sp = scope.ServiceProvider;
+            using var db = sp.GetRequiredService<RunnerContext>();
+
+            var runInfo = await db.TestRuns.FirstOrDefaultAsync(r => r.TestId == arg.TestId);
+            db.TestRuns.Remove(runInfo);
         }
 
         async Task MessageConsumer_TestCompletedOnSourceAsync(TestCompletedOnSourceMessage arg)
@@ -33,9 +44,6 @@ namespace RunnerService
             using var db = sp.GetRequiredService<RunnerContext>();
 
             var runInfo = await db.TestRuns
-                //.Include(r => r.State)
-                //.Include(r => r.RunPlan)
-                //.Include(r => r.Results).ThenInclude(r => r.ResultBase)
                 .IncludeGroup(EntityGroups.ALL, db)
                 .FirstAsync(r => r.TestId == arg.TestId);
             var result = runInfo.Results

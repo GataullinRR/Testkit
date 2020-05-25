@@ -8,6 +8,7 @@ service PresentationService {
   rpc BeginAddTest (GBeginRecordingRequest) returns (GBeginRecordingResponse);
   rpc BeginTest (GRunTestRequest) returns (GRunTestResponse);
   rpc GetTestDetails (common.GGetTestDetailsRequest) returns (common.GGetTestDetailsResponse);
+  rpc DeleteTest (common.GDeleteTestRequest) returns (common.GDeleteTestResponse);
 }
 
 message GListTestsRequest {
@@ -16,7 +17,7 @@ message GListTestsRequest {
 message GListTestsResponse {
   common.GResponseStatus status = 1;
   bytes test_infos = 3;
-  int32 total_count = 2;
+  int32 total_count = 4;
 }
 
 message GBeginRecordingRequest {

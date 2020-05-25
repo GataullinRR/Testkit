@@ -10,5 +10,6 @@ namespace MessageHub
         event Func<TestAcquiringResultMessage, Task> TestAcquiredAsync;
         event Func<TestCompletedMessage, Task> TestCompletedAsync;
         event Func<TestCompletedOnSourceMessage, Task> TestCompletedOnSourceAsync;
+        event Func<TestDeletedMessage, Task> TestDeletedMessageAsync;
     }
 }

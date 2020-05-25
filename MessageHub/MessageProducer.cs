@@ -19,6 +19,7 @@ namespace MessageHub
         readonly IProducer<Null, TestAcquiringResultMessage> _testAcquiredProducer;
         readonly IProducer<Null, TestCompletedMessage> _testCompletedProducer;
         readonly IProducer<Null, TestCompletedOnSourceMessage> _testCompletedOnSourceProducer;
+        readonly IProducer<Null, TestDeletedMessage> _testDeletedProducer;
 
         public MessageProducer(ILogger<MessageProducer> logger, JsonSerializerSettings serializerSettings)
         {
@@ -46,6 +47,10 @@ namespace MessageHub
             _testCompletedOnSourceProducer = new ProducerBuilder<Null, TestCompletedOnSourceMessage>(conf)
                 .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
                 .SetValueSerializer(new JsonNETKafkaSerializer<TestCompletedOnSourceMessage>(serializerSettings))
+                .Build();
+            _testDeletedProducer = new ProducerBuilder<Null, TestDeletedMessage>(conf)
+                .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
+                .SetValueSerializer(new JsonNETKafkaSerializer<TestDeletedMessage>(serializerSettings))
                 .Build();
         }
 
@@ -83,6 +88,11 @@ namespace MessageHub
         public void FireTestCompletedOnSource(TestCompletedOnSourceMessage args)
         {
             _testCompletedOnSourceProducer.Produce(_options.TestCompletedOnSourceTopic, new Message<Null, TestCompletedOnSourceMessage> { Value = args });
+        }
+
+        public void FireTestDeleted(TestDeletedMessage args)
+        {
+            _testDeletedProducer.Produce(_options.TestDeletedTopic, new Message<Null, TestDeletedMessage> { Value = args });
         }
     }
 }
