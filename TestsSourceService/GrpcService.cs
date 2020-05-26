@@ -54,32 +54,5 @@ namespace ExampleTestsSourceService
 
             return response;
         }
-
-        public override async Task<GBeginTestResponse> BeginTest(GBeginTestRequest request, ServerCallContext context)
-        {
-            var response = new GBeginTestResponse()
-            {
-                Status = new Protobuf.GResponseStatus()
-            };
-
-            if (request.TestId == "ER1")
-            {
-                response.Status.Code = Protobuf.StatusCode.Error;
-            }
-            else
-            {
-                var completedMessage = new TestCompletedOnSourceMessage(
-                        request.TestId,
-                        request.ResultId,
-                        new PassedResult()
-                        {
-                            StartTime = DateTime.UtcNow,
-                            Duration = TimeSpan.FromSeconds(Global.Random.NextDouble(0, 10)),
-                        });
-                MessageProducer.FireTestCompletedOnSource(completedMessage);
-            }
-
-            return response;
-        }
     }
 }

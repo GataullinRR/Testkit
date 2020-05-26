@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
-namespace TestsStorageService.API
+namespace DDD
 {
-    public class CSTestCaseInfo
+    public class TestCaseInfo
     {
         [Required]
         public string DisplayName { get; set; }

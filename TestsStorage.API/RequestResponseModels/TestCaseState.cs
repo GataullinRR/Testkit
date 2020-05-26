@@ -1,4 +1,4 @@
-﻿namespace TestsStorageService.Db
+﻿namespace TestsStorageService.API
 {
     public enum TestCaseState
     {

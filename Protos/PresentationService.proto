@@ -12,6 +12,7 @@ service PresentationService {
 }
 
 message GListTestsRequest {
+  string test_id = 1;
   common.GRange range = 2;
 }
 message GListTestsResponse {

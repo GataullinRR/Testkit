@@ -21,8 +21,8 @@ message GTryCreateTestResponse {
 
 message GListTestsDataRequest {
   bool include_data = 1;
-  common.GRange by_range = 2; // oneof
-  repeated string by_ids = 3;
+  common.GRange range = 2;
+  repeated string test_ids = 3;
 }
 message GListTestsDataResponse {
   common.GResponseStatus status = 1;

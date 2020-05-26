@@ -16,6 +16,7 @@ using Protobuf;
 using MessageHub;
 using PresentationService.API;
 using Shared.Types;
+using System.Linq.Expressions;
 
 namespace TestsStorageService
 {
@@ -30,40 +31,37 @@ namespace TestsStorageService
             di.ResolveProperties(this);
         }
 
-        public override async Task<GListTestsDataResponse> ListTestsData(GListTestsDataRequest request, ServerCallContext context)
+        public override async Task<GListTestsDataResponse> ListTestsData(GListTestsDataRequest gRequest, ServerCallContext context)
         {
-            var response = new GListTestsDataResponse()
-            {
-                Count = (uint)await Db.Cases.CountAsync(),
-                Status = new Protobuf.GResponseStatus()
-            };
+            ListTestsDataRequest request = gRequest;
 
-            var cases = Db.Cases
+            IQueryable<TestCase> cases = Db.Cases
                 .AsNoTracking()
                 .OrderByDescending(c => c.CreationDate);
-            if (request.ByIds.Count > 0)
+            if (request.TestIdsFilter.Length > 0)
             {
-                var ids = request.ByIds.ToArray();
-                var result = await cases
-                    .Where(c => ids.Contains(c.TestId))
-                    .ToArrayAsync();
-                var serialized = JsonConvert.SerializeObject(result);
-
-                response.Tests = ByteString.CopyFromUtf8(serialized);
+                var ids = request.TestIdsFilter.ToArray();
+                IQueryable<TestCase> original = null;
+                foreach (var filter in request.TestIdsFilter)
+                {
+                    var additional = cases.Where(c => c.TestId.StartsWith(filter));
+                    original = original == null 
+                        ? additional 
+                        : original.Concat(additional);
+                }
+                cases = original;
             }
-            else if (request.ByRange != null)
+            var totalCount = await cases.CountAsync();
+            if (request.Range != null)
             {
-                var count = ((int)request.ByRange.To - (int)request.ByRange.From)
+                var count = ((int)request.Range.To - (int)request.Range.From)
                     .NegativeToZero();
-                var result = await cases
-                    .Take(count)
-                    .ToArrayAsync();
-                var serialized = JsonConvert.SerializeObject(result);
-
-                response.Tests = ByteString.CopyFromUtf8(serialized);
+                cases = cases.Take(count);
             }
+            
+            var result = await cases.ToArrayAsync();
 
-            return response;
+            return new ListTestsDataResponse(result, totalCount, Protobuf.StatusCode.Ok);
         }
 
         public override async Task<GTryCreateTestResponse> TryCreateTest(GTryCreateTestRequest request, ServerCallContext context)
@@ -81,7 +79,7 @@ namespace TestsStorageService
             }
             else
             {
-                await Db.Cases.AddAsync(new Db.TestCase()
+                await Db.Cases.AddAsync(new TestCase()
                 {
                     TestId = request.TestId,
                     AuthorName = request.Author,

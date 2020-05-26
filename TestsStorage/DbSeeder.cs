@@ -16,9 +16,9 @@ namespace UserService
         {
             if (db.Cases.Count() == 0)
             {
-                db.Cases.AddRange(new TestsStorageService.Db.TestCase[]
+                db.Cases.AddRange(new TestCase[]
                 {
-                    new TestsStorageService.Db.TestCase()
+                    new TestCase()
                     {
                          TestId = "RP001.C1",
                          AuthorName = "GataullinRR",
@@ -26,7 +26,7 @@ namespace UserService
                          DisplayName = "RussiaPost package status checker service",
                          State = TestCaseState.NotRecorded,
                     },
-                    new TestsStorageService.Db.TestCase()
+                    new TestCase()
                     {
                         TestId = "B9123",
                         AuthorName = "LibovskyKM",
@@ -39,7 +39,7 @@ namespace UserService
                             Data = "HiHiHi".GetASCIIBytes(),
                         }
                     },
-                    new TestsStorageService.Db.TestCase()
+                    new TestCase()
                     {
                         TestId = "RP001.C2",
                         AuthorName = "AA",

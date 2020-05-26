@@ -24,7 +24,7 @@ namespace RunnerService
             di.ResolveProperties(this);
 
             MessageConsumer.TestCompletedOnSourceAsync += MessageConsumer_TestCompletedOnSourceAsync;
-            MessageConsumer.TestDeletedMessageAsync += MessageConsumer_TestDeletedAsync; 
+            MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync; 
         }
 
         async Task MessageConsumer_TestDeletedAsync(TestDeletedMessage arg)
@@ -49,6 +49,7 @@ namespace RunnerService
             var result = runInfo.Results
                 .FirstOrDefault(r => r.Id == arg.ResultId);
 #warning MM
+            arg.Result.TestId = arg.TestId;
             arg.Result.StartedByUser = result.ResultBase.StartedByUser;
             result.ResultBase = arg.Result;
             runInfo.State = new ReadyState();

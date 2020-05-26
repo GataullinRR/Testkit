@@ -11,11 +11,13 @@ namespace MessageHub
     class MessageHubOptions
     {
         public string ServerURI { get; set; } = "localhost:9092";
+
         public string TestRecordedTopic { get; set; } = "test-recorded";
         public string TestExecutedTopic { get; set; } = "test-executed";
         public string TestAcquiredTopic { get; set; } = "test-acquired";
         public string TestCompletedTopic { get; set; } = "test-completed";
         public string TestCompletedOnSourceTopic { get; set; } = "test-completed-on-source";
         public string TestDeletedTopic { get; set; } = "test-deleted";
+        public string BeginTestTopic { get; set; } = "test-begin";
     }
 }

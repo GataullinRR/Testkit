@@ -1,42 +1,8 @@
-﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationServiceCleint;
-@inject JsonSerializerSettings JsonSettings;
-@inject ICookieStorage Cookies;
-@inject IMessageService Messages;
-@inject NavigationManager NavigationManager
-@inject IAppInitializationAwaiter AppInitializer;
-@page "/"
+﻿@page "/"
 
-<TestsTable Tests="_tests" TotalCount="_totalCount" OnAddRequestedAsync="onShowMoreAsync"></TestsTable>
+<TestsTable></TestsTable>
 
 @code {
     public const string URI = "/";
-
-    int _totalCount;
-    TestInfo[] _tests;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await AppInitializer.AwaitInitializedAsync();
-
-        await addTestsAsync(0, 10);
-    }
-
-    async Task addTestsAsync(int from, int to)
-    {
-        var gResponse = await PresentationServiceCleint.ListTestsAsync(new ListTestsRequest(new IntInterval(from, to)));
-        ListTestsResponse response = gResponse;
-
-        _totalCount = response.TotalCount;
-        _tests = _tests == null
-            ? response.Tests
-            : _tests.Concat(response.Tests).ToArray();
-    }
-
-    async Task onShowMoreAsync(int count)
-    {
-        await addTestsAsync(_tests.Length, _tests.Length + count);
-
-        StateHasChanged();
-    }
 }
 

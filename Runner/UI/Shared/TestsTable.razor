@@ -1,8 +1,14 @@
-﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+﻿@inject JsonSerializerSettings JsonSettings;
+@inject ICookieStorage Cookies;
+@inject NavigationManager NavigationManager;
+@inject IMessageService Messages;
+@inject NavigationManager NavigationManager
+@inject IAppInitializationAwaiter AppInitializer;
+@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
 @inject IMessageService MessageService;
 @inject ICookieStorage Cookies;
 
-@if (Tests == null)
+@if (_tests == null)
 {
     <RootContainer>Loading...</RootContainer>
 }
@@ -25,7 +31,7 @@ else
                 </thead>
 
                 <tbody>
-                    @foreach (var test in Tests)
+                    @foreach (var test in _tests)
                     {
                         <tr>
                             <td>
@@ -36,7 +42,7 @@ else
                             </td>
 
                             <td>
-                                @if (test.CreationState == TestsStorageService.Db.TestCaseState.NotRecorded)
+                                @if (test.CreationState == TestsStorageService.API.TestCaseState.NotRecorded)
                                 {
                                     <span>NotRecorded</span>
                                 }
@@ -47,12 +53,12 @@ else
                             </td>
 
                             <td>
-                                <NavLink href="@Test.BuildPath(test.TestId)">@test.TestId</NavLink>
+                                <TestReferenceButton TestId="@test.TestId" />
                             </td>
 
-                            <td>@test.Target.DisplayName</td>
+                            <td><InlineButton @onclick="() => goToTest(test.TestId)">@test.Target.DisplayName</InlineButton></td>
 
-                            <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString("hh:mm:ss dd.MM.yyyy"))</td>
+                            <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString("hh:mm dd.MM.yyyy"))</td>
 
                             <td>
                                 @switch (test.RunPlan.RunPlan)
@@ -76,7 +82,7 @@ else
                             </td>
 
                             <td>
-                                @if (test.CreationState == TestsStorageService.Db.TestCaseState.Recorder)
+                                @if (test.CreationState == TestsStorageService.API.TestCaseState.Recorder)
                                 {
                                     @switch (test.State.State)
                                     {
@@ -102,14 +108,14 @@ else
         </div>
 
         <div class="row px-3">
-            <div class="col ml-auto">Shown @shownCount of @TotalCount tests</div>
-            @if (TotalCount - shownCount > 0)
+            <div class="col ml-auto">Shown @shownCount of @_totalCount tests</div>
+            @if (_totalCount - shownCount > 0)
             {
                 for (int i = 0; i < ADD_MORE_BUTTONS_COUNT; i++)
                 {
                     var addCount = getCount(i);
                     <div class="col-1 text-center">
-                        <InlineButton @onclick="() => onAdd(addCount)">Add @addCount</InlineButton>
+                        <InlineButton @onclick="() => onShowMoreAsync(addCount)">Add @addCount</InlineButton>
                     </div>
                 }
             }
@@ -120,36 +126,54 @@ else
 @code {
     const int ADD_MORE_BUTTONS_COUNT = 3;
 
+    [Parameter]
+    public string? TestId { get; set; }
+
     int shownCount { get; set; }
 
-    [Parameter]
-    public IEnumerable<TestInfo> Tests { get; set; }
+    int _totalCount;
+    TestInfo[]? _tests;
 
-    [Parameter]
-    public int TotalCount { get; set; }
-
-    [Parameter]
-    public Func<int, Task> OnAddRequestedAsync { get; set; }
-
-    protected override Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        shownCount = Tests?.Count() ?? 0;
+        await AppInitializer.AwaitInitializedAsync();
 
-        return base.OnParametersSetAsync();
-    }
+        _tests = null;
+        await addTestsAsync(0, 10);
 
-    async Task onAdd(int count)
-    {
-        await OnAddRequestedAsync(count);
+        shownCount = _tests?.Count() ?? 0;
 
-        StateHasChanged();
+        await base.OnParametersSetAsync();
     }
 
     int getCount(int buttonIndex)
     {
-        var x = Math.Log(TotalCount - shownCount);
+        var x = Math.Log(_totalCount - shownCount);
         var xk = x / ADD_MORE_BUTTONS_COUNT;
 
         return Math.Exp((buttonIndex + 1) * xk).Round();
+    }
+
+    async Task addTestsAsync(int from, int to)
+    {
+        var gResponse = await PresentationService.ListTestsAsync(new ListTestsRequest(TestId, new IntInterval(from, to)));
+        ListTestsResponse response = gResponse;
+
+        _totalCount = response.TotalCount;
+        _tests = _tests == null
+            ? response.Tests
+            : _tests.Concat(response.Tests).ToArray();
+    }
+
+    async Task onShowMoreAsync(int count)
+    {
+        await addTestsAsync(_tests.Length, _tests.Length + count);
+
+        StateHasChanged();
+    }
+
+    async Task goToTest(string testId)
+    {
+        NavigationManager.NavigateTo(Test.BuildPath(testId));
     }
 }

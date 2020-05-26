@@ -16,6 +16,6 @@ namespace DDD
         public RunPlanBase RunPlan { get; set; }
         public StateBase State { get; set; }
         public RunResultBase? LastResult { get; set; }
-        public CSTestCaseInfo Target { get; set; }
+        public TestCaseInfo Target { get; set; }
     }
 }

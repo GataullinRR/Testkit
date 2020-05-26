@@ -22,7 +22,7 @@ namespace Runner
 
         async Task WebMessageHub_TestCompletedAsync(TestCompletedWebMessage arg)
         {
-            MessageService.AddMessage($"{arg.TestId} completed with state {arg.RunResult}");
+            MessageService.AddMessage($"\"{arg.TestId}\" completed with state {arg.RunResult}");
         }
 
         async Task WebMessageHub_TestRecordedAsync(TestRecordedWebMessage arg)

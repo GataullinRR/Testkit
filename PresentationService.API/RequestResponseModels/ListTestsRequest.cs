@@ -1,4 +1,5 @@
 ﻿using Protobuf;
+using System;
 using Vectors;
 
 namespace PresentationService.API
@@ -7,7 +8,7 @@ namespace PresentationService.API
     {
         public static implicit operator global::PresentationService.API2.GListTestsRequest (ListTestsRequest request)
         {
-            return new API2.GListTestsRequest()
+            var gRequest = new API2.GListTestsRequest()
             {
                 Range = new GRange()
                 {
@@ -15,17 +16,29 @@ namespace PresentationService.API
                     To = request.Range.To,
                 }
             };
+            if (request.TestIdFilter != null)
+            {
+                gRequest.TestId = request.TestIdFilter;
+            }
+
+            return gRequest;
         }
         public static implicit operator ListTestsRequest(global::PresentationService.API2.GListTestsRequest request)
         {
-            return new ListTestsRequest(new IntInterval(request.Range.From, request.Range.To));
+            return new ListTestsRequest(request.TestId, new IntInterval(request.Range.From, request.Range.To));
         }
 
+        public string? TestIdFilter { get; }
         public IntInterval Range { get; }
 
-        public ListTestsRequest(IntInterval range)
+        public ListTestsRequest(IntInterval range) : this(null, range)
+        {
+
+        }
+        public ListTestsRequest(string? testIdFilter, IntInterval range)
         {
             Range = range;
+            TestIdFilter = testIdFilter;
         }
     }
 }

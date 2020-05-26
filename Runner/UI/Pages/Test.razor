@@ -1,79 +1,29 @@
 ﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
 @inject IMessageService MessageService;
-@page "/case/{TestId}"
+@page "/cases/{TestIdFilter}"
 
 <RootContainer>
-    <h3>@TestId | <RunTestButton TestId="@TestId" /> | <DeleteTestButton TestId="@TestId" /></h3>
-
-    @if (_rows.Count == 0)
-    {
-        <span>The is nothing to show yet :( Run test to see the result!</span>
-    }
+    <h3><TestReferenceButton TestId="@TestIdFilter" /> | <RunTestButton TestId="@TestIdFilter" /> | <DeleteTestButton TestId="@TestIdFilter" /></h3>
 </RootContainer>
 
-@if (_rows.Count != 0)
-{ 
-    <TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" OnAddRequestedAsync="getMoreAsync" >
+<RootContainer>
+    <h3>Tests</h3>
+</RootContainer>
 
-    </TableBase>
-}
+<TestsTable TestId="@TestIdFilter" />
+
+<RootContainer>
+    <h3>Run history</h3>
+</RootContainer>
+
+<RunHistoryTable TestId="@TestIdFilter"/>
 
 @code {
-    public static string BuildPath(string testId)
+    public static string BuildPath(string testIdFilter)
     {
-        return $"/case/{testId}";
+        return $"/cases/{testIdFilter}";
     }
-
-    readonly TableBase.Column[] _columns = new TableBase.Column[]
-    {
-        new TableBase.Column() { Name = "Outcome" },
-        new TableBase.Column() { Name = "Duration" },
-        new TableBase.Column() { Name = "Date" },
-        new TableBase.Column() { Name = "Started by" },
-    };
-    List<TableBase.Row> _rows = new List<TableBase.Row>();
-    int _totalCount = 0;
 
     [Parameter]
-    public string TestId { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await addMoreAsync(10);
-
-        await base.OnInitializedAsync();
-    }
-
-    async Task getMoreAsync(int count)
-    {
-        await addMoreAsync(count);
-    }
-
-    async Task addMoreAsync(int count)
-    {
-        var newCount = _rows.Count + count;
-        GetTestDetailsResponse response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestId, newCount));
-
-        _totalCount = response.TotalCount;
-        _rows.Clear();
-
-        foreach (var result in response.RunResulsts.Reverse())
-        {
-            _rows.Add(new TableBase.Row()
-            {
-                Cells = new RenderFragment[]
-                {
-                    @<span>@result.Result</span>,
-                    @<span>@result.Duration.TotalSeconds.ToString("F1") secouns</span>,
-                    @<span>@result.StartTime.ToString("hh:mm dd.MM.yyy")</span>,
-                    @<UserProfileButton UserName="@result.StartedByUser" />
-                }
-            });
-        }
-    }
-
-    async Task runAsync(string testId)
-    {
-        var response = await PresentationService.BeginTestAsync(new BeginTestRequest(testId));
-    }
+    public string TestIdFilter { get; set; }
 }

@@ -1,0 +1,44 @@
+﻿@inject NavigationManager Navigation
+
+@for (int i = 0; i < _subIds.Count; i++)
+{
+    var id = _subIds[i];
+    var shouldAddDescriminator = i < (_subIds.Count - 1);
+    <InlineButton style="float:left" class="p-0 m-0" @onclick="() => goToTestsAsync(id.Id)">@id.Part</InlineButton>
+    <span style="float:left">@(shouldAddDescriminator ? "." : "")</span>
+}
+
+@code {
+    [Parameter]
+    public string TestId { get; set; }
+
+    List<(string Part, string Id)> _subIds = new List<(string, string)>();
+
+    protected override void OnParametersSet()
+    {
+        _subIds.Clear();
+
+        var parts = TestId.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        for (int i = 0; i < parts.Length; i++)
+        {
+            var subId = "";
+            for (int k = 0; k <= i; k++)
+            {
+                if (subId.Length > 0)
+                {
+                    subId += ".";
+                }
+                subId += parts[k];
+            }
+
+            _subIds.Add((parts[i], subId));
+        }
+
+        base.OnParametersSet();
+    }
+
+    async Task goToTestsAsync(string id)
+    {
+        Navigation.NavigateTo(Test.BuildPath(id));
+    }
+}

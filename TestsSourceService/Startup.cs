@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ExampleTestsSourceService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -31,12 +32,13 @@ namespace TestsSourceService
             services.AddNecessaryFeatures();
             services.AddGrpcServices();
             services.AddMessaging(Configuration.GetSection("Messaging"));
+            services.AddHostedService<InstantiatorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseSingletonInitialization();
+            //app.UseSingletonInitialization();
 
             app.UseRouting();
 

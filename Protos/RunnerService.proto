@@ -10,7 +10,7 @@ service RunnerService {
 }
 
 message GRunTestRequest {
-  string test_id = 1;
+  repeated string test_ids_filter = 1;
   string user_name = 2;
 }
 message GRunTestResponse {

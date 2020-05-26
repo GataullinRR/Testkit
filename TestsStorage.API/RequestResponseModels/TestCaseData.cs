@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TestsStorageService.Db
+namespace TestsStorageService.API
 {
     public class TestCaseData
     {

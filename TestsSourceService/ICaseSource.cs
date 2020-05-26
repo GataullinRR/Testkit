@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DDD;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TestsStorageService.API;
@@ -7,6 +8,6 @@ namespace ExampleTestsSourceService
 {
     public interface ICaseSource
     {
-        Task<CSTestCaseInfo> GetCaseAsync(IDictionary<string, string> filter, CancellationToken cancellation);
+        Task<TestCaseInfo> GetCaseAsync(IDictionary<string, string> filter, CancellationToken cancellation);
     }
 }

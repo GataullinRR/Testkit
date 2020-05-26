@@ -61,7 +61,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vectors", "..\GeneralPurpos
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Types", "Shared.Types\Shared.Types.csproj", "{3AB20651-124E-4DB0-9AC0-327951480EA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities.EFCore31", "Utilities.EFCore31\Utilities.EFCore31.csproj", "{07867641-2552-488B-AF10-198115B872AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities.EFCore31", "Utilities.EFCore31\Utilities.EFCore31.csproj", "{07867641-2552-488B-AF10-198115B872AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

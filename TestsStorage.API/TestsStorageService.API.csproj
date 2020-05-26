@@ -1,11 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
+   <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Grpc.Core" Version="2.29.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\GeneralPurposeLibs\Vectors\Vectors\Vectors.csproj" />
+    <ProjectReference Include="..\Protos\Protos.csproj" />
+    <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
   </ItemGroup>
 
 </Project>

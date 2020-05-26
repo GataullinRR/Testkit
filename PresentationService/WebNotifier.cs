@@ -7,6 +7,8 @@ using PresentationService.API;
 using System.Threading.Tasks;
 using TestsStorageService.API;
 using Utilities.Types;
+using Vectors;
+using Utilities.Extensions;
 
 namespace PresentationService
 {
@@ -46,13 +48,12 @@ namespace PresentationService
                 .TestRecorded(new TestRecordedWebMessage() { TestId = test.TestId });
         }
 
-        async Task<TestsStorageService.Db.TestCase> getAuthorNameAsync(string testId)
+        async Task<TestCase> getAuthorNameAsync(string testId)
         {
-            var lstReq = new GListTestsDataRequest();
-            lstReq.ByIds.Add(testId);
-            var lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
+            var lstReq = new ListTestsDataRequest(new string[] { testId }, new IntInterval(0, 1), false);
+            ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
-            return JsonConvert.DeserializeObject<TestsStorageService.Db.TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings)[0];
+            return lstResp.Tests.FirstElement();
         }
     }
 }

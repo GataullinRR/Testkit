@@ -2,6 +2,7 @@
 using Protobuf;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vectors;
 
 namespace PresentationService.API
@@ -10,25 +11,27 @@ namespace PresentationService.API
     {
         public static implicit operator global::Protobuf.GGetTestDetailsRequest(GetTestDetailsRequest request)
         {
-            return new Protobuf.GGetTestDetailsRequest()
+            var gRequest = new Protobuf.GGetTestDetailsRequest()
             {
                 CountFromEnd = request.CountFromEnd,
-                TestId = request.TestId
             };
+            gRequest.TestIdFilters.Add(request.TestIdFilters);
+
+            return gRequest;
         }
         public static implicit operator GetTestDetailsRequest(global::Protobuf.GGetTestDetailsRequest request)
         {
-            return new GetTestDetailsRequest(request.TestId, request.CountFromEnd);
+            return new GetTestDetailsRequest(request.TestIdFilters.ToArray(), request.CountFromEnd);
         }
 
         [Required]
-        public string TestId { get; }
+        public string[] TestIdFilters { get; }
 
         public int CountFromEnd { get; }
 
-        public GetTestDetailsRequest(string testId, int countFromEnd)
+        public GetTestDetailsRequest(string[] testIdFilters, int countFromEnd)
         {
-            TestId = testId ?? throw new ArgumentNullException(nameof(testId));
+            TestIdFilters = testIdFilters ?? throw new ArgumentNullException(nameof(testIdFilters));
             CountFromEnd = countFromEnd;
         }
     }

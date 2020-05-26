@@ -19,6 +19,7 @@ using UserService.API;
 using Utilities.Types;
 using Utilities.Extensions;
 using Shared.Types;
+using Vectors;
 
 namespace PresentationService
 {
@@ -41,26 +42,20 @@ namespace PresentationService
         {
             ListTestsRequest request = gRequest;
 
-            var tests = await TestsStorageService.ListTestsDataAsync(new GListTestsDataRequest()
-            {
-                ByRange = new GRange() 
-                { 
-                    From = request.Range.From, 
-                    To = request.Range.To 
-                },
-                IncludeData = false,
-            });
-            var ff = JsonConvert
-                .DeserializeObject<TestsStorageService.Db.TestCase[]>(tests.Tests.ToStringUtf8())
-                .OrderBy(t => t.TestId);
+            var lstReq = new ListTestsDataRequest(request.TestIdFilter == null 
+                    ? new string[0] 
+                    : new string[] { request.TestIdFilter }, 
+                request.Range, 
+                false);
+            ListTestsDataResponse tests = await TestsStorageService.ListTestsDataAsync(lstReq);
 
-            var testsIds = ff.Select(c => c.TestId).ToArray();
+            var testsIds = tests.Tests.Select(c => c.TestId).ToArray();
             var getInfosR = new RunnerService.API.GetTestsInfoRequest(testsIds);
             RunnerService.API.GetTestsInfoResponse getInfosResp = await RunnerService.GetTestsInfoAsync(getInfosR);
 
-            var fullInfos = ff.Zip(getInfosResp.RunInfos, (Case, RunInfo) => (Case, RunInfo));
+            var fullInfos = tests.Tests.Zip(getInfosResp.RunInfos, (Case, RunInfo) => (Case, RunInfo));
 
-            return new ListTestsResponse(ddd().ToArray(), tests.Count.ToInt32(), Protobuf.StatusCode.Ok);
+            return new ListTestsResponse(ddd().ToArray(), tests.Tests.Length, Protobuf.StatusCode.Ok);
 
             IEnumerable<TestInfo> ddd()
             {
@@ -70,7 +65,7 @@ namespace PresentationService
                     {
                         TestId = info.Case.TestId,
                         Author = new GetUserInfoResponse(info.Case.AuthorName, null, null, Protobuf.StatusCode.Ok),
-                        Target = new CSTestCaseInfo() {  DisplayName = info.Case.DisplayName, TargetType = info.Case?.Data?.Type },
+                        Target = new TestCaseInfo() {  DisplayName = info.Case.DisplayName, TargetType = info.Case?.Data?.Type },
                         State = info.RunInfo.State,
                         LastResult = info.RunInfo.LastResult,
                         RunPlan = info.RunInfo.RunPlan,
@@ -127,9 +122,7 @@ namespace PresentationService
             {
                 var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
 
-                var runReq = new RunnerService.API.GRunTestRequest();
-                runReq.TestId = request.TestId;
-                runReq.UserName = userInfResp.UserName;
+                var runReq = new RunnerService.API.RunTestRequest(request.TestIdFilter.ToSequence().ToArray(), userInfResp.UserName);
                 var runResponse = await RunnerService.RunTestAsync(runReq);
 
                 return new BeginTestResponse(runResponse.Status);
@@ -169,13 +162,12 @@ namespace PresentationService
             }
         }
 
-        async Task<TestsStorageService.Db.TestCase> getAuthorNameAsync(string testId)
+        async Task<TestCase> getAuthorNameAsync(string testId)
         {
-            var lstReq = new GListTestsDataRequest();
-            lstReq.ByIds.Add(testId);
-            var lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
+            var lstReq = new ListTestsDataRequest(new string[] { testId }, new IntInterval(0, 1), false);
+            ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
-            return JsonConvert.DeserializeObject<TestsStorageService.Db.TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings)[0];
+            return lstResp.Tests.FirstElement();
         }
     }
 }

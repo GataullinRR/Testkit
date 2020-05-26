@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf;
 using Grpc.Core;
+using MessageHub;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -24,6 +25,7 @@ namespace RunnerService
     public class GrpcService : API.RunnerService.RunnerServiceBase
     {
         [Inject] public RunnerContext Db { get; set; }
+        [Inject] public IMessageProducer MessageProducer { get; set; }
         [Inject] public TestsStorageService.API.TestsStorageService.TestsStorageServiceClient TestsStorageService { get; set; }
         [Inject] public TestsSourceService.API.TestsSourceService.TestsSourceServiceClient TestsSourceService { get; set; }
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
@@ -33,64 +35,66 @@ namespace RunnerService
             di.ResolveProperties(this);
         }
 
-        public override async Task<GRunTestResponse> RunTest(GRunTestRequest request, ServerCallContext context)
+        public override async Task<GRunTestResponse> RunTest(GRunTestRequest gRequest, ServerCallContext context)
         {
-            var response = new GRunTestResponse()
-            {
-                Status = new Protobuf.GResponseStatus()
-            };
+            RunTestRequest request = gRequest;
+            var listRequest = new ListTestsDataRequest(request.TestsIdsFilter, new Vectors.IntInterval(0, 1000), true);
+            ListTestsDataResponse listResponse = await TestsStorageService.ListTestsDataAsync(listRequest);
 
-            var listRequest = new TestsStorageService.API.GListTestsDataRequest();
-            listRequest.ByIds.Add(request.TestId);
-            listRequest.IncludeData = true;
-            var listResponse = await TestsStorageService.ListTestsDataAsync(listRequest);
-            var caseInfo = JsonConvert.DeserializeObject<global::TestsStorageService.Db.TestCase[]>(listResponse.Tests.ToStringUtf8(), JsonSettings)[0];
-
-            var test = await Db.TestRuns
+            var testIdFilter = request.TestsIdsFilter.Single();
+            var tests = Db.TestRuns
                 .IncludeGroup(EntityGroups.ALL, Db)
-                .FirstOrDefaultAsync(r => r.TestId == request.TestId);
-            if (test == null)
+                .Where(r => r.TestId.StartsWith(testIdFilter))
+                .AsEnumerable()
+                .Where(r => r.TestId == testIdFilter || r.TestId[testIdFilter.Length] == '.')
+                .ToArray();
+            foreach (var testFromStorge in listResponse.Tests)
             {
-                test = new Db.TestRunInfo()
+                var exists = tests.Any(r => r.TestId == testFromStorge.TestId);
+                if (!exists)
                 {
-                    State = new JustCreatedState(),
-                    TestId = request.TestId,
-                    RunPlan = new ManualRunPlan(),
-                };
+                    tests.Add(new RunnerService.Db.TestRunInfo()
+                    {
+                        Results = new List<Result>(),
+                        RunPlan = new ManualRunPlan(),
+                        State = new JustCreatedState(),
+                        TestId = testFromStorge.TestId
+                    });
 
-                Db.TestRuns.Add(test);
-                await Db.SaveChangesAsync();
-            }
-
-            var result = new Result()
-            {
-                ResultBase = new PendingCompletionResult()
-                {
-                    StartTime = DateTime.UtcNow,
-                    StartedByUser = request.UserName
+                    await Db.TestRuns.AddAsync(tests.LastElement());
                 }
-            };
-            test.Results.Add(result);
-
-            if (test.State.State.IsOneOf(State.JustCreated, State.AwaitingStart, State.Ready))
-            {
-                test.State = new RunningState();
-                await Db.SaveChangesAsync();
-
-                var beginRequest = new TestsSourceService.API.GBeginTestRequest();
-                beginRequest.TestData = ByteString.CopyFrom(caseInfo.Data.Data);
-                beginRequest.TestType = caseInfo.Data.Type;
-                beginRequest.TestId = request.TestId;
-                beginRequest.ResultId = result.Id;
-                var beginResponse = await TestsSourceService.BeginTestAsync(beginRequest);
-            }
-            else
-            {
-                response.Status.Code = Protobuf.StatusCode.Error;
-                response.Status.Description = "Test already running or so...";
             }
 
-            return response;
+            var messages = new List<Func<BeginTestMessage>>();
+            foreach (var test in tests)
+            {
+                if (test.State.State.IsOneOf(State.JustCreated, State.AwaitingStart, State.Ready))
+                {
+                    var result = new Result()
+                    {
+                        ResultBase = new PendingCompletionResult()
+                        {
+                            StartTime = DateTime.UtcNow,
+                            StartedByUser = request.UserName,
+                            TestId = test.TestId,
+                        }
+                    };
+                    test.Results.Add(result);
+                    test.State = new RunningState();
+
+                    var data = listResponse.Tests.First(t => t.TestId == test.TestId).Data;
+                    messages.Add(() => new BeginTestMessage(test.TestId, result.Id, data.Type, data.Data));
+                }
+            }
+
+            await Db.SaveChangesAsync();
+
+            foreach (var message in messages)
+            {
+                MessageProducer.FireBeginTest(message());
+            }
+
+            return new RunTestResponse(Protobuf.StatusCode.Ok);
         }
 
         public override async Task<GGetTestsInfoResponse> GetTestsInfo(GGetTestsInfoRequest request, ServerCallContext context)
@@ -122,12 +126,10 @@ namespace RunnerService
                 .ToArray();
             if (missingIds.Length > 0)
             {
-                var lstReq = new GListTestsDataRequest();
-                lstReq.ByIds.AddRange(missingIds);
-                var lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
-                var tests = JsonConvert.DeserializeObject<TestsStorageService.Db.TestCase[]>(lstResp.Tests.ToStringUtf8(), JsonSettings);
+                var lstReq = new ListTestsDataRequest(missingIds, new Vectors.IntInterval(0, missingIds.Length), false);
+                ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
-                var missingRunInfos = tests
+                var missingRunInfos = lstResp.Tests
                     .Select(ti => new Db.TestRunInfo()
                     {
                         TestId = ti.TestId,
@@ -150,16 +152,19 @@ namespace RunnerService
         {
             GetTestDetailsRequest request = gRequest;
 
-            var run = await Db.TestRuns
+            var testIdFilter = request.TestIdFilters.Single();
+            var dbResults = await Db.TestRuns
                 .IncludeGroup(EntityGroups.RESULTS, Db)
-                .FirstOrDefaultAsync(r => r.TestId == request.TestId);
-            var results = run.Results
+                .Where(r => r.TestId.StartsWith(testIdFilter))
+                .SelectMany(r => r.Results)
                 .OrderByDescending(r => r.ResultBase.StartTime)
+                .ToArrayAsync();
+            var results = dbResults
                 .Select(r => r.ResultBase)
                 .Take(request.CountFromEnd)
                 .ToArray();
 
-            return new GetTestDetailsResponse(results, run.Results.Count, Protobuf.StatusCode.Ok);
+            return new GetTestDetailsResponse(results, dbResults.Length, Protobuf.StatusCode.Ok);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace PresentationService.API
         {
             var gRequest = new API2.GRunTestRequest()
             {
-                TestId = request.TestId
+                TestId = request.TestIdFilter
             };
 
             return gRequest;
@@ -21,11 +21,11 @@ namespace PresentationService.API
         }
 
         [Required]
-        public string TestId { get; }
+        public string TestIdFilter { get; }
 
-        public BeginTestRequest(string testId)
+        public BeginTestRequest(string testIdFilter)
         {
-            TestId = testId ?? throw new ArgumentNullException(nameof(testId));
+            TestIdFilter = testIdFilter ?? throw new ArgumentNullException(nameof(testIdFilter));
         }
     }
 }
