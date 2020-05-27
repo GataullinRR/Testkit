@@ -14,5 +14,10 @@ namespace DDD
 
         [Required]
         public byte[] Data { get; set; }
+
+        /// <summary>
+        /// XML
+        /// </summary>
+        public string Parameters { get; set; }
     }
 }

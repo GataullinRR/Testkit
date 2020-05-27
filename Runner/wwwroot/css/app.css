@@ -1,5 +1,9 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+span {
+    white-space: pre-wrap;
+}
+
 .form-sm {
     max-width: 400px;
     margin-left: auto;

@@ -49,6 +49,7 @@ namespace ExampleTestsSourceService
                     TestId = request.TestId,
                     TestData = testCase.Data,
                     TestType = testCase.TargetType,
+                    Parameters = "<users><user name=\"Bill Gates\"><company>Microsoft</company><age>48</age ></user><user name=\"Larry Page\"><company>Google</company><age>42</age></user></users>",
                 });
             }
 

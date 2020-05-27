@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace TestsStorageService.API
 {
@@ -9,5 +10,10 @@ namespace TestsStorageService.API
 
         [Required]
         public byte[] Data { get; set; }
+
+        /// <summary>
+        /// Xml tree
+        /// </summary>
+        public string Parameters { get; set; }
     }
 }

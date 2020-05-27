@@ -55,7 +55,9 @@ namespace PresentationService
 
             var fullInfos = tests.Tests.Zip(getInfosResp.RunInfos, (Case, RunInfo) => (Case, RunInfo));
 
-            return new ListTestsResponse(ddd().ToArray(), tests.Tests.Length, Protobuf.StatusCode.Ok);
+             var response = new ListTestsResponse(ddd().ToArray(), tests.Tests.Length, Protobuf.StatusCode.Ok);
+
+            return response;
 
             IEnumerable<TestInfo> ddd()
             {
@@ -65,7 +67,12 @@ namespace PresentationService
                     {
                         TestId = info.Case.TestId,
                         Author = new GetUserInfoResponse(info.Case.AuthorName, null, null, Protobuf.StatusCode.Ok),
-                        Target = new TestCaseInfo() {  DisplayName = info.Case.DisplayName, TargetType = info.Case?.Data?.Type },
+                        Target = new TestCaseInfo() 
+                        {  
+                            DisplayName = info.Case.DisplayName, 
+                            TargetType = info.Case?.Data?.Type, 
+                            Parameters = info.Case?.Data?.Parameters 
+                        },
                         State = info.RunInfo.State,
                         LastResult = info.RunInfo.LastResult,
                         RunPlan = info.RunInfo.RunPlan,

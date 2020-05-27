@@ -8,7 +8,7 @@
 @inject IMessageService MessageService;
 @inject ICookieStorage Cookies;
 
-@if (_tests == null)
+@if (_tests.Count == 0)
 {
     <RootContainer>Loading...</RootContainer>
 }
@@ -124,26 +124,36 @@ else
 }
 
 @code {
-    const int ADD_MORE_BUTTONS_COUNT = 3;
+        const int ADD_MORE_BUTTONS_COUNT = 3;
 
-    [Parameter]
-    public string? TestId { get; set; }
+        [Parameter]
+        public string? TestId { get; set; }
 
-    int shownCount { get; set; }
+        [Parameter]
+        public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
 
-    int _totalCount;
-    TestInfo[]? _tests;
+        int shownCount { get; set; }
 
+        int _totalCount;
+        readonly List<TestInfo> _tests = new List<TestInfo>();
+
+        bool _setting = false; // no inf loops!
     protected override async Task OnParametersSetAsync()
     {
-        await AppInitializer.AwaitInitializedAsync();
+        if (!_setting)
+        {
+            _setting = true;
+            await AppInitializer.AwaitInitializedAsync();
 
-        _tests = null;
-        await addTestsAsync(0, 10);
+            _tests.Clear();
+            await addTestsAsync(0, 10);
 
-        shownCount = _tests?.Count() ?? 0;
+            shownCount = _tests?.Count() ?? 0;
 
-        await base.OnParametersSetAsync();
+            await base.OnParametersSetAsync();
+        }
+
+        _setting = false;
     }
 
     int getCount(int buttonIndex)
@@ -160,14 +170,14 @@ else
         ListTestsResponse response = gResponse;
 
         _totalCount = response.TotalCount;
-        _tests = _tests == null
-            ? response.Tests
-            : _tests.Concat(response.Tests).ToArray();
+        _tests.AddRange(response.Tests);
+
+        await OnTestsUpdatedAsync.InvokeAsync(_tests);
     }
 
     async Task onShowMoreAsync(int count)
     {
-        await addTestsAsync(_tests.Length, _tests.Length + count);
+        await addTestsAsync(_tests.Count, _tests.Count + count);
 
         StateHasChanged();
     }

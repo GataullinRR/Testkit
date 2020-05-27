@@ -41,13 +41,14 @@ namespace TestsStorageService
             test.Data = new TestCaseData()
             {
                 Type = arg.TestType,
-                Data = arg.TestData
+                Data = arg.TestData,
+                Parameters = arg.Parameters
             };
             await db.SaveChangesAsync();
 
             MessageProducer.FireTestRecorded(new TestRecordedMessage()
             {
-                TestId = arg.TestId  
+                TestId = arg.TestId
             });
         }
     }

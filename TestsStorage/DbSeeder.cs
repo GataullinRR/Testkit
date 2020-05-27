@@ -37,6 +37,7 @@ namespace UserService
                         {
                             Type = "REST",
                             Data = "HiHiHi".GetASCIIBytes(),
+                            Parameters = "Hello all",
                         }
                     },
                     new TestCase()
@@ -50,6 +51,7 @@ namespace UserService
                         {
                             Type = "UI",
                             Data = "MeMeMe".GetASCIIBytes(),
+                            Parameters = "Hello all 2",
                         }
                     }
                 });

@@ -14,5 +14,10 @@ namespace MessageHub
         public AcquiringResult ResultCode { get; set; }
         public string TestType { get; set; }
         public byte[] TestData { get; set; }
+
+        /// <summary>
+        /// An XML object
+        /// </summary>
+        public string Parameters { get; set; }
     }
 }
