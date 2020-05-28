@@ -11,21 +11,21 @@ else
     <TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" />
 }
 @code {
-        readonly TableBase.Column[] _columns = new TableBase.Column[]
-        {
+    readonly TableBase.Column[] _columns = new TableBase.Column[]
+    {
         new TableBase.Column() { Name = "Outcome" },
         new TableBase.Column() { Name = "Duration" },
         new TableBase.Column() { Name = "Test Id" },
         new TableBase.Column() { Name = "Date" },
         new TableBase.Column() { Name = "Started by" },
-                };
-        List<TableBase.Row> _rows = new List<TableBase.Row>();
-        int _totalCount = 0;
+            };
+    List<TableBase.Row> _rows = new List<TableBase.Row>();
+    int _totalCount = 0;
 
-        [Parameter]
-        public string TestId { get; set; }
+    [Parameter]
+    public string TestNameFilter { get; set; }
 
-protected override async Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
         _rows.Clear();
 
@@ -37,7 +37,7 @@ protected override async Task OnParametersSetAsync()
     async Task addMoreAsync(int count)
     {
         var newCount = _rows.Count + count;
-        GetTestDetailsResponse response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestId.ToSequence().ToArray(), newCount));
+        GetTestDetailsResponse response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestNameFilter.ToSequence().ToArray(), newCount));
 
         _totalCount = response.TotalCount;
         _rows.Clear();
@@ -50,7 +50,7 @@ protected override async Task OnParametersSetAsync()
                 {
 @<span>@result.Result</span>,
 @<span>@result.Duration.TotalSeconds.ToString("F1") secouns</span>,
-@<TestReferenceButton TestId="@result.TestId" />,
+@<TestReferenceButton TestName="@result.TestId" />,
 @<span>@result.StartTime.ToString("hh:mm dd.MM.yyy")</span>,
 @<UserProfileButton UserName="@result.StartedByUser" />
                     }

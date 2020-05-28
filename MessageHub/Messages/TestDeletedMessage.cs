@@ -4,11 +4,13 @@ namespace MessageHub
 {
     public class TestDeletedMessage
     {
-        public string TestId { get; }
+        public int TestId { get; }
+        public string? TestName { get; }
 
-        public TestDeletedMessage(string testId)
+        public TestDeletedMessage(int testId, string? testName)
         {
-            TestId = testId ?? throw new ArgumentNullException(nameof(testId));
+            TestId = testId;
+            TestName = testName;
         }
     }
 }

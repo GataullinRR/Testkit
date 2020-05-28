@@ -4,7 +4,7 @@ namespace PresentationService.API
 {
     public class TestCompletedWebMessage
     {
-        public string TestId { get; set; }
+        public string TestName { get; set; }
         public RunResultBase RunResult { get; set; }
     };
 }

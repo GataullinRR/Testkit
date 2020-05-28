@@ -35,27 +35,36 @@ namespace TestsStorageService
         {
             ListTestsDataRequest request = gRequest;
 
-            IQueryable<TestCase> cases = Db.Cases
-                .AsNoTracking()
+            IQueryable<TestCase> cases = Db.Cases.AsNoTracking()
+                .Where(c => request.ReturnNotSaved
+                    ? c.State == TestCaseState.RecordedButNotSaved
+                    : c.State == TestCaseState.Saved)
                 .OrderByDescending(c => c.CreationDate);
-            if (request.TestIdsFilter.Length > 0)
+            if (request.IsById)
             {
-                var ids = request.TestIdsFilter.ToArray();
-                IQueryable<TestCase> original = null;
-                foreach (var filter in request.TestIdsFilter)
-                {
-                    var additional = cases.Where(c => c.TestId.StartsWith(filter));
-                    original = original == null 
-                        ? additional 
-                        : original.Concat(additional);
-                }
-                cases = original;
+                cases = cases.Where(c => request.TestIds.Contains(c.TestId));
             }
+            else
+            {
+                if (request.TestNameFilters.Length > 0)
+                {
+                    //var names = request.TestNameFilters.ToArray();
+                    IQueryable<TestCase> original = null;
+                    foreach (var filter in request.TestNameFilters)
+                    {
+                        var additional = cases.Where(c => c.TestName.StartsWith(filter));
+                        original = original == null
+                            ? additional
+                            : original.Concat(additional);
+                    }
+                    cases = original;
+                }
+            }
+
             var totalCount = await cases.CountAsync();
             if (request.Range != null)
             {
-                var count = ((int)request.Range.To - (int)request.Range.From)
-                    .NegativeToZero();
+                var count = (request.Range.To - request.Range.From).NegativeToZero();
                 cases = cases.Take(count);
             }
             
@@ -64,49 +73,49 @@ namespace TestsStorageService
             return new ListTestsDataResponse(result, totalCount, Protobuf.StatusCode.Ok);
         }
 
-        public override async Task<GTryCreateTestResponse> TryCreateTest(GTryCreateTestRequest request, ServerCallContext context)
-        {
-            var response = new GTryCreateTestResponse()
-            {
-                Status = new Protobuf.GResponseStatus()
-            };
-
-            bool exists = await Db.Cases.AnyAsync(c => c.TestId == request.TestId);
-            if (exists)
-            {
-                response.IsAlreadyAdded = true;
-                response.Status.Code = Protobuf.StatusCode.Error;
-            }
-            else
-            {
-                await Db.Cases.AddAsync(new TestCase()
-                {
-                    TestId = request.TestId,
-                    AuthorName = request.Author,
-                    DisplayName = request.DisplayName,
-                    State = TestCaseState.NotRecorded,
-                    CreationDate = DateTime.UtcNow,
-                });
-                await Db.SaveChangesAsync();
-            }
-
-            return response;
-        }
-
         public override async Task<GDeleteTestResponse> DeleteTest(GDeleteTestRequest gRequest, ServerCallContext context)
         {
             DeleteTestRequest request = gRequest;
 
-            var test = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
-            if (test!= null)
+            TestCase caseToDelete = null;
+            if (request.IsById)
             {
-                Db.Cases.Remove(test);
+                caseToDelete = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
             }
-            await Db.SaveChangesAsync();
+            else
+            {
+                caseToDelete = await Db.Cases.FirstOrDefaultAsync(c => c.TestName == request.TestNameFilter);
+            }
 
-            MessageProducer.FireTestDeleted(new TestDeletedMessage(request.TestId));
+            if (caseToDelete != null)
+            {
+                Db.Cases.Remove(caseToDelete);
+                await Db.SaveChangesAsync();
+                
+                MessageProducer.FireTestDeleted(new TestDeletedMessage(caseToDelete.TestId, caseToDelete.TestName));
+            }
 
             return new DeleteTestResponse(Protobuf.StatusCode.Ok);
+        }
+
+        public override async Task<GSaveTestResponse> SaveTest(GSaveTestRequest request, ServerCallContext context)
+        {
+            var test = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
+            if (test.State == TestCaseState.RecordedButNotSaved)
+            {
+                test.DisplayName = request.DisplayName;
+                test.TestName = request.TestName;
+                test.State = TestCaseState.Saved;
+
+                MessageProducer.FireTestAdded(new TestAddedMessage(test.TestId, test.TestName, test.AuthorName));
+
+                await Db.SaveChangesAsync();
+            };
+
+            return new GSaveTestResponse()
+            {
+                Status = new GResponseStatus()
+            };
         }
     }
 }

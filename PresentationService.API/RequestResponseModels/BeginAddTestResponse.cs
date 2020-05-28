@@ -4,14 +4,14 @@ namespace PresentationService.API
 {
     public class BeginAddTestResponse : ResponseBase
     {
-        public static implicit operator global::PresentationService.API2.GBeginRecordingResponse(BeginAddTestResponse response)
+        public static implicit operator global::PresentationService.API2.GBeginAddTestResponse(BeginAddTestResponse response)
         {
-            return new global::PresentationService.API2.GBeginRecordingResponse()
+            return new global::PresentationService.API2.GBeginAddTestResponse()
             {
                 Status = response.Status
             };
         }
-        public static implicit operator BeginAddTestResponse(global::PresentationService.API2.GBeginRecordingResponse response)
+        public static implicit operator BeginAddTestResponse(global::PresentationService.API2.GBeginAddTestResponse response)
         {
             return new BeginAddTestResponse(response.Status);
         }

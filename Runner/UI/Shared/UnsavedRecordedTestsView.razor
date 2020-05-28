@@ -1,0 +1,85 @@
+﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+@inject IMessageService MessageService;
+
+<h3>Unsaved tests</h3>
+
+<TableBase Columns="_columns" Rows="_rows" />
+
+@code {
+    [Parameter]
+    public string AuthorName { get; set; }
+
+    TableBase.Column[] _columns = new TableBase.Column[]
+    {
+        new TableBase.Column() { Name = "Test Id" },
+        new TableBase.Column() { Name = "Date" },
+        new TableBase.Column() { Name = "" },
+    };
+
+    readonly List<TableBase.Row> _rows = new List<TableBase.Row>();
+    int _totalCount = 0;
+    readonly TestSaveModel _saveFormModel = new TestSaveModel();
+
+    class TestSaveModel
+    {
+        [Required]
+        public string TestName { get; set; }
+        
+        [Required]
+        public string TestDescription { get; set; }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ListTestsResponse response = await PresentationService.ListTestsAsync(new ListTestsRequest(true, new IntInterval(0, 1000)));
+        _totalCount = response.TotalCount;
+
+        foreach (var test in response.Tests)
+        {
+            _rows.Add(new TableBase.Row()
+            {
+                ExpandLastRow = true,
+                Cells = new RenderFragment[]
+                {
+                    @<span class="d-block my-auto">@test.TestId</span>,
+                    @<span class="d-block my-auto">@test.Target.CreateDate.ToString("hh:mm dd.MM.yyyy")</span>,
+
+                    @<FormTemplate IsInline="true" Model="_saveFormModel">
+                        <FormTextInput Name="Test name" @bind-Value="_saveFormModel.TestName" />
+                        <FormTextInput Name="Test description" @bind-Value="_saveFormModel.TestDescription" />
+
+                        <FormValidator/>
+
+                        <FormButton Name="Save" IsSubmit="true" OnClick="async () => await saveTestAsync(test.TestId, _saveFormModel)"/>
+                        <FormButton Name="Discard" Type="@FormButton.ButtonType.Danger" OnClick="async () => await discardTestAsync(test.TestId, _saveFormModel)"/>
+                    </FormTemplate>
+                }
+            });
+
+            _rows.Add(new TableBase.Row()
+            {
+                IsFullRowWide = true,
+                Cells = new RenderFragment[]
+                {
+                    @<ParametersView Parameters="@test.Target.Parameters" />,
+                }
+            });
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    async Task saveTestAsync(int testId, TestSaveModel saveModel)
+    {
+        var response = await PresentationService.SaveRecordedTestAsync(new SaveRecordedTestRequest(testId, saveModel.TestName, saveModel.TestDescription));
+
+        MessageService.AddMessage(response.Status.Code.ToString());
+    }
+
+    async Task discardTestAsync(int testId, TestSaveModel saveModel)
+    {
+        var response = await PresentationService.DeleteTestAsync(new DeleteTestRequest(testId));
+
+        MessageService.AddMessage(response.Status.Code.ToString());
+    }
+}

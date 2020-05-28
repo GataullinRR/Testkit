@@ -8,35 +8,26 @@ namespace PresentationService.API
 {
     public class BeginAddTestRequest
     {
-        public static implicit operator global::PresentationService.API2.GBeginRecordingRequest(BeginAddTestRequest request)
+        public static implicit operator global::PresentationService.API2.GBeginAddTestRequest(BeginAddTestRequest request)
         {
-            var gRequest = new API2.GBeginRecordingRequest()
+            var gRequest = new API2.GBeginAddTestRequest()
             {
-                TestId = request.TestId,
-                DisplayName = request.DisplayName
+
             };
             gRequest.Filter.AddRange(request.TestParameters);
 
             return gRequest;
         }
-        public static implicit operator BeginAddTestRequest(global::PresentationService.API2.GBeginRecordingRequest request)
+        public static implicit operator BeginAddTestRequest(global::PresentationService.API2.GBeginAddTestRequest request)
         {
-            return new BeginAddTestRequest(request.TestId, request.DisplayName, request.Filter);
+            return new BeginAddTestRequest(request.Filter);
         }
-
-        [Required]
-        public string TestId { get; }
-
-        [Required]
-        public string DisplayName { get; }
 
         [Required]
         public IDictionary<string, string> TestParameters { get; }
 
-        public BeginAddTestRequest(string testId, string displayName, IDictionary<string, string> testParameters)
+        public BeginAddTestRequest(IDictionary<string, string> testParameters)
         {
-            TestId = testId ?? throw new ArgumentNullException(nameof(testId));
-            DisplayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
             TestParameters = testParameters ?? throw new ArgumentNullException(nameof(testParameters));
         }
     }

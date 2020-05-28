@@ -10,22 +10,22 @@ namespace PresentationService.API
         {
             var gRequest = new API2.GRunTestRequest()
             {
-                TestId = request.TestIdFilter
+                TestName = request.TestNameFilter
             };
 
             return gRequest;
         }
         public static implicit operator BeginTestRequest(global::PresentationService.API2.GRunTestRequest request)
         {
-            return new BeginTestRequest(request.TestId);
+            return new BeginTestRequest(request.TestName);
         }
 
         [Required]
-        public string TestIdFilter { get; }
+        public string TestNameFilter { get; }
 
-        public BeginTestRequest(string testIdFilter)
+        public BeginTestRequest(string testNameFilter)
         {
-            TestIdFilter = testIdFilter ?? throw new ArgumentNullException(nameof(testIdFilter));
+            TestNameFilter = testNameFilter ?? throw new ArgumentNullException(nameof(testNameFilter));
         }
     }
 }

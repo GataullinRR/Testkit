@@ -3,6 +3,7 @@
     public enum TestCaseState
     {
         NotRecorded = 0,
-        Recorder = 1000,
+        Saved = 1000,
+        RecordedButNotSaved = 2000
     }
 }

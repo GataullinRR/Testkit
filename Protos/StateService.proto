@@ -1,0 +1,16 @@
+﻿syntax = "proto3";
+option csharp_namespace = "StateService.API";
+import "common.proto"; 
+package userservice.api;
+
+service StateService {
+	rpc GetTestsAddState (GGetTestsAddStateRequest) returns (GGetTestsAddStateResponse);
+}
+
+message GGetTestsAddStateRequest {
+  string user_name = 1;
+}
+message GGetTestsAddStateResponse {
+  common.GResponseStatus status = 1;
+  bool has_began = 2;
+}

@@ -19,5 +19,7 @@ namespace MessageHub
         public string TestCompletedOnSourceTopic { get; set; } = "test-completed-on-source";
         public string TestDeletedTopic { get; set; } = "test-deleted";
         public string BeginTestTopic { get; set; } = "test-begin";
+        public string BeginAddTestTopic { get; set; } = "test-begin-add";
+        public string StopAddTestTopic { get; set; } = "test-stop-add";
     }
 }

@@ -56,7 +56,6 @@ namespace Shared
         {
             services.AddUtilityServices();
             services.AddAttributeRegisteredServices(Assembly.GetCallingAssembly());
-            services.AddAttributeRegisteredServices(typeof(IMessageConsumer).Assembly);
             services.AddLogging(config => config.AddConsole());
     
             var jsonOptions = new JsonSerializerSettings
@@ -80,8 +79,9 @@ namespace Shared
         {
             services.AddGrpcService<UserService.API.UserService.UserServiceClient>("https://localhost:5001/");
             services.AddGrpcService<TestsStorageService.API.TestsStorageService.TestsStorageServiceClient>("https://localhost:5020");
-            services.AddGrpcService<TestsSourceService.API.TestsSourceService.TestsSourceServiceClient>("https://localhost:5041");
+            services.AddGrpcService<TestsSourceService.API.TestsSourceService.TestsSourceServiceClient>("https://localhost:5051");
             services.AddGrpcService<RunnerService.API.RunnerService.RunnerServiceClient>("https://localhost:5031");
+            services.AddGrpcService<StateService.API.StateService.StateServiceClient>("https://localhost:5035");
 
             return services;
         }

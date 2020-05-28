@@ -36,7 +36,8 @@ message GGetTestDetailsResponse {
 }
 
 message GDeleteTestRequest {
-  string test_id = 1;
+  int32 test_id = 1;
+  string test_name_filter = 2;
 }
 message GDeleteTestResponse {
   common.GResponseStatus status = 1;

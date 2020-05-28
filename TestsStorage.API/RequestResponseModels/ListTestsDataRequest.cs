@@ -17,28 +17,45 @@ namespace TestsStorageService.API
                 {
                     From = request.Range.From,
                     To = request.Range.To,
-                }
+                },
+                ReturnNotSaved = request.ReturnNotSaved
             };
-            gRequest.TestIds.Add(request.TestIdsFilter);
+            gRequest.TestNameFilters.Add(request.TestNameFilters);
 
             return gRequest;
         }
         public static implicit operator ListTestsDataRequest(GListTestsDataRequest request)
         {
-            return new ListTestsDataRequest(request.TestIds?.ToArray(), 
+            return new ListTestsDataRequest(request.TestNameFilters?.ToArray(), 
                 new IntInterval(request.Range.From, request.Range.To), 
-                request.IncludeData);
+                request.IncludeData,
+                request.ReturnNotSaved);
         }
 
-        public string[] TestIdsFilter { get; }
+        public int[] TestIds { get; }
+        public string[] TestNameFilters { get; }
+
         public IntInterval Range { get; }
         public bool IncludeData { get; }
+        public bool ReturnNotSaved { get; }
+        public bool IsById { get; }
 
-        public ListTestsDataRequest(string[] testIdsFilter, IntInterval range, bool includeData)
+        public ListTestsDataRequest(int[] testIds, IntInterval range, bool includeData, bool returnNotSaved)
         {
-            TestIdsFilter = testIdsFilter;
+            IsById = true;
+            TestIds = testIds;
+            TestNameFilters = new string[0];
             Range = range;
             IncludeData = includeData;
+            ReturnNotSaved = returnNotSaved;
+        }
+        public ListTestsDataRequest(string[] testNameFilters, IntInterval range, bool includeData, bool returnNotSaved)
+        {
+            TestIds = new int[0];
+            TestNameFilters = testNameFilters;
+            Range = range;
+            IncludeData = includeData;
+            ReturnNotSaved = returnNotSaved;
         }
     }
 }

@@ -8,7 +8,13 @@ namespace RunnerService.Db
     public class TestRunInfo
     {
         [Key]
-        public string TestId { get; set; }
+        public int Id { get; set; }
+
+        [Required]
+        public int TestId { get; set; }
+
+        [Required]
+        public string TestName { get; set; }
 
         [Required]
         [Include(EntityGroups.ALL, EntityGroups.RESULTS)]

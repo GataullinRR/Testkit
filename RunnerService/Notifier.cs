@@ -33,8 +33,12 @@ namespace RunnerService
             var sp = scope.ServiceProvider;
             using var db = sp.GetRequiredService<RunnerContext>();
 
-            var runInfo = await db.TestRuns.FirstOrDefaultAsync(r => r.TestId == arg.TestId);
-            db.TestRuns.Remove(runInfo);
+            var runInfo = await db.TestRuns.FirstOrDefaultAsync(r => r.TestId == r.TestId || r.TestName == arg.TestName);
+            if (runInfo != null)
+            {
+                db.TestRuns.Remove(runInfo);
+                await db.SaveChangesAsync();
+            }
         }
 
         async Task MessageConsumer_TestCompletedOnSourceAsync(TestCompletedOnSourceMessage arg)
@@ -45,7 +49,7 @@ namespace RunnerService
 
             var runInfo = await db.TestRuns
                 .IncludeGroup(EntityGroups.ALL, db)
-                .FirstAsync(r => r.TestId == arg.TestId);
+                .FirstAsync(r => r.TestName == arg.TestId);
             var result = runInfo.Results
                 .FirstOrDefault(r => r.Id == arg.ResultId);
 #warning MM
@@ -57,7 +61,7 @@ namespace RunnerService
 
             MessageProducer.FireTestCompleted(new TestCompletedMessage() 
             { 
-                TestId = runInfo.TestId, 
+                TestId = runInfo.TestName, 
                 Result = arg.Result
             });
         }

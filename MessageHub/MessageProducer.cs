@@ -14,13 +14,15 @@ namespace MessageHub
         readonly MessageHubOptions _options;
         readonly ILogger<MessageProducer> _logger;
 
-        readonly IProducer<Null, TestRecordedMessage> _testRecordedProducer;
+        readonly IProducer<Null, TestAddedMessage> _testRecordedProducer;
         readonly IProducer<Null, TestExecutedMessage> _testExecutedProducer;
         readonly IProducer<Null, TestAcquiringResultMessage> _testAcquiredProducer;
         readonly IProducer<Null, TestCompletedMessage> _testCompletedProducer;
         readonly IProducer<Null, TestCompletedOnSourceMessage> _testCompletedOnSourceProducer;
         readonly IProducer<Null, TestDeletedMessage> _testDeletedProducer;
         readonly IProducer<Null, BeginTestMessage> _beginTestProducer;
+        readonly IProducer<Null, BeginAddTestMessage> _beginAddTestProducer;
+        readonly IProducer<Null, StopAddTestMessage> _stopAddTestProducer;
 
         public MessageProducer(ILogger<MessageProducer> logger, JsonSerializerSettings serializerSettings)
         {
@@ -29,34 +31,15 @@ namespace MessageHub
 
             var conf = new ProducerConfig { BootstrapServers = _options.ServerURI };
 
-            _testRecordedProducer = new ProducerBuilder<Null, TestRecordedMessage>(conf)
-                .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
-                .SetValueSerializer(new JsonNETKafkaSerializer<TestRecordedMessage>(serializerSettings))
-                .Build();
-            _testExecutedProducer = new ProducerBuilder<Null, TestExecutedMessage>(conf)
-                .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
-                .SetValueSerializer(new JsonNETKafkaSerializer<TestExecutedMessage>(serializerSettings))
-                .Build();
-            _testAcquiredProducer = new ProducerBuilder<Null, TestAcquiringResultMessage>(conf)
-                .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
-                .SetValueSerializer(new JsonNETKafkaSerializer<TestAcquiringResultMessage>(serializerSettings))
-                .Build();
-            _testCompletedProducer = new ProducerBuilder<Null, TestCompletedMessage>(conf)
-                .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
-                .SetValueSerializer(new JsonNETKafkaSerializer<TestCompletedMessage>(serializerSettings))
-                .Build();
-            _testCompletedOnSourceProducer = new ProducerBuilder<Null, TestCompletedOnSourceMessage>(conf)
-                .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
-                .SetValueSerializer(new JsonNETKafkaSerializer<TestCompletedOnSourceMessage>(serializerSettings))
-                .Build();
-            _testDeletedProducer = new ProducerBuilder<Null, TestDeletedMessage>(conf)
-                .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
-                .SetValueSerializer(new JsonNETKafkaSerializer<TestDeletedMessage>(serializerSettings))
-                .Build();
-            _beginTestProducer = new ProducerBuilder<Null, BeginTestMessage>(conf)
-                .SetKeySerializer(new JsonNETKafkaSerializer<Null>(serializerSettings))
-                .SetValueSerializer(new JsonNETKafkaSerializer<BeginTestMessage>(serializerSettings))
-                .Build();
+            _testRecordedProducer = new ProducerBuilder<Null, TestAddedMessage>(conf).Build(serializerSettings);
+            _testExecutedProducer = new ProducerBuilder<Null, TestExecutedMessage>(conf).Build(serializerSettings);
+            _testAcquiredProducer = new ProducerBuilder<Null, TestAcquiringResultMessage>(conf).Build(serializerSettings);
+            _testCompletedProducer = new ProducerBuilder<Null, TestCompletedMessage>(conf).Build(serializerSettings);
+            _testCompletedOnSourceProducer = new ProducerBuilder<Null, TestCompletedOnSourceMessage>(conf).Build(serializerSettings);
+            _testDeletedProducer = new ProducerBuilder<Null, TestDeletedMessage>(conf).Build(serializerSettings);
+            _beginTestProducer = new ProducerBuilder<Null, BeginTestMessage>(conf).Build(serializerSettings);
+            _beginAddTestProducer = new ProducerBuilder<Null, BeginAddTestMessage>(conf).Build(serializerSettings);
+            _stopAddTestProducer = new ProducerBuilder<Null, StopAddTestMessage>(conf).Build(serializerSettings);
         }
 
         public void FireTestExecuted(TestExecutedMessage args)
@@ -66,11 +49,11 @@ namespace MessageHub
             _testExecutedProducer.Produce(_options.TestExecutedTopic, new Message<Null, TestExecutedMessage> { Value = args });
         }
 
-        public void FireTestRecorded(TestRecordedMessage args)
+        public void FireTestAdded(TestAddedMessage args)
         {
             _logger.LogTrace("Sending: {0}", args);
 
-            _testRecordedProducer.Produce(_options.TestRecordedTopic, new Message<Null, TestRecordedMessage> { Value = args });
+            _testRecordedProducer.Produce(_options.TestRecordedTopic, new Message<Null, TestAddedMessage> { Value = args });
         }
 
         public void FireTestAcquired(TestAcquiringResultMessage args)
@@ -103,6 +86,16 @@ namespace MessageHub
         public void FireBeginTest(BeginTestMessage args)
         {
             _beginTestProducer.Produce(_options.BeginTestTopic, new Message<Null, BeginTestMessage> { Value = args });
+        }
+
+        public void FireBeginAddTest(BeginAddTestMessage args)
+        {
+            _beginAddTestProducer.Produce(_options.BeginAddTestTopic, new Message<Null, BeginAddTestMessage> { Value = args });
+        }
+
+        public void FireStopAddTest(StopAddTestMessage args)
+        {
+            _stopAddTestProducer.Produce(_options.StopAddTestTopic, new Message<Null, StopAddTestMessage> { Value = args });
         }
     }
 }

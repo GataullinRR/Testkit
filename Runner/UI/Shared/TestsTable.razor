@@ -53,10 +53,12 @@ else
                             </td>
 
                             <td>
-                                <TestReferenceButton TestId="@test.TestId" />
+                                <TestReferenceButton TestName="@test.TestName" />
                             </td>
 
-                            <td><InlineButton @onclick="() => goToTest(test.TestId)">@test.Target.DisplayName</InlineButton></td>
+                            <td>
+                                <InlineButton @onclick="() => goToTest(test.TestName)">@test.Target.DisplayName</InlineButton>
+                            </td>
 
                             <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString("hh:mm dd.MM.yyyy"))</td>
 
@@ -82,13 +84,13 @@ else
                             </td>
 
                             <td>
-                                @if (test.CreationState == TestsStorageService.API.TestCaseState.Recorder)
+                                @if (test.CreationState == TestsStorageService.API.TestCaseState.Saved)
                                 {
                                     @switch (test.State.State)
                                     {
                                         case State.JustCreated:
                                         case State.Ready:
-                                            <RunTestButton TestId="@test.TestId" />
+                                            <RunTestButton TestNameFilter="@test.TestName" />
                                             break;
                                         case State.AwaitingStart:
                                         case State.Running:
@@ -124,20 +126,20 @@ else
 }
 
 @code {
-        const int ADD_MORE_BUTTONS_COUNT = 3;
+    const int ADD_MORE_BUTTONS_COUNT = 3;
 
-        [Parameter]
-        public string? TestId { get; set; }
+    [Parameter]
+    public string? TestNameFilter { get; set; }
 
-        [Parameter]
-        public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
+    [Parameter]
+    public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
 
-        int shownCount { get; set; }
+    int shownCount { get; set; }
 
-        int _totalCount;
-        readonly List<TestInfo> _tests = new List<TestInfo>();
+    int _totalCount;
+    readonly List<TestInfo> _tests = new List<TestInfo>();
 
-        bool _setting = false; // no inf loops!
+    bool _setting = false; // no inf loops!
     protected override async Task OnParametersSetAsync()
     {
         if (!_setting)
@@ -166,7 +168,7 @@ else
 
     async Task addTestsAsync(int from, int to)
     {
-        var gResponse = await PresentationService.ListTestsAsync(new ListTestsRequest(TestId, new IntInterval(from, to)));
+        var gResponse = await PresentationService.ListTestsAsync(new ListTestsRequest(TestNameFilter, false, new IntInterval(from, to)));
         ListTestsResponse response = gResponse;
 
         _totalCount = response.TotalCount;
@@ -182,8 +184,8 @@ else
         StateHasChanged();
     }
 
-    async Task goToTest(string testId)
+    async Task goToTest(string testName)
     {
-        NavigationManager.NavigateTo(Test.BuildPath(testId));
+        NavigationManager.NavigateTo(Test.BuildPath(testName));
     }
 }

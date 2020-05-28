@@ -4,25 +4,30 @@ import "common.proto";
 package userservice.api;
 
 service TestsStorageService {
-  rpc ListTestsData (GListTestsDataRequest) returns (GListTestsDataResponse);
-  rpc TryCreateTest (GTryCreateTestRequest) returns (GTryCreateTestResponse);
+  rpc SaveTest (GSaveTestRequest) returns (GSaveTestResponse);
   rpc DeleteTest (common.GDeleteTestRequest) returns (common.GDeleteTestResponse);
+
+  rpc ListTestsData (GListTestsDataRequest) returns (GListTestsDataResponse);
 }
 
-message GTryCreateTestRequest {
-  string test_id = 1;
-  string display_name = 2;
-  string author = 3;
+message GSaveTestRequest {
+  int32 test_id = 1;
+  string test_name = 2;
+  string display_name = 3;
+  string author = 4;
 }
-message GTryCreateTestResponse {
+message GSaveTestResponse {
   common.GResponseStatus status = 1;
-  bool is_already_added = 2;
+  bool is_already_saved = 2;
 }
 
 message GListTestsDataRequest {
-  bool include_data = 1;
-  common.GRange range = 2;
-  repeated string test_ids = 3;
+  bool return_not_saved = 1;
+  bool include_data = 2;
+  common.GRange range = 3;
+  repeated string test_ids = 4;
+  repeated string test_name_filters = 5;
+  bool is_by_id = 6;
 }
 message GListTestsDataResponse {
   common.GResponseStatus status = 1;

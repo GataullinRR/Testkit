@@ -4,13 +4,5 @@ import "common.proto";
 package userservice.api;
 
 service TestsSourceService {
-  rpc BeginRecording (GBeginRecordingRequest) returns (GBeginRecordingResponse);
-}
 
-message GBeginRecordingRequest {
-  string test_id = 1;
-  map<string, string> filter = 2;
-}
-message GBeginRecordingResponse {
-  common.GResponseStatus status = 1;
 }

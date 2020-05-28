@@ -23,12 +23,22 @@ else
                 <tbody>
                     @foreach (var row in Rows)
                     {
-                        <tr>
-                            @foreach (var cell in row.Cells)
+                    <tr>
+                        @if (row.IsFullRowWide)
+                        {
+                            <td colspan="@Columns.Count()">@row.Cells.FirstOrDefault()</td>
+                        }
+                        else
+                        {
+                            for (int i = 0; i < row.Cells.Length; i++)
                             {
-                                <td>@cell</td>
+                                var span = i == row.Cells.Length - 1 && row.ExpandLastRow
+                                    ? Columns.Count() - row.Cells.Length
+                                    : 1;
+                                <td colspan="@span">@row.Cells[i]</td>
                             }
-                        </tr>
+                        }
+                    </tr>
                     }
                 </tbody>
             </table>
@@ -51,18 +61,19 @@ else
 }
 
 @code {
-        const int ADD_MORE_BUTTONS_COUNT = 3;
+    const int ADD_MORE_BUTTONS_COUNT = 3;
 
-        int shownCount { get; set; }
+    int shownCount { get; set; }
 
-
-        public class Column
-        {
-            public string Name { get; set; }
-        }
+    public class Column
+    {
+        public string Name { get; set; }
+    }
 
     public class Row
     {
+        public bool IsFullRowWide { get; set; }
+        public bool ExpandLastRow { get; set; }
         public RenderFragment[] Cells { get; set; }
     }
 

@@ -5,11 +5,11 @@
 
 @code {
     [Parameter]
-    public string TestId { get; set; }
+    public string TestNameFilter { get; set; }
 
     async Task goToAsync()
     {
-        var response = await PresentationService.BeginTestAsync(new BeginTestRequest(TestId));
+        var response = await PresentationService.BeginTestAsync(new BeginTestRequest(TestNameFilter));
 
         MessageService.AddMessage(response.Status.Code.ToString());
     }

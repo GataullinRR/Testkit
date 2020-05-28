@@ -38,19 +38,19 @@ namespace RunnerService
         public override async Task<GRunTestResponse> RunTest(GRunTestRequest gRequest, ServerCallContext context)
         {
             RunTestRequest request = gRequest;
-            var listRequest = new ListTestsDataRequest(request.TestsIdsFilter, new Vectors.IntInterval(0, 1000), true);
+            var listRequest = new ListTestsDataRequest(request.TestsIdsFilter, new Vectors.IntInterval(0, 1000), true, false);
             ListTestsDataResponse listResponse = await TestsStorageService.ListTestsDataAsync(listRequest);
 
             var testIdFilter = request.TestsIdsFilter.Single();
             var tests = Db.TestRuns
                 .IncludeGroup(EntityGroups.ALL, Db)
-                .Where(r => r.TestId.StartsWith(testIdFilter))
+                .Where(r => r.TestName.StartsWith(testIdFilter))
                 .AsEnumerable()
-                .Where(r => r.TestId == testIdFilter || r.TestId[testIdFilter.Length] == '.')
+                .Where(r => r.TestName == testIdFilter || r.TestName[testIdFilter.Length] == '.')
                 .ToArray();
             foreach (var testFromStorge in listResponse.Tests)
             {
-                var exists = tests.Any(r => r.TestId == testFromStorge.TestId);
+                var exists = tests.Any(r => r.TestName == testFromStorge.TestName);
                 if (!exists)
                 {
                     tests.Add(new RunnerService.Db.TestRunInfo()
@@ -58,7 +58,7 @@ namespace RunnerService
                         Results = new List<Result>(),
                         RunPlan = new ManualRunPlan(),
                         State = new JustCreatedState(),
-                        TestId = testFromStorge.TestId
+                        TestName = testFromStorge.TestName
                     });
 
                     await Db.TestRuns.AddAsync(tests.LastElement());
@@ -76,14 +76,14 @@ namespace RunnerService
                         {
                             StartTime = DateTime.UtcNow,
                             StartedByUser = request.UserName,
-                            TestId = test.TestId,
+                            TestId = test.TestName,
                         }
                     };
                     test.Results.Add(result);
                     test.State = new RunningState();
 
-                    var data = listResponse.Tests.First(t => t.TestId == test.TestId).Data;
-                    messages.Add(() => new BeginTestMessage(test.TestId, result.Id, data.Type, data.Data));
+                    var data = listResponse.Tests.First(t => t.TestName == test.TestName).Data;
+                    messages.Add(() => new BeginTestMessage(test.TestName, result.Id, data.Type, data.Data));
                 }
             }
 
@@ -105,6 +105,7 @@ namespace RunnerService
                 infos
                     .Select(i => new API.TestRunInfo(
                         i.TestId,
+                        i.TestName,
                         i.Results
                             .OrderByDescending(r => r.ResultBase.StartTime)
                             .FirstOrDefault(r => r.ResultBase?.Result != RunResult.PendingCompletion)
@@ -119,20 +120,21 @@ namespace RunnerService
         {
             var infos = await Db.TestRuns
                 .IncludeGroup(EntityGroups.ALL, Db)
-                .Where(r => testIds.Contains(r.TestId))
+                .Where(r => testIds.Contains(r.TestName))
                 .ToArrayAsync();
             var missingIds = testIds
-                .Where(id => infos.NotContains(i => i.TestId == id))
+                .Where(id => infos.NotContains(i => i.TestName == id))
                 .ToArray();
             if (missingIds.Length > 0)
             {
-                var lstReq = new ListTestsDataRequest(missingIds, new Vectors.IntInterval(0, missingIds.Length), false);
+                var lstReq = new ListTestsDataRequest(missingIds, new Vectors.IntInterval(0, missingIds.Length), false, false);
                 ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
                 var missingRunInfos = lstResp.Tests
                     .Select(ti => new Db.TestRunInfo()
                     {
                         TestId = ti.TestId,
+                        TestName = ti.TestName,
                         State = new JustCreatedState(),
                         RunPlan = new ManualRunPlan(),
                     }).ToArray();
@@ -155,7 +157,7 @@ namespace RunnerService
             var testIdFilter = request.TestIdFilters.Single();
             var dbResults = await Db.TestRuns
                 .IncludeGroup(EntityGroups.RESULTS, Db)
-                .Where(r => r.TestId.StartsWith(testIdFilter))
+                .Where(r => r.TestName.StartsWith(testIdFilter))
                 .SelectMany(r => r.Results)
                 .OrderByDescending(r => r.ResultBase.StartTime)
                 .ToArrayAsync();

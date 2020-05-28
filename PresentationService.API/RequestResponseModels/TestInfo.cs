@@ -10,7 +10,8 @@ namespace DDD
 {
     public class TestInfo
     {
-        public string TestId { get; set; }
+        public int TestId { get; set; }
+        public string TestName { get; set; }
         public TestCaseState CreationState { get; set; }
         public GetUserInfoResponse Author { get; set; }
         public RunPlanBase RunPlan { get; set; }

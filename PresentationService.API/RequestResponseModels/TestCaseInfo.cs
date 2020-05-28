@@ -13,6 +13,9 @@ namespace DDD
         public string TargetType { get; set; }
 
         [Required]
+        public DateTime CreateDate { get; set; }
+
+        [Required]
         public byte[] Data { get; set; }
 
         /// <summary>

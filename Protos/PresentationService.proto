@@ -5,15 +5,23 @@ package userservice.api;
 
 service PresentationService {
   rpc ListTests (GListTestsRequest) returns (GListTestsResponse);
-  rpc BeginAddTest (GBeginRecordingRequest) returns (GBeginRecordingResponse);
-  rpc BeginTest (GRunTestRequest) returns (GRunTestResponse);
   rpc GetTestDetails (common.GGetTestDetailsRequest) returns (common.GGetTestDetailsResponse);
   rpc DeleteTest (common.GDeleteTestRequest) returns (common.GDeleteTestResponse);
+
+  rpc BeginAddTest (GBeginAddTestRequest) returns (GBeginAddTestResponse);
+  rpc StopAddTest (GStopAddTestRequest) returns (GStopAddTestResponse);
+  rpc SaveRecordedTest (GSaveRecordedTestRequest) returns (GSaveRecordedTestResponse);
+  rpc GetTestsAddState (GGetTestsAddStateRequest) returns (GGetTestsAddStateResponse);
+
+  rpc BeginTest (GRunTestRequest) returns (GRunTestResponse);
 }
 
 message GListTestsRequest {
-  string test_id = 1;
-  common.GRange range = 2;
+  bool is_by_ids = 5;
+  repeated int32 test_ids = 4;
+  string test_name = 1;
+  bool return_not_saved = 2;
+  common.GRange range = 3;
 }
 message GListTestsResponse {
   common.GResponseStatus status = 1;
@@ -21,18 +29,40 @@ message GListTestsResponse {
   int32 total_count = 4;
 }
 
-message GBeginRecordingRequest {
-  string test_id = 1;
-  string display_name = 2;
+message GSaveRecordedTestRequest {
+  int32 test_id = 1;
+  string test_name = 2;
+  string display_name = 3;
+}
+message GSaveRecordedTestResponse {
+  common.GResponseStatus status = 1;
+}
+
+message GBeginAddTestRequest {
   map<string, string> filter = 3;
 }
-message GBeginRecordingResponse {
+message GBeginAddTestResponse {
+  common.GResponseStatus status = 1;
+}
+
+message GStopAddTestRequest {
+
+}
+message GStopAddTestResponse {
   common.GResponseStatus status = 1;
 }
 
 message GRunTestRequest {
-  string test_id = 1;
+  string test_name = 1;
 }
 message GRunTestResponse {
   common.GResponseStatus status = 1;
+}
+
+message GGetTestsAddStateRequest {
+  
+}
+message GGetTestsAddStateResponse {
+  common.GResponseStatus status = 1;
+  bool has_began = 2;
 }

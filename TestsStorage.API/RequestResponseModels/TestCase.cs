@@ -6,18 +6,23 @@ namespace TestsStorageService.API
     public class TestCase
     {
         [Key]
-        public string TestId { get; set; }
+        public int TestId { get; set; }
+
+        /// <summary>
+        /// Null for <see cref="TestCaseState.RecordedButNotSaved"/>
+        /// </summary>
+        public string? TestName { get; set; }
 
         [Required]
         public string AuthorName { get; set; }
 
-        [Required]
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
         public DateTime CreationDate { get; set; }
 
+        [Required]
         public TestCaseState State { get; set; }
 
-        public TestCaseData Data { get; set; }
+        public TestCaseData? Data { get; set; }
     }
 }

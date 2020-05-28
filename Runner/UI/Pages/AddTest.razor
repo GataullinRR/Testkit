@@ -1,23 +1,33 @@
-﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationServiceCleint;
+﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
 @inject ICookieStorage Cookies;
+@inject IIdentityContext Context;
 @inject IMessageService Messages;
+@inject IWebMessageHub MessageHub;
 @page "/add-case"
 
 <RootContainer>
-    <FormTemplate Model="_model" OnSubmit="onSubmit">
-        <FormHeader Name="Test information"/>
-        <FormTextInput Name="Id" @bind-Value="@_model.Id"/>
-        <FormTextInput Name="Description" @bind-Value="_model.Description"/>
+    @if (_isReady)
+    {
+        <FormTemplate Model="_model" OnSubmit="onSubmit">
+            <FormHeader Name="Lookup parameters" />
+            <FormTextInput IsDisabled="@_hasBegun" Name="ServiceId" @bind-Value="_model.ServiceId" />
+            <FormTextInput IsDisabled="@_hasBegun" Name="UserId" @bind-Value="_model.UserId" />
 
-        <FormHeader Name="Lookup parameters"/>
-        <FormTextInput Name="ServiceId" @bind-Value="_model.ServiceId"/>
-        <FormTextInput Name="UserId" @bind-Value="_model.UserId"/>
+            @if(!_hasBegun)
+            {
+                <FormValidator />
+            }
 
-        <FormValidator/>
-
-        <FormSubmitButton Name="Add"/>
-    </FormTemplate>
+            <FormButton IsSubmit="true" Name="@_hasBegun.Ternar("Stop", "Begin")" />
+        </FormTemplate>
+    }
+    else
+    {
+        <span>Loading...</span>
+    }
 </RootContainer>
+
+<UnsavedRecordedTestsView AuthorName="@Context.Identity.User.UserName" />
 
 @code {
     public static string BuildPath()
@@ -28,33 +38,68 @@
     class LookupParameters
     {
         [Required]
-        public string Id { get; set; }
-
-        [Required]
-        public string Description { get; set; }
-
-        [Required]
         public string ServiceId { get; set; }
 
         [Required]
         public string UserId { get; set; }
     }
 
+    bool _isReady = false;
+    bool _hasBegun = false;
     readonly LookupParameters _model = new LookupParameters();
 
     async void onSubmit()
     {
-        var request = new BeginAddTestRequest(
-            _model.Id,
-            _model.Description,
-            new Dictionary<string, string>() 
-            {
-                { "UserId", _model.UserId },
-                { "ServiceId", _model.ServiceId }
-            });
+        if (_hasBegun)
+        {
+            var request = new StopAddTestRequest();
 
-        var response = await PresentationServiceCleint.BeginAddTestAsync(request);
+            var response = await PresentationService.StopAddTestAsync(request);
 
-        Messages.AddMessage(response.Status.Code.ToString());
+            Messages.AddMessage(response.Status.Code.ToString());
+        }
+        else
+        {
+            var request = new BeginAddTestRequest(
+                new Dictionary<string, string>()
+                {
+                    { "UserId", _model.UserId },
+                    { "ServiceId", _model.ServiceId }
+                });
+
+            var response = await PresentationService.BeginAddTestAsync(request);
+
+            Messages.AddMessage(response.Status.Code.ToString());
+        }
+
+        _isReady = false;
+        await updateAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await updateAsync();
+
+        await base.OnParametersSetAsync();
+    }
+
+    async Task updateAsync()
+    {
+        GetTestsAddStateResponse response = await PresentationService.GetTestsAddStateAsync(new GetTestsAddStateRequest());
+        _hasBegun = response.HasBegan;
+        _isReady = true;
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        MessageHub.TestAddedAsync += onRecordedAsync;
+
+        return base.OnInitializedAsync();
+    }
+
+    async Task onRecordedAsync(TestAddedWebMessage webMessage)
+    {
+        _isReady = false;
+        StateHasChanged();
     }
 }

@@ -14,7 +14,7 @@ using DDD;
 
 namespace ExampleTestsSourceService
 {
-    [Service(ServiceLifetime.Scoped)]
+    [Service(ServiceLifetime.Singleton)]
     class CaseSource :  ICaseSource
     {
         public async Task<TestCaseInfo?> GetCaseAsync(IDictionary<string, string> filter, CancellationToken cancellation)

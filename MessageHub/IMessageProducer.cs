@@ -2,7 +2,7 @@
 {
     public interface IMessageProducer
     {
-        void FireTestRecorded(TestRecordedMessage args);
+        void FireTestAdded(TestAddedMessage args);
         void FireTestExecuted(TestExecutedMessage args);
         void FireTestAcquired(TestAcquiringResultMessage args);
         void FireTestCompleted(TestCompletedMessage args);
@@ -10,5 +10,7 @@
         void FireTestDeleted(TestDeletedMessage args);
 
         void FireBeginTest(BeginTestMessage args);
+        void FireBeginAddTest(BeginAddTestMessage args);
+        void FireStopAddTest(StopAddTestMessage args);
     }
 }

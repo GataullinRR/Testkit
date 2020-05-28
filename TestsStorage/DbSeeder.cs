@@ -20,7 +20,7 @@ namespace UserService
                 {
                     new TestCase()
                     {
-                         TestId = "RP001.C1",
+                         TestName = "RP001.C1",
                          AuthorName = "GataullinRR",
                          CreationDate = DateTime.UtcNow.AddDays(-100),
                          DisplayName = "RussiaPost package status checker service",
@@ -28,30 +28,30 @@ namespace UserService
                     },
                     new TestCase()
                     {
-                        TestId = "B9123",
+                        TestName = "B9123",
                         AuthorName = "LibovskyKM",
                         CreationDate = DateTime.UtcNow.AddDays(0),
                         DisplayName = "Bugfix #12 check",
-                        State = TestCaseState.Recorder,
+                        State = TestCaseState.Saved,
                         Data = new TestCaseData()
                         {
                             Type = "REST",
                             Data = "HiHiHi".GetASCIIBytes(),
-                            Parameters = "Hello all",
+                            Parameters = "<ps name=\"Parameters\"><p name=\"User name\">Radmir</p><p name=\"Amount\">1000 R</p></ps>",
                         }
                     },
                     new TestCase()
                     {
-                        TestId = "RP001.C2",
+                        TestName = "RP001.C2",
                         AuthorName = "AA",
                         CreationDate = DateTime.UtcNow.AddDays(0),
                         DisplayName = "Delivery status does not updates on order cancel",
-                        State = TestCaseState.Recorder,
+                        State = TestCaseState.Saved,
                         Data = new TestCaseData()
                         {
                             Type = "UI",
                             Data = "MeMeMe".GetASCIIBytes(),
-                            Parameters = "Hello all 2",
+                            Parameters = "<p name=\"Passport\">0000 123456</p>",
                         }
                     }
                 });

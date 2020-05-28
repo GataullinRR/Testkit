@@ -5,7 +5,7 @@ namespace PresentationService.API
 {
     public interface IWebMessageHub
     {
-        event Func<TestRecordedWebMessage, Task> TestRecordedAsync;
+        event Func<TestAddedWebMessage, Task> TestAddedAsync;
         event Func<TestCompletedWebMessage, Task> TestCompletedAsync;
     }
 }

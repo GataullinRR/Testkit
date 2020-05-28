@@ -5,7 +5,7 @@ namespace PresentationService
 {
     public interface IMainHub
     {
-        Task TestRecorded(TestRecordedWebMessage message);
+        Task TestRecorded(TestAddedWebMessage message);
         Task TestCompleted(TestCompletedWebMessage message);
     }
 }

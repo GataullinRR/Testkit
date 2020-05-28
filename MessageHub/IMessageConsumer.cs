@@ -5,7 +5,7 @@ namespace MessageHub
 {
     public interface IMessageConsumer
     {
-        event Func<TestRecordedMessage, Task> TestRecordedAsync;
+        event Func<TestAddedMessage, Task> TestAddedAsync;
         event Func<TestExecutedMessage, Task> TestExecutedAsync;
         event Func<TestAcquiringResultMessage, Task> TestAcquiredAsync;
         event Func<TestCompletedMessage, Task> TestCompletedAsync;
@@ -13,5 +13,7 @@ namespace MessageHub
         event Func<TestDeletedMessage, Task> TestDeletedAsync;
 
         event Func<BeginTestMessage, Task> BeginTestAsync;
+        event Func<BeginAddTestMessage, Task> BeginAddTestAsync;
+        event Func<StopAddTestMessage, Task> StopAddTestAsync;
     }
 }

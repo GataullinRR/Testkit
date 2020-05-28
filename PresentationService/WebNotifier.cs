@@ -24,7 +24,7 @@ namespace PresentationService
         {
             di.ResolveProperties(this);
 
-            MessageConsumer.TestRecordedAsync += MessageConsumer_TestRecordedAsync;
+            MessageConsumer.TestAddedAsync += MessageConsumer_TestRecordedAsync;
             MessageConsumer.TestCompletedAsync += MessageConsumer_TestCompletedAsync;
         }
 
@@ -34,23 +34,21 @@ namespace PresentationService
                 .Group(arg.Result.StartedByUser)
                 .TestCompleted(new TestCompletedWebMessage()
                 { 
-                    TestId = arg.TestId, 
+                    TestName = arg.TestId, 
                     RunResult = arg.Result
                 });
         }
 
-        async Task MessageConsumer_TestRecordedAsync(TestRecordedMessage arg)
+        async Task MessageConsumer_TestRecordedAsync(TestAddedMessage arg)
         {
-            var test = await getAuthorNameAsync(arg.TestId);
-
             await Hub.Clients
-                .Group(test.AuthorName)
-                .TestRecorded(new TestRecordedWebMessage() { TestId = test.TestId });
+                .Group(arg.AuthorName)
+                .TestRecorded(new TestAddedWebMessage(arg.TestId, arg.TestName, arg.AuthorName));
         }
 
         async Task<TestCase> getAuthorNameAsync(string testId)
         {
-            var lstReq = new ListTestsDataRequest(new string[] { testId }, new IntInterval(0, 1), false);
+            var lstReq = new ListTestsDataRequest(new string[] { testId }, new IntInterval(0, 1), false, false);
             ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElement();

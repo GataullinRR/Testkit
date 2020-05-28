@@ -1,95 +1,51 @@
 ﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
 @inject IMessageService MessageService;
 @inject Browser Browser;
-@page "/cases/{TestIdFilter}"
+@page "/cases/{TestNameFilter}"
 
 <RootContainer>
-    <h3><TestReferenceButton TestId="@TestIdFilter" /><span> | </span><RunTestButton TestId="@TestIdFilter" /><span> | </span><DeleteTestButton TestId="@TestIdFilter" /></h3>
+    <h3>
+        <TestReferenceButton TestName="@TestNameFilter" />
+        <span> | </span>
+        <RunTestButton TestNameFilter="@TestNameFilter" />
+        <span> | </span>
+        <DeleteTestButton TestNameFilter="@TestNameFilter" />
+    </h3>
 </RootContainer>
 
 <RootContainer>
-    @if (_parameters == null)
-    {
-        <span>The test has no parameters</span>
-    }
-    else
-    {
-        <div class="p-2 message">
-            <h4 class="d-block" @onclick="() => onParametersExpanderClickAsync()">Parameters</h4>
-            <div class="px-2 @_parametersContainerClass">
-                @foreach (var fragment in renderParametersView(_parameters))
-                {
-                    @fragment;
-                }
-            </div>
-        </div>
-    }
+    <ParametersView Parameters="@_parameters"/>
 </RootContainer>
 
-    <RootContainer>
-        <h3>Tests</h3>
-    </RootContainer>
+<RootContainer>
+    <h3>Tests</h3>
+</RootContainer>
 
-    <TestsTable TestId="@TestIdFilter" OnTestsUpdatedAsync="onTestsLoadedAsync" />
+<TestsTable TestNameFilter="@TestNameFilter" OnTestsUpdatedAsync="onTestsLoadedAsync" />
 
-    <RootContainer>
-        <h3>Run history</h3>
-    </RootContainer>
+<RootContainer>
+    <h3>Run history</h3>
+</RootContainer>
 
-    <RunHistoryTable TestId="@TestIdFilter" />
+<RunHistoryTable TestNameFilter="@TestNameFilter" />
 
-    @code {
-        public static string BuildPath(string testIdFilter)
-        {
-            return $"/cases/{testIdFilter}";
-        }
-
-        [Parameter]
-        public string TestIdFilter { get; set; }
-
-        string _parametersContainerClass = "d-none";
-        System.Xml.XmlNode _parameters = null;
-
-        async Task onTestsLoadedAsync(IList<TestInfo> tests)
-        {
-            _parameters = null;
-            if (tests.Count == 1)
-            {
-                var pString = tests.Single().Target.Parameters;
-                if (pString != null)
-                {
-                    var doc = new System.Xml.XmlDocument();
-                    doc.LoadXml(pString);
-                    _parameters = doc.ChildNodes[0];
-                }
-            }
-
-            //StateHasChanged();
-        }
-
-        async Task onParametersExpanderClickAsync()
-        {
-            _parametersContainerClass = _parametersContainerClass == "d-none"
-                ? ""
-                : "d-none";
-        }
-
-        IEnumerable<RenderFragment> renderParametersView(System.Xml.XmlNode node, int depth = 0)
-        {
-            var name = node?.Attributes?["Name"]?.Value ?? node.Name;
-            var hasTextNode = node.HasChildNodes
-                && node.ChildNodes.Count == 1
-                && node.ChildNodes[0].NodeType == System.Xml.XmlNodeType.Text;
-            yield return@<div><span>@("   ".Repeat(depth) + name + (hasTextNode ? $" = \"{node.InnerText}\"" : ""))</span></div>;
-if (node.HasChildNodes && !hasTextNode)
-{
-foreach (var childNode in node.ChildNodes)
-{
-foreach (var fragment in renderParametersView((System.Xml.XmlNode)childNode, depth + 1))
-{
-yield return fragment;
-}
-}
-}
-}
+@code {
+    public static string BuildPath(string testNameFilter)
+    {
+        return $"/cases/{testNameFilter}";
     }
+
+    [Parameter]
+    public string TestNameFilter { get; set; }
+
+    string? _parameters = null;
+
+    async Task onTestsLoadedAsync(IList<TestInfo> tests)
+    {
+        _parameters = null;
+        if (tests.Count == 1)
+        {
+            _parameters = tests.Single().Target.Parameters;
+        }
+    }
+}

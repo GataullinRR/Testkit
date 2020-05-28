@@ -2,6 +2,7 @@
 using Protobuf;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Utilities.Extensions;
 
 namespace PresentationService.API
 {
@@ -9,24 +10,43 @@ namespace PresentationService.API
     {
         public static implicit operator GDeleteTestRequest(DeleteTestRequest request)
         {
-            var gRequest = new GDeleteTestRequest()
+            var gRequest = new GDeleteTestRequest();
+
+            if (request.TestNameFilter == null)
             {
-                TestId = request.TestId
-            };
+                gRequest.TestId = request.TestId;
+            }
+            else
+            {
+                gRequest.TestNameFilter = request.TestNameFilter;
+            }
 
             return gRequest;
         }
         public static implicit operator DeleteTestRequest(GDeleteTestRequest request)
         {
-            return new DeleteTestRequest(request.TestId);
+            if (request.TestNameFilter.IsNotNullOrEmpty())
+            {
+                return new DeleteTestRequest(request.TestNameFilter);
+            }
+            else
+            {
+                return new DeleteTestRequest(request.TestId);
+            }
         }
 
-        [Required]
-        public string TestId { get; }
+        public bool IsById { get; }
+        public int TestId { get; }
+        public string? TestNameFilter { get; } 
 
-        public DeleteTestRequest(string testId)
+        public DeleteTestRequest(int testId)
         {
-            TestId = testId ?? throw new ArgumentNullException(nameof(testId));
+            IsById = true;
+            TestId = testId;
+        }
+        public DeleteTestRequest(string testNameFilter)
+        {
+            TestNameFilter = testNameFilter ?? throw new ArgumentNullException(nameof(testNameFilter));
         }
     }
 }

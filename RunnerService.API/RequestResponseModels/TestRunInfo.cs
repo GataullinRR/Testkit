@@ -7,8 +7,10 @@ namespace RunnerService.API
 {
     public class TestRunInfo
     {
+        public int TestId { get; set; }
+
         [Required]
-        public string TestId { get; set; }
+        public string TestName { get; set; }
 
         public RunResultBase LastResult { get; set; }
 
@@ -18,9 +20,10 @@ namespace RunnerService.API
         [Required]
         public RunPlanBase RunPlan { get; set; }
 
-        public TestRunInfo(string testId, RunResultBase lastResult, StateBase state, RunPlanBase runPlan)
+        public TestRunInfo(int testId, string testName, RunResultBase lastResult, StateBase state, RunPlanBase runPlan)
         {
-            TestId = testId ?? throw new ArgumentNullException(nameof(testId));
+            TestId = testId;
+            TestName = testName ?? throw new ArgumentNullException(nameof(testName));
             LastResult = lastResult;
             State = state ?? throw new ArgumentNullException(nameof(state));
             RunPlan = runPlan ?? throw new ArgumentNullException(nameof(runPlan));

@@ -16,18 +16,18 @@ namespace Runner
         {
             di.ResolveProperties(this);
 
-            WebMessageHub.TestRecordedAsync += WebMessageHub_TestRecordedAsync;
+            WebMessageHub.TestAddedAsync += WebMessageHub_TestRecordedAsync;
             WebMessageHub.TestCompletedAsync += WebMessageHub_TestCompletedAsync;
         }
 
         async Task WebMessageHub_TestCompletedAsync(TestCompletedWebMessage arg)
         {
-            MessageService.AddMessage($"\"{arg.TestId}\" completed with state {arg.RunResult}");
+            MessageService.AddMessage($"\"{arg.TestName}\" completed with state {arg.RunResult}");
         }
 
-        async Task WebMessageHub_TestRecordedAsync(TestRecordedWebMessage arg)
+        async Task WebMessageHub_TestRecordedAsync(TestAddedWebMessage arg)
         {
-            MessageService.AddMessage($"\"{arg.TestId}\" has been added");
+            MessageService.AddMessage($"\"{arg.TestName}\" has been added");
         }
     }
 }
