@@ -22,5 +22,6 @@ namespace MessageHub
         public string BeginAddTestTopic { get; set; } = "test-begin-add";
         public string StopAddTestTopic { get; set; } = "test-stop-add";
         public string TestRecordedTopic { get; set; } = "test-recorded";
+        public string TestAddProgressChanged { get; set; } = "test-add-progress-changed";
     }
 }

@@ -23,6 +23,7 @@ namespace PresentationService.API
         public event Func<TestDeletedWebMessage, Task> TestDeletedAsync = m => Task.CompletedTask;
         public event Func<TestBegunWebMessage, Task> TestBegunAsync = m => Task.CompletedTask;
         public event Func<TestRecordedWebMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
+        public event Func<TestAddProgressChangedWebMessage, Task> TestAddProgressChangedAsync = m => Task.CompletedTask;
 
         [Inject] public IWebMessageHubConnectionProvider ConnectionProvider { get; set; }
 
@@ -32,6 +33,11 @@ namespace PresentationService.API
 
             _subscriptions = new DisposingActions()
             {
+                ConnectionProvider.Connection.On<TestAddProgressChangedWebMessage>("TestAddProgressChanged", async (message) =>
+                {
+                    await TestAddProgressChangedAsync.InvokeAndWaitAsync(message);
+                }),
+
                 ConnectionProvider.Connection.On<TestRecordedWebMessage>("TestRecorded", async (message) =>
                 {
                     await TestRecordedAsync.InvokeAndWaitAsync(message);

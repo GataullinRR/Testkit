@@ -29,6 +29,14 @@ namespace PresentationService
             MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync;
             MessageConsumer.BeginTestAsync += MessageConsumer_BeginTestAsync;
             MessageConsumer.TestRecordedAsync += MessageConsumer_TestRecordedAsync;
+            MessageConsumer.TestAddProgressChangedAsync += MessageConsumer_TestAddProgressChangedAsync;
+        }
+
+        async Task MessageConsumer_TestAddProgressChangedAsync(TestAddProgressChangedMessage arg)
+        {
+            await Hub.Clients
+                .Group(arg.UserName)
+                .TestAddProgressChanged(new TestAddProgressChangedWebMessage(arg.UserName, arg.Log));
         }
 
         async Task MessageConsumer_TestRecordedAsync(TestRecordedMessage arg)

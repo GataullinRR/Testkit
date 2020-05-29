@@ -6,22 +6,31 @@
 @page "/add-case"
 
 <RootContainer>
-    <CascadingValue Name="IsDisabled" Value="!_isReady">
-        <FormTemplate Model="_model" OnSubmit="onSubmit">
-            <FormHeader Name="Lookup parameters" />
-            <CascadingValue Name="IsDisabled" Value="_hasBegun">
-                <FormTextInput Name="ServiceId" @bind-Value="_model.ServiceId" />
-                <FormTextInput Name="UserId" @bind-Value="_model.UserId" />
+    @*<div class="row">
+        <div class="col">*@
+            <CascadingValue Name="IsDisabled" Value="!_isReady">
+                <FormTemplate Model="_model" OnSubmit="onSubmit">
+                    <FormHeader Name="Lookup parameters" />
+                    <CascadingValue Name="IsDisabled" Value="_hasBegun">
+                        <FormTextInput Name="ServiceId" @bind-Value="_model.ServiceId" />
+                        <FormTextInput Name="UserId" @bind-Value="_model.UserId" />
+                    </CascadingValue>
+
+                    @if (!_hasBegun)
+                    {
+                        <FormValidator />
+                    }
+
+                    <FormButton IsSubmit="true" Name="@_hasBegun.Ternar("Stop", "Begin")" />
+                </FormTemplate>
             </CascadingValue>
-
-            @if (!_hasBegun)
-            {
-                <FormValidator />
-            }
-
-            <FormButton IsSubmit="true" Name="@_hasBegun.Ternar("Stop", "Begin")" />
-        </FormTemplate>
-    </CascadingValue>
+        @*</div>
+        <div class="col">
+            <textarea readonly>
+                <span>@_log</span>
+            </textarea>
+        </div>
+    </div>*@
 </RootContainer>
 
 <UnsavedRecordedTestsView AuthorName="@Context.Identity.User.UserName" />
@@ -44,6 +53,8 @@
     bool _isReady = false;
     bool _hasBegun = false;
     readonly LookupParameters _model = new LookupParameters();
+
+    //string _log;
 
     async void onSubmit()
     {
@@ -87,12 +98,18 @@
         GetTestsAddStateResponse response = await PresentationService.GetTestsAddStateAsync(new GetTestsAddStateRequest());
         _hasBegun = response.HasBegan;
         _isReady = true;
-
         StateHasChanged();
     }
 
     protected override Task OnInitializedAsync()
     {
+        //MessageHub.TestAddProgressChangedAsync += async (m) =>
+        //{
+        //    _log = m.Log;
+
+        //    StateHasChanged();
+        //};
+
         return base.OnInitializedAsync();
     }
 

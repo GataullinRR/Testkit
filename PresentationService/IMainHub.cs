@@ -10,5 +10,6 @@ namespace PresentationService
         Task TestCompleted(TestCompletedWebMessage message);
         Task TestBegun(TestBegunWebMessage message);
         Task TestDeleted(TestDeletedWebMessage message);
+        Task TestAddProgressChanged(TestAddProgressChangedWebMessage message);
     }
 }

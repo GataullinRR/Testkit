@@ -24,6 +24,7 @@ namespace MessageHub
         readonly IProducer<Null, BeginAddTestMessage> _beginAddTestProducer;
         readonly IProducer<Null, StopAddTestMessage> _stopAddTestProducer;
         readonly IProducer<Null, TestRecordedMessage> _testRecordedProducer;
+        readonly IProducer<Null, TestAddProgressChangedMessage> _testAddProgressChangedMessageProducer;
 
         public MessageProducer(ILogger<MessageProducer> logger, JsonSerializerSettings serializerSettings)
         {
@@ -42,6 +43,7 @@ namespace MessageHub
             _beginAddTestProducer = new ProducerBuilder<Null, BeginAddTestMessage>(conf).Build(serializerSettings);
             _stopAddTestProducer = new ProducerBuilder<Null, StopAddTestMessage>(conf).Build(serializerSettings);
             _testRecordedProducer = new ProducerBuilder<Null, TestRecordedMessage>(conf).Build(serializerSettings);
+            _testAddProgressChangedMessageProducer = new ProducerBuilder<Null, TestAddProgressChangedMessage>(conf).Build(serializerSettings);
         }
 
         public void FireTestExecuted(TestExecutedMessage args)
@@ -103,6 +105,11 @@ namespace MessageHub
         public void FireTestRecorded(TestRecordedMessage args)
         {
             _testRecordedProducer.Produce(_options.TestRecordedTopic, new Message<Null, TestRecordedMessage> { Value = args });
+        }
+
+        public void FireTestAddProgressChanged(TestAddProgressChangedMessage args)
+        {
+            _testAddProgressChangedMessageProducer.Produce(_options.TestAddProgressChanged, new Message<Null, TestAddProgressChangedMessage> { Value = args });
         }
     }
 }
