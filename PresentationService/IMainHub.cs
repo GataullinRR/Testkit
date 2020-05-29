@@ -7,5 +7,7 @@ namespace PresentationService
     {
         Task TestRecorded(TestAddedWebMessage message);
         Task TestCompleted(TestCompletedWebMessage message);
+        Task TestBegun(TestBegunWebMessage message);
+        Task TestDeleted(TestDeletedWebMessage message);
     }
 }

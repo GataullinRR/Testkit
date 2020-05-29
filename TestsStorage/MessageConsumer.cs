@@ -52,7 +52,7 @@ namespace TestsStorageService
             await db.Cases.AddAsync(test);
             await db.SaveChangesAsync();
 
-            MessageProducer.FireTestAdded(new TestAddedMessage(test.TestId, test.TestName, test.AuthorName));
+           // MessageProducer.FireTestAdded(new TestAddedMessage(test.TestId, test.TestName, test.AuthorName));
         }
     }
 }

@@ -59,17 +59,11 @@ namespace ExampleTestsSourceService
             var completedMessage = new TestCompletedOnSourceMessage(
                     arg.TestId,
                     arg.ResultId,
-                    arg.TestId == "ER1"
-                        ? new RunnerErrorResult()
-                        {
-                            StartTime = DateTime.UtcNow,
-                            Duration = TimeSpan.FromSeconds(Global.Random.NextDouble(0, 10)),
-                        }.To<RunResultBase>()
-                        : new PassedResult()
-                        {
-                            StartTime = DateTime.UtcNow,
-                            Duration = TimeSpan.FromSeconds(Global.Random.NextDouble(0, 10)),
-                        });
+                    new PassedResult()
+                    {
+                        StartTime = DateTime.UtcNow,
+                        Duration = TimeSpan.FromSeconds(Global.Random.NextDouble(0, 10)),
+                    });
             Producer.FireTestCompletedOnSource(completedMessage);
         }
     }

@@ -49,11 +49,12 @@ namespace RunnerService
 
             var runInfo = await db.TestRuns
                 .IncludeGroup(EntityGroups.ALL, db)
-                .FirstAsync(r => r.TestName == arg.TestId);
+                .FirstAsync(r => r.TestId == arg.TestId);
             var result = runInfo.Results
                 .FirstOrDefault(r => r.Id == arg.ResultId);
 #warning MM
             arg.Result.TestId = arg.TestId;
+            arg.Result.TestName = runInfo.TestName;
             arg.Result.StartedByUser = result.ResultBase.StartedByUser;
             result.ResultBase = arg.Result;
             runInfo.State = new ReadyState();

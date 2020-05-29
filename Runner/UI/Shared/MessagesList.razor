@@ -1,6 +1,6 @@
 ﻿@inject IMessageService MessageService
 
-<div class="col-12">
+@*<div class="col-12">
     @foreach (var msg in MessageService.Messages)
     {
         <div class="d-flex p-3 message">
@@ -10,6 +10,18 @@
             </div>
         </div>
     }
+</div>*@
+
+<div class="col-12">
+    <div class="d-flex p-3 message">
+        <div class="flex-grow-1"><span>@(MessageService.Messages.LastElementOrDefault()?.Text ?? " ")</span></div>
+        <div class="ml-2">
+            @if (MessageService.Messages.Count > 0)
+            {
+                <InlineButton class="action-primary" @onclick="() => close(MessageService.Messages.LastElement())">Dismiss</InlineButton>
+            }
+        </div>
+    </div>
 </div>
 
 @code {
@@ -23,8 +35,10 @@
         };
     }
 
-    void close(Message msg)
+    void close(Message? msg)
     {
         MessageService.Messages.Remove(msg);
+
+        StateHasChanged();
     }
 }

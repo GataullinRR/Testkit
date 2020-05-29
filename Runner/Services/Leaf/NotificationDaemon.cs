@@ -18,11 +18,17 @@ namespace Runner
 
             WebMessageHub.TestAddedAsync += WebMessageHub_TestRecordedAsync;
             WebMessageHub.TestCompletedAsync += WebMessageHub_TestCompletedAsync;
+            WebMessageHub.TestDeletedAsync += WebMessageHub_TestDeletedAsync;
+        }
+
+        async Task WebMessageHub_TestDeletedAsync(TestDeletedWebMessage arg)
+        {
+            MessageService.AddMessage($"{arg.TestId} has been deleted");
         }
 
         async Task WebMessageHub_TestCompletedAsync(TestCompletedWebMessage arg)
         {
-            MessageService.AddMessage($"\"{arg.TestName}\" completed with state {arg.RunResult}");
+            MessageService.AddMessage($"\"{arg.TestName}\" completed with state {arg.RunResult.Result}");
         }
 
         async Task WebMessageHub_TestRecordedAsync(TestAddedWebMessage arg)

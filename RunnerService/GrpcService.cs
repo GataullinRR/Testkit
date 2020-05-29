@@ -76,14 +76,15 @@ namespace RunnerService
                         {
                             StartTime = DateTime.UtcNow,
                             StartedByUser = request.UserName,
-                            TestId = test.TestName,
+                            TestId = test.TestId,
+                            TestName = test.TestName,
                         }
                     };
                     test.Results.Add(result);
                     test.State = new RunningState();
 
                     var data = listResponse.Tests.First(t => t.TestName == test.TestName).Data;
-                    messages.Add(() => new BeginTestMessage(test.TestName, result.Id, data.Type, data.Data));
+                    messages.Add(() => new BeginTestMessage(test.TestId, result.Id, data.Type, data.Data));
                 }
             }
 

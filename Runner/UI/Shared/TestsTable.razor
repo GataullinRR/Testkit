@@ -1,6 +1,7 @@
 ﻿@inject JsonSerializerSettings JsonSettings;
 @inject ICookieStorage Cookies;
 @inject NavigationManager NavigationManager;
+@inject IWebMessageHub Hub;
 @inject IMessageService Messages;
 @inject NavigationManager NavigationManager
 @inject IAppInitializationAwaiter AppInitializer;
@@ -127,6 +128,7 @@ else
 
 @code {
     const int ADD_MORE_BUTTONS_COUNT = 3;
+    const int NUM_OF_TESTS = 10;
 
     [Parameter]
     public string? TestNameFilter { get; set; }
@@ -145,14 +147,8 @@ else
         if (!_setting)
         {
             _setting = true;
-            await AppInitializer.AwaitInitializedAsync();
 
-            _tests.Clear();
-            await addTestsAsync(0, 10);
-
-            shownCount = _tests?.Count() ?? 0;
-
-            await base.OnParametersSetAsync();
+            await rerenderAsync();
         }
 
         _setting = false;
@@ -187,5 +183,27 @@ else
     async Task goToTest(string testName)
     {
         NavigationManager.NavigateTo(Test.BuildPath(testName));
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        Hub.TestAddedAsync += m => rerenderAsync();
+        Hub.TestCompletedAsync += m => rerenderAsync();
+        Hub.TestDeletedAsync += m => rerenderAsync();
+        Hub.TestBegunAsync += m => rerenderAsync();
+
+        return base.OnInitializedAsync();
+    }
+
+    async Task rerenderAsync()
+    {
+        await AppInitializer.AwaitInitializedAsync();
+
+        _tests.Clear();
+        await addTestsAsync(0, NUM_OF_TESTS);
+
+        shownCount = _tests?.Count() ?? 0;
+
+        StateHasChanged();
     }
 }

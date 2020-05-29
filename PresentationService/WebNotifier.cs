@@ -24,26 +24,30 @@ namespace PresentationService
         {
             di.ResolveProperties(this);
 
-            MessageConsumer.TestAddedAsync += MessageConsumer_TestRecordedAsync;
+            MessageConsumer.TestAddedAsync += MessageConsumer_TestAddedAsync;
             MessageConsumer.TestCompletedAsync += MessageConsumer_TestCompletedAsync;
+            MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync;
+            MessageConsumer.BeginTestAsync += MessageConsumer_BeginTestAsync;
+        }
+
+        async Task MessageConsumer_TestAddedAsync(TestAddedMessage arg)
+        {
+            await Hub.Clients.All.TestRecorded(new TestAddedWebMessage(arg.TestId, arg.TestName, arg.AuthorName));
+        }
+
+        async Task MessageConsumer_BeginTestAsync(BeginTestMessage arg)
+        {
+            await Hub.Clients.All.TestBegun(new TestBegunWebMessage(arg.TestId));
+        }
+
+        async Task MessageConsumer_TestDeletedAsync(TestDeletedMessage arg)
+        {
+            await Hub.Clients.All.TestDeleted(new TestDeletedWebMessage(arg.TestId));
         }
 
         async Task MessageConsumer_TestCompletedAsync(TestCompletedMessage arg)
         {
-            await Hub.Clients
-                .Group(arg.Result.StartedByUser)
-                .TestCompleted(new TestCompletedWebMessage()
-                { 
-                    TestName = arg.TestId, 
-                    RunResult = arg.Result
-                });
-        }
-
-        async Task MessageConsumer_TestRecordedAsync(TestAddedMessage arg)
-        {
-            await Hub.Clients
-                .Group(arg.AuthorName)
-                .TestRecorded(new TestAddedWebMessage(arg.TestId, arg.TestName, arg.AuthorName));
+            await Hub.Clients.All.TestCompleted(new TestCompletedWebMessage(arg.TestId, arg.Result));
         }
 
         async Task<TestCase> getAuthorNameAsync(string testId)
