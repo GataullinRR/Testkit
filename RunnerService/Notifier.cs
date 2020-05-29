@@ -33,7 +33,9 @@ namespace RunnerService
             var sp = scope.ServiceProvider;
             using var db = sp.GetRequiredService<RunnerContext>();
 
-            var runInfo = await db.TestRuns.FirstOrDefaultAsync(r => r.TestId == r.TestId || r.TestName == arg.TestName);
+            var runInfo = await db.TestRuns
+                .IncludeGroup(EntityGroups.ALL, db)
+                .FirstOrDefaultAsync(r => r.TestId == r.TestId || r.TestName == arg.TestName);
             if (runInfo != null)
             {
                 db.TestRuns.Remove(runInfo);
