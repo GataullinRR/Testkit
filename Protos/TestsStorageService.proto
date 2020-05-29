@@ -25,9 +25,14 @@ message GListTestsDataRequest {
   bool return_not_saved = 1;
   bool include_data = 2;
   common.GRange range = 3;
-  repeated string test_ids = 4;
-  repeated string test_name_filters = 5;
+  
   bool is_by_id = 6;
+  repeated int32 test_ids = 4;
+
+  bool is_by_author_name = 7;
+  string author_name = 8;
+
+  repeated string test_name_filters = 5;
 }
 message GListTestsDataResponse {
   common.GResponseStatus status = 1;

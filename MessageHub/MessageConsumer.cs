@@ -28,6 +28,7 @@ namespace MessageHub
         public event Func<BeginTestMessage, Task> BeginTestAsync = m => Task.CompletedTask;
         public event Func<BeginAddTestMessage, Task> BeginAddTestAsync = m => Task.CompletedTask;
         public event Func<StopAddTestMessage, Task> StopAddTestAsync = m => Task.CompletedTask;
+        public event Func<TestRecordedMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
 
         public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options, 
             IOptions<MessageConsumerOptions> consumerOptions)
@@ -48,7 +49,7 @@ namespace MessageHub
 
             var testExecuted = new ConsumerBuilder<Ignore, TestExecutedMessage>(conf)
                 .Build(serializerSettings);
-            var testRecorded = new ConsumerBuilder<Ignore, TestAddedMessage>(conf)
+            var testAdded = new ConsumerBuilder<Ignore, TestAddedMessage>(conf)
                 .Build(serializerSettings);
             var testAcquired = new ConsumerBuilder<Ignore, TestAcquiringResultMessage>(conf)
                 .Build(serializerSettings);
@@ -64,9 +65,11 @@ namespace MessageHub
                 .Build(serializerSettings);
             var stopAddTest = new ConsumerBuilder<Ignore, StopAddTestMessage>(conf)
                 .Build(serializerSettings);
+            var testRecorded = new ConsumerBuilder<Ignore, TestRecordedMessage>(conf)
+                .Build(serializerSettings);
 
             cosumeDaemon(testExecuted, options.TestExecutedTopic, m => TestExecutedAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(testRecorded, options.TestRecordedTopic, m => TestAddedAsync.InvokeAndWaitAsync(m));
+            cosumeDaemon(testAdded, options.TestAddedTopic, m => TestAddedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testAcquired, options.TestAcquiredTopic, m => TestAcquiredAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testCompleted, options.TestCompletedTopic, m => TestCompletedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testCompletedOnSource, options.TestCompletedOnSourceTopic, m => TestCompletedOnSourceAsync.InvokeAndWaitAsync(m));
@@ -74,6 +77,7 @@ namespace MessageHub
             cosumeDaemon(beginTest, options.BeginTestTopic, m => BeginTestAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(beginAddTest, options.BeginAddTestTopic, m => BeginAddTestAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(stopAddTest, options.StopAddTestTopic, m => StopAddTestAsync.InvokeAndWaitAsync(m));
+            cosumeDaemon(testRecorded, options.TestRecordedTopic, m => TestRecordedAsync.InvokeAndWaitAsync(m));
         }
 
         async void cosumeDaemon<T>(IConsumer<Ignore, T> consumer, string topic, Func<T, Task> fireEventAsync)

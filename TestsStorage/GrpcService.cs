@@ -44,6 +44,10 @@ namespace TestsStorageService
             {
                 cases = cases.Where(c => request.TestIds.Contains(c.TestId));
             }
+            else if (request.IsByAuthorName)
+            {
+                cases = cases.Where(c => c.AuthorName == request.AuthorName);
+            }
             else
             {
                 if (request.TestNameFilters.Length > 0)
@@ -106,7 +110,7 @@ namespace TestsStorageService
         public override async Task<GSaveTestResponse> SaveTest(GSaveTestRequest request, ServerCallContext context)
         {
             var test = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
-            if (test.State == TestCaseState.RecordedButNotSaved)
+            if (test?.State == TestCaseState.RecordedButNotSaved)
             {
                 test.DisplayName = request.DisplayName;
                 test.TestName = request.TestName;
@@ -119,7 +123,7 @@ namespace TestsStorageService
 
             return new GSaveTestResponse()
             {
-                Status = new GResponseStatus()
+                Status = new GResponseStatus() { Code = test == null ? Protobuf.StatusCode.NotFound : Protobuf.StatusCode.Ok }
             };
         }
     }

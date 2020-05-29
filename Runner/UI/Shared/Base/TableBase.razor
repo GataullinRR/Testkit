@@ -23,22 +23,24 @@ else
                 <tbody>
                     @foreach (var row in Rows)
                     {
-                    <tr>
-                        @if (row.IsFullRowWide)
-                        {
-                            <td colspan="@Columns.Count()">@row.Cells.FirstOrDefault()</td>
-                        }
-                        else
-                        {
-                            for (int i = 0; i < row.Cells.Length; i++)
-                            {
-                                var span = i == row.Cells.Length - 1 && row.ExpandLastRow
-                                    ? Columns.Count() - row.Cells.Length
-                                    : 1;
-                                <td colspan="@span">@row.Cells[i]</td>
-                            }
-                        }
-                    </tr>
+                        <CascadingValue Name="IsDisabled" Value="row.IsDisabled">
+                            <tr>
+                                @if (row.IsFullRowWide)
+                                {
+                                    <td colspan="@Columns.Count()">@row.Cells.FirstOrDefault()</td>
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < row.Cells.Length; i++)
+                                    {
+                                        var span = i == row.Cells.Length - 1 && row.ExpandLastRow
+                                            ? Columns.Count() - row.Cells.Length
+                                            : 1;
+                                        <td colspan="@span">@row.Cells[i]</td>
+                                    }
+                                }
+                            </tr>
+                        </CascadingValue>
                     }
                 </tbody>
             </table>
@@ -72,6 +74,7 @@ else
 
     public class Row
     {
+        public bool IsDisabled { get; set; }
         public bool IsFullRowWide { get; set; }
         public bool ExpandLastRow { get; set; }
         public RenderFragment[] Cells { get; set; }

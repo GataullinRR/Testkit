@@ -45,13 +45,23 @@ namespace PresentationService
         {
             ListTestsRequest request = gRequest;
 
-            var lstReq = new ListTestsDataRequest(request.TestNameFilter == null 
-                    ? new string[0] 
-                    : new string[] { request.TestNameFilter }, 
-                request.Range, 
-                false, 
-                request.ReturnNotSaved);
-            ListTestsDataResponse tests = await TestsStorageService.ListTestsDataAsync(lstReq);
+            ListTestsDataRequest lstRequest = null;
+            if (request.IsByIds)
+            {
+                lstRequest = new ListTestsDataRequest(request.TestIds, request.Range, false, request.ReturnNotSaved);
+            }
+            else if (request.IsByAuthorName)
+            {
+                lstRequest = new ListTestsDataRequest(request.AuthorName, request.Range, false, request.ReturnNotSaved);
+            }
+            else
+            {
+                var filters = request.TestNameFilter == null
+                    ? new string[0]
+                    : new string[] { request.TestNameFilter };
+                lstRequest = new ListTestsDataRequest(filters, request.Range, false, request.ReturnNotSaved);
+            }
+            ListTestsDataResponse tests = await TestsStorageService.ListTestsDataAsync(lstRequest);
 
             var testsIds = tests.Tests.Select(c => c.TestName).ToArray();
             var getInfosR = new RunnerService.API.GetTestsInfoRequest(testsIds);
@@ -166,8 +176,8 @@ namespace PresentationService
                 var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
                 var userName = userInfResp.UserName;
                 var testAuthor = (request.IsById
-                    ? await getAuthorNameAsync(request.TestId)
-                    : await getAuthorNameAsync(request.TestNameFilter)).AuthorName;
+                    ? await getAuthorNameAsync(request.TestId, true) ?? await getAuthorNameAsync(request.TestId, false)
+                    : await getAuthorNameAsync(request.TestNameFilter, true) ?? await getAuthorNameAsync(request.TestNameFilter, false)).AuthorName;
                 if (userName == testAuthor)
                 {
                     return await TestsStorageService.DeleteTestAsync(request);
@@ -183,17 +193,17 @@ namespace PresentationService
             }
         }
 
-        async Task<TestCase> getAuthorNameAsync(string testName)
+        async Task<TestCase> getAuthorNameAsync(string testName, bool returnNotSaved)
         {
-            var lstReq = new ListTestsDataRequest(new string[] { testName }, new IntInterval(0, 1), false, false);
+            var lstReq = new ListTestsDataRequest(new string[] { testName }, new IntInterval(0, 1), false, returnNotSaved);
             ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElement();
         }
 
-        async Task<TestCase> getAuthorNameAsync(int testId)
+        async Task<TestCase> getAuthorNameAsync(int testId, bool returnNotSaved)
         {
-            var lstReq = new ListTestsDataRequest(new int[] { testId }, new IntInterval(0, 1), false, false);
+            var lstReq = new ListTestsDataRequest(new int[] { testId }, new IntInterval(0, 1), false, returnNotSaved);
             ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElement();

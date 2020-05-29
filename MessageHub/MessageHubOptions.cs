@@ -12,7 +12,7 @@ namespace MessageHub
     {
         public string ServerURI { get; set; } = "localhost:9092";
 
-        public string TestRecordedTopic { get; set; } = "test-recorded";
+        public string TestAddedTopic { get; set; } = "test-added";
         public string TestExecutedTopic { get; set; } = "test-executed";
         public string TestAcquiredTopic { get; set; } = "test-acquired";
         public string TestCompletedTopic { get; set; } = "test-completed";
@@ -21,5 +21,6 @@ namespace MessageHub
         public string BeginTestTopic { get; set; } = "test-begin";
         public string BeginAddTestTopic { get; set; } = "test-begin-add";
         public string StopAddTestTopic { get; set; } = "test-stop-add";
+        public string TestRecordedTopic { get; set; } = "test-recorded";
     }
 }

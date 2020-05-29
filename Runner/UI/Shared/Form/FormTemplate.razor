@@ -2,13 +2,13 @@
     <CascadingValue Value="@Context">
         @if (IsInline)
         {
-            <EditForm Model="Model" EditContext="Context" OnValidSubmit="OnSubmit" class="form-inline">
+            <EditForm Model="Model" @attributes="@AdditionalAttributes" EditContext="Context" OnValidSubmit="OnSubmit" class="form-inline">
                 @ChildContent
             </EditForm>
         }
         else
         {
-            <div class="form-sm align-middle">
+            <div class="form-sm align-middle" @attributes="@AdditionalAttributes">
                 <div class="container">
                     <EditForm Model="Model" OnValidSubmit="OnSubmit">
                         @ChildContent
@@ -20,6 +20,9 @@
 </CascadingValue>
 
 @code {
+    [CascadingParameter(Name = "IsDisabled")]
+    public bool IsDisabled { get; set; }
+
     [Parameter]
     public bool IsInline { get; set; }
 
@@ -34,4 +37,7 @@
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
 }

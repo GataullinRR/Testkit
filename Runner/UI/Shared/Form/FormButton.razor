@@ -1,11 +1,11 @@
 ﻿@if (IsInline)
 {
-    <button class="btn @getButtonClass() mx-1" type="@IsSubmit.Ternar("submit", "button")" @onclick="OnClick">@Name</button>
+    <button class="btn @getButtonClass() mx-1" type="@IsSubmit.Ternar("submit", "button")" disabled="@IsDisabled" @onclick="OnClick">@Name</button>
 }
 else
 {
     <div class="row">
-        <button class="btn @getButtonClass()" type="@IsSubmit.Ternar("submit", "button")" style="width:100%" @onclick="OnClick">@Name</button>
+        <button class="btn @getButtonClass()" type="@IsSubmit.Ternar("submit", "button")" style="width:100%" disabled="@IsDisabled" @onclick="OnClick">@Name</button>
     </div>
 }
 
@@ -18,6 +18,9 @@ else
 
     [CascadingParameter]
     public bool IsInline { get; set; }
+
+    [CascadingParameter(Name = "IsDisabled")]
+    public bool IsDisabled { get; set; }
 
     [CascadingParameter]
     public EditContext Context { get; set; }

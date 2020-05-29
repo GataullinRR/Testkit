@@ -14,7 +14,7 @@ namespace MessageHub
         readonly MessageHubOptions _options;
         readonly ILogger<MessageProducer> _logger;
 
-        readonly IProducer<Null, TestAddedMessage> _testRecordedProducer;
+        readonly IProducer<Null, TestAddedMessage> _testAddedProducer;
         readonly IProducer<Null, TestExecutedMessage> _testExecutedProducer;
         readonly IProducer<Null, TestAcquiringResultMessage> _testAcquiredProducer;
         readonly IProducer<Null, TestCompletedMessage> _testCompletedProducer;
@@ -23,6 +23,7 @@ namespace MessageHub
         readonly IProducer<Null, BeginTestMessage> _beginTestProducer;
         readonly IProducer<Null, BeginAddTestMessage> _beginAddTestProducer;
         readonly IProducer<Null, StopAddTestMessage> _stopAddTestProducer;
+        readonly IProducer<Null, TestRecordedMessage> _testRecordedProducer;
 
         public MessageProducer(ILogger<MessageProducer> logger, JsonSerializerSettings serializerSettings)
         {
@@ -31,7 +32,7 @@ namespace MessageHub
 
             var conf = new ProducerConfig { BootstrapServers = _options.ServerURI };
 
-            _testRecordedProducer = new ProducerBuilder<Null, TestAddedMessage>(conf).Build(serializerSettings);
+            _testAddedProducer = new ProducerBuilder<Null, TestAddedMessage>(conf).Build(serializerSettings);
             _testExecutedProducer = new ProducerBuilder<Null, TestExecutedMessage>(conf).Build(serializerSettings);
             _testAcquiredProducer = new ProducerBuilder<Null, TestAcquiringResultMessage>(conf).Build(serializerSettings);
             _testCompletedProducer = new ProducerBuilder<Null, TestCompletedMessage>(conf).Build(serializerSettings);
@@ -40,6 +41,7 @@ namespace MessageHub
             _beginTestProducer = new ProducerBuilder<Null, BeginTestMessage>(conf).Build(serializerSettings);
             _beginAddTestProducer = new ProducerBuilder<Null, BeginAddTestMessage>(conf).Build(serializerSettings);
             _stopAddTestProducer = new ProducerBuilder<Null, StopAddTestMessage>(conf).Build(serializerSettings);
+            _testRecordedProducer = new ProducerBuilder<Null, TestRecordedMessage>(conf).Build(serializerSettings);
         }
 
         public void FireTestExecuted(TestExecutedMessage args)
@@ -53,7 +55,7 @@ namespace MessageHub
         {
             _logger.LogTrace("Sending: {0}", args);
 
-            _testRecordedProducer.Produce(_options.TestRecordedTopic, new Message<Null, TestAddedMessage> { Value = args });
+            _testAddedProducer.Produce(_options.TestAddedTopic, new Message<Null, TestAddedMessage> { Value = args });
         }
 
         public void FireTestAcquired(TestAcquiringResultMessage args)
@@ -96,6 +98,11 @@ namespace MessageHub
         public void FireStopAddTest(StopAddTestMessage args)
         {
             _stopAddTestProducer.Produce(_options.StopAddTestTopic, new Message<Null, StopAddTestMessage> { Value = args });
+        }
+
+        public void FireTestRecorded(TestRecordedMessage args)
+        {
+            _testRecordedProducer.Produce(_options.TestRecordedTopic, new Message<Null, TestRecordedMessage> { Value = args });
         }
     }
 }

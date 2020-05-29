@@ -24,7 +24,7 @@ else
     [CascadingParameter]
     public bool IsInline { get; set; }
 
-    [Parameter]
+    [CascadingParameter(Name = "IsDisabled")]
     public bool IsDisabled { get; set; }
 
     [Parameter]

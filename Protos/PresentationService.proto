@@ -19,7 +19,12 @@ service PresentationService {
 message GListTestsRequest {
   bool is_by_ids = 5;
   repeated int32 test_ids = 4;
+
+  bool is_by_author_name = 6;
+  string author_name = 7;
+
   string test_name = 1;
+
   bool return_not_saved = 2;
   common.GRange range = 3;
 }

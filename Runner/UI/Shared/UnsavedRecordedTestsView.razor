@@ -1,9 +1,10 @@
 ﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
 @inject IMessageService MessageService;
+@inject IWebMessageHub Hub;
 
 <h3>Unsaved tests</h3>
 
-<TableBase Columns="_columns" Rows="_rows" />
+<TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" />
 
 @code {
     [Parameter]
@@ -24,34 +25,52 @@
     {
         [Required]
         public string TestName { get; set; }
-        
+
         [Required]
         public string TestDescription { get; set; }
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        ListTestsResponse response = await PresentationService.ListTestsAsync(new ListTestsRequest(true, new IntInterval(0, 1000)));
+        await rerenderAsync();
+
+        await base.OnParametersSetAsync();
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        Hub.TestDeletedAsync += m => rerenderAsync();
+        Hub.TestRecordedAsync += m => rerenderAsync();
+        Hub.TestAddedAsync += m => rerenderAsync();
+
+        return base.OnInitializedAsync();
+    }
+
+    async Task rerenderAsync()
+    {
+        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByAuthorName(AuthorName, true, new IntInterval(0, 1000)));
         _totalCount = response.TotalCount;
+        _rows.Clear();
 
         foreach (var test in response.Tests)
         {
+            var rowIndex = _rows.Count;
             _rows.Add(new TableBase.Row()
             {
                 ExpandLastRow = true,
                 Cells = new RenderFragment[]
                 {
-                    @<span class="d-block my-auto">@test.TestId</span>,
-                    @<span class="d-block my-auto">@test.Target.CreateDate.ToString("hh:mm dd.MM.yyyy")</span>,
+                    @<span class="align-middle">@test.TestId</span>,
+                    @<span class="align-middle">@test.Target.CreateDate.ToString("hh:mm dd.MM.yyyy")</span>,
 
-                    @<FormTemplate IsInline="true" Model="_saveFormModel">
+                    @<FormTemplate class="ml-auto" IsInline="true" Model="_saveFormModel">
                         <FormTextInput Name="Test name" @bind-Value="_saveFormModel.TestName" />
                         <FormTextInput Name="Test description" @bind-Value="_saveFormModel.TestDescription" />
 
                         <FormValidator/>
 
-                        <FormButton Name="Save" IsSubmit="true" OnClick="async () => await saveTestAsync(test.TestId, _saveFormModel)"/>
-                        <FormButton Name="Discard" Type="@FormButton.ButtonType.Danger" OnClick="async () => await discardTestAsync(test.TestId, _saveFormModel)"/>
+                        <FormButton Name="Save" IsSubmit="true" OnClick="async () => await saveTestAsync(test.TestId, _saveFormModel, _rows[rowIndex])"/>
+                        <FormButton Name="Discard" Type="@FormButton.ButtonType.Danger" OnClick="async () => await discardTestAsync(test.TestId, _saveFormModel, _rows[rowIndex])"/>
                     </FormTemplate>
                 }
             });
@@ -66,18 +85,24 @@
             });
         }
 
-        await base.OnParametersSetAsync();
+        StateHasChanged();
     }
 
-    async Task saveTestAsync(int testId, TestSaveModel saveModel)
+    async Task saveTestAsync(int testId, TestSaveModel saveModel, TableBase.Row row)
     {
+        row.IsDisabled = true;
+        StateHasChanged();
+
         var response = await PresentationService.SaveRecordedTestAsync(new SaveRecordedTestRequest(testId, saveModel.TestName, saveModel.TestDescription));
 
         MessageService.AddMessage(response.Status.Code.ToString());
     }
 
-    async Task discardTestAsync(int testId, TestSaveModel saveModel)
+    async Task discardTestAsync(int testId, TestSaveModel saveModel, TableBase.Row row)
     {
+        row.IsDisabled = true;
+        StateHasChanged();
+
         var response = await PresentationService.DeleteTestAsync(new DeleteTestRequest(testId));
 
         MessageService.AddMessage(response.Status.Code.ToString());

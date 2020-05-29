@@ -8,6 +8,7 @@
         void FireTestCompleted(TestCompletedMessage args);
         void FireTestCompletedOnSource(TestCompletedOnSourceMessage args);
         void FireTestDeleted(TestDeletedMessage args);
+        void FireTestRecorded(TestRecordedMessage args);
 
         void FireBeginTest(BeginTestMessage args);
         void FireBeginAddTest(BeginAddTestMessage args);

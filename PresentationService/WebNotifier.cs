@@ -28,11 +28,19 @@ namespace PresentationService
             MessageConsumer.TestCompletedAsync += MessageConsumer_TestCompletedAsync;
             MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync;
             MessageConsumer.BeginTestAsync += MessageConsumer_BeginTestAsync;
+            MessageConsumer.TestRecordedAsync += MessageConsumer_TestRecordedAsync;
+        }
+
+        async Task MessageConsumer_TestRecordedAsync(TestRecordedMessage arg)
+        {
+            await Hub.Clients
+                .Group(arg.AuthorName)
+                .TestRecorded(new TestRecordedWebMessage(arg.TestId, arg.AuthorName));
         }
 
         async Task MessageConsumer_TestAddedAsync(TestAddedMessage arg)
         {
-            await Hub.Clients.All.TestRecorded(new TestAddedWebMessage(arg.TestId, arg.TestName, arg.AuthorName));
+            await Hub.Clients.All.TestAdded(new TestAddedWebMessage(arg.TestId, arg.TestName, arg.AuthorName));
         }
 
         async Task MessageConsumer_BeginTestAsync(BeginTestMessage arg)

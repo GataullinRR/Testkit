@@ -9,5 +9,6 @@ namespace PresentationService.API
         event Func<TestCompletedWebMessage, Task> TestCompletedAsync;
         event Func<TestDeletedWebMessage, Task> TestDeletedAsync;
         event Func<TestBegunWebMessage, Task> TestBegunAsync;
+        event Func<TestRecordedWebMessage, Task> TestRecordedAsync;
     }
 }

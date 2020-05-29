@@ -6,25 +6,22 @@
 @page "/add-case"
 
 <RootContainer>
-    @if (_isReady)
-    {
+    <CascadingValue Name="IsDisabled" Value="!_isReady">
         <FormTemplate Model="_model" OnSubmit="onSubmit">
             <FormHeader Name="Lookup parameters" />
-            <FormTextInput IsDisabled="@_hasBegun" Name="ServiceId" @bind-Value="_model.ServiceId" />
-            <FormTextInput IsDisabled="@_hasBegun" Name="UserId" @bind-Value="_model.UserId" />
+            <CascadingValue Name="IsDisabled" Value="_hasBegun">
+                <FormTextInput Name="ServiceId" @bind-Value="_model.ServiceId" />
+                <FormTextInput Name="UserId" @bind-Value="_model.UserId" />
+            </CascadingValue>
 
-            @if(!_hasBegun)
+            @if (!_hasBegun)
             {
                 <FormValidator />
             }
 
             <FormButton IsSubmit="true" Name="@_hasBegun.Ternar("Stop", "Begin")" />
         </FormTemplate>
-    }
-    else
-    {
-        <span>Loading...</span>
-    }
+    </CascadingValue>
 </RootContainer>
 
 <UnsavedRecordedTestsView AuthorName="@Context.Identity.User.UserName" />
@@ -73,6 +70,8 @@
         }
 
         _isReady = false;
+        StateHasChanged();
+
         await updateAsync();
     }
 
@@ -88,18 +87,18 @@
         GetTestsAddStateResponse response = await PresentationService.GetTestsAddStateAsync(new GetTestsAddStateRequest());
         _hasBegun = response.HasBegan;
         _isReady = true;
+
+        StateHasChanged();
     }
 
     protected override Task OnInitializedAsync()
     {
-        MessageHub.TestAddedAsync += onRecordedAsync;
-
         return base.OnInitializedAsync();
     }
 
-    async Task onRecordedAsync(TestAddedWebMessage webMessage)
-    {
-        _isReady = false;
-        StateHasChanged();
-    }
+    //async Task onRecordedAsync(TestAddedWebMessage webMessage)
+    //{
+    //    _isReady = false;
+    //    StateHasChanged();
+    //}
 }
