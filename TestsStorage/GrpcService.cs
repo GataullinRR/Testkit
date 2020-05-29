@@ -48,7 +48,6 @@ namespace TestsStorageService
             {
                 if (request.TestNameFilters.Length > 0)
                 {
-                    //var names = request.TestNameFilters.ToArray();
                     IQueryable<TestCase> original = null;
                     foreach (var filter in request.TestNameFilters)
                     {
@@ -77,22 +76,28 @@ namespace TestsStorageService
         {
             DeleteTestRequest request = gRequest;
 
-            TestCase caseToDelete = null;
+            TestCase[] casesToDelete = null;
             if (request.IsById)
             {
-                caseToDelete = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
+                var caseToDelete = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
+                casesToDelete = caseToDelete == null
+                    ? new TestCase[0]
+                    : new TestCase[] { caseToDelete };
             }
             else
             {
-                caseToDelete = await Db.Cases.FirstOrDefaultAsync(c => c.TestName == request.TestNameFilter);
+                casesToDelete = await Db.Cases.Where(c => c.TestName.StartsWith(request.TestNameFilter)).ToArrayAsync();
             }
 
-            if (caseToDelete != null)
+            if (casesToDelete.Length > 0)
             {
-                Db.Cases.Remove(caseToDelete);
-                await Db.SaveChangesAsync();
-                
-                MessageProducer.FireTestDeleted(new TestDeletedMessage(caseToDelete.TestId, caseToDelete.TestName));
+                foreach (var caseToDelete in casesToDelete)
+                {
+                    Db.Cases.Remove(caseToDelete);
+                    await Db.SaveChangesAsync();
+
+                    MessageProducer.FireTestDeleted(new TestDeletedMessage(caseToDelete.TestId, caseToDelete.TestName));
+                }
             }
 
             return new DeleteTestResponse(Protobuf.StatusCode.Ok);

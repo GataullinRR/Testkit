@@ -1,4 +1,5 @@
 ﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+@inject IWebMessageHub Hub;
 
 @if (_rows.Count == 0)
 {
@@ -18,7 +19,7 @@ else
         new TableBase.Column() { Name = "Test Id" },
         new TableBase.Column() { Name = "Date" },
         new TableBase.Column() { Name = "Started by" },
-            };
+                };
     List<TableBase.Row> _rows = new List<TableBase.Row>();
     int _totalCount = 0;
 
@@ -27,11 +28,9 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        _rows.Clear();
+        await rerenderAsync();
 
-        await addMoreAsync(10);
-
-        base.OnParametersSet();
+        await base.OnParametersSetAsync();
     }
 
     async Task addMoreAsync(int count)
@@ -42,19 +41,37 @@ else
         _totalCount = response.TotalCount;
         _rows.Clear();
 
-        foreach (var result in response.RunResulsts.Reverse())
+        foreach (var result in response.RunResulsts)
         {
             _rows.Add(new TableBase.Row()
             {
                 Cells = new RenderFragment[]
                 {
-@<span>@result.Result</span>,
-@<span>@result.Duration.TotalSeconds.ToString("F1") secouns</span>,
-@<TestReferenceButton TestName="@result.TestName" />,
-@<span>@result.StartTime.ToString("hh:mm dd.MM.yyy")</span>,
-@<UserProfileButton UserName="@result.StartedByUser" />
-                    }
-                });
-            }
+                    @<span>@result.Result</span>,
+                    @<span>@result.Duration.TotalSeconds.ToString("F1") secouns</span>,
+                    @<TestReferenceButton TestName="@result.TestName" />,
+                    @<span>@result.StartTime.ToString("hh:mm dd.MM.yyy")</span>,
+                    @<UserProfileButton UserName="@result.StartedByUser" />
+                }
+            });
         }
     }
+
+    protected override void OnInitialized()
+    {
+        Hub.TestCompletedAsync += m => rerenderAsync();
+        Hub.TestDeletedAsync += m => rerenderAsync();
+        Hub.TestBegunAsync += m => rerenderAsync();
+
+        base.OnInitialized();
+    }
+
+    async Task rerenderAsync()
+    {
+        _rows.Clear();
+
+        await addMoreAsync(10);
+
+        StateHasChanged();
+    }
+}
