@@ -3,29 +3,27 @@
 @inject Browser Browser;
 @page "/cases/{TestNameFilter}"
 
-<RootContainer>
-    <h3>
+<div class="col-12 mt-3">
+    <h3 class="ml-3">
         <TestReferenceButton TestName="@TestNameFilter" />
         <span> | </span>
         <RunTestButton TestNameFilter="@TestNameFilter" />
         <span> | </span>
         <DeleteTestButton TestNameFilter="@TestNameFilter" />
     </h3>
-</RootContainer>
 
-<RootContainer>
-    <ParametersView Parameters="@_parameters"/>
-</RootContainer>
+    <div class="ml-3 my-3">
+        <ParametersView Parameters="@_parameters" />
+    </div>
 
-<RootContainer>
-    <h3>Tests</h3>
-</RootContainer>
+    <div class="ml-3 mt-2">
+        <h4>Tests</h4>
+    </div>
+</div>
 
 <TestsTable TestNameFilter="@TestNameFilter" OnTestsUpdatedAsync="onTestsLoadedAsync" />
 
-<RootContainer>
-    <h3>Run history</h3>
-</RootContainer>
+<h4 class="ml-3 mt-3">Run history</h4>
 
 <RunHistoryTable TestNameFilter="@TestNameFilter" />
 

@@ -198,7 +198,7 @@ namespace PresentationService
             var lstReq = new ListTestsDataRequest(new string[] { testName }, new IntInterval(0, 1), false, returnNotSaved);
             ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
 
-            return lstResp.Tests.FirstElement();
+            return lstResp.Tests.FirstElementOrDefault();
         }
 
         async Task<TestCase> getAuthorNameAsync(int testId, bool returnNotSaved)
