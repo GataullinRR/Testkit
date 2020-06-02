@@ -13,24 +13,25 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shared;
 using Utilities.Extensions;
+using Utilities.Types;
 
 namespace TestsSourceService
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddGrpc();
+            services.AddControllers().AddNewtonsoftJson();
+
             services.AddNecessaryFeatures();
-            //services.AddGrpcServices();
             services.AddMessaging(Configuration.GetSection("Messaging"));
 
             services.AddHostedService<InstantiatorService>();
@@ -39,14 +40,13 @@ namespace TestsSourceService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //app.UseSingletonInitialization();
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcServices(Assembly.GetExecutingAssembly(), 
-                    typeof(GrpcEndpointRouteBuilderExtensions).GetMethod("MapGrpcService", BindingFlags.Static | BindingFlags.Public));
+                endpoints.MapControllers();
             });
         }
     }
