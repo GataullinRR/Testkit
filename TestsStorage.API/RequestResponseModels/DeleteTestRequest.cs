@@ -4,7 +4,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Utilities.Extensions;
 
-namespace PresentationService.API
+namespace TestsStorageService.API
 {
     public class DeleteTestRequest
     {
@@ -18,7 +18,7 @@ namespace PresentationService.API
             IsById = true;
             TestId = testId;
         }
-        public DeleteTestRequest(string testNameFilter) 
+        public DeleteTestRequest(string testNameFilter)
         {
             TestNameFilter = testNameFilter ?? throw new ArgumentNullException(nameof(testNameFilter));
         }

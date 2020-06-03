@@ -1,7 +1,7 @@
 ﻿using Protobuf;
 using Shared.Types;
 
-namespace PresentationService.API
+namespace TestsStorageService.API
 {
     public class DeleteTestResponse
     { 

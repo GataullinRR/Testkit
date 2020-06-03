@@ -5,7 +5,7 @@
 @inject IMessageService Messages;
 @inject NavigationManager NavigationManager
 @inject IAppInitializationAwaiter AppInitializer;
-@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+@inject IPresentationService PresentationService;
 @inject IMessageService MessageService;
 @inject ICookieStorage Cookies;
 
@@ -164,8 +164,7 @@ else
 
     async Task addTestsAsync(int from, int to)
     {
-        var gResponse = await PresentationService.ListTestsAsync(new ListTestsRequest(TestNameFilter, false, new IntInterval(from, to)));
-        ListTestsResponse response = gResponse;
+        var response = await PresentationService.ListTestsAsync(new ListTestsRequest(TestNameFilter, false, new IntInterval(from, to)));
 
         _totalCount = response.TotalCount;
         _tests.AddRange(response.Tests);

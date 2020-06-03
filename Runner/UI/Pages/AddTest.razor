@@ -1,4 +1,4 @@
-﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+﻿@inject IPresentationService PresentationService;
 @inject ICookieStorage Cookies;
 @inject IIdentityContext Context;
 @inject IMessageService Messages;
@@ -62,9 +62,7 @@
         {
             var request = new StopAddTestRequest();
 
-            var response = await PresentationService.StopAddTestAsync(request);
-
-            Messages.AddMessage(response.Status.Code.ToString());
+            await PresentationService.StopAddTestAsync(request);
         }
         else
         {
@@ -75,9 +73,7 @@
                     { "ServiceId", _model.ServiceId }
                 });
 
-            var response = await PresentationService.BeginAddTestAsync(request);
-
-            Messages.AddMessage(response.Status.Code.ToString());
+            await PresentationService.BeginAddTestAsync(request);
         }
 
         _isReady = false;
@@ -95,7 +91,7 @@
 
     async Task updateAsync()
     {
-        GetTestsAddStateResponse response = await PresentationService.GetTestsAddStateAsync(new GetTestsAddStateRequest());
+        var response = await PresentationService.GetTestsAddStateAsync(new GetTestsAddStateRequest());
         _hasBegun = response.HasBegan;
         _isReady = true;
         StateHasChanged();

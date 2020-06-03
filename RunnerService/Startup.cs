@@ -35,7 +35,7 @@ namespace RunnerService
 
             services.AddGrpc();
             services.AddNecessaryFeatures();
-            services.AddGrpcServices();
+            services.AddServices();
             services.AddMessaging(Configuration.GetSection("Messaging"));
         }
 

@@ -1,8 +1,0 @@
-﻿syntax = "proto3";
-option csharp_namespace = "TestsSourceService.API";
-import "common.proto"; 
-package userservice.api;
-
-service TestsSourceService {
-
-}

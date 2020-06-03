@@ -14,6 +14,7 @@ using System;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection;
+using TestsStorageService.API;
 using Utilities.Extensions;
 
 namespace Shared
@@ -75,11 +76,13 @@ namespace Shared
             return services;
         }
 
-        public static IServiceCollection AddGrpcServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddGrpcService<UserService.API.UserService.UserServiceClient>("https://localhost:5001/");
-            services.AddGrpcService<TestsStorageService.API.TestsStorageService.TestsStorageServiceClient>("https://localhost:5020");
-            services.AddGrpcService<TestsSourceService.API.TestsSourceService.TestsSourceServiceClient>("https://localhost:5051");
+            services.AddHttpClient<ITestsStorageService, TestsStorageService.API.TestsStorageService>(c =>
+            {
+                c.BaseAddress = new Uri("http://localhost:5020/api/v1/");
+            });
             services.AddGrpcService<RunnerService.API.RunnerService.RunnerServiceClient>("https://localhost:5031");
             services.AddGrpcService<StateService.API.StateService.StateServiceClient>("https://localhost:5035");
 

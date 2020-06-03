@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shared;
 using Utilities.Extensions;
+using Utilities.Types;
 
 namespace PresentationService
 {
@@ -36,15 +37,20 @@ namespace PresentationService
                         options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All; // Adding one more security breach!
                     });
             services.AddResponseCompression(opts =>
-            {
-                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "application/octet-stream" });
-            });
+                    {
+                        opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
+                    });
+            services.AddControllers()
+                    .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
+                    });
 
             services.AddGrpc();
             services.AddCors();
             services.AddNecessaryFeatures();
-            services.AddGrpcServices();
+            services.AddServices();
             services.AddMessaging(Configuration.GetSection("Messaging"));
         }
 
@@ -52,6 +58,8 @@ namespace PresentationService
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSingletonInitialization();
+            app.UseResponseCompression();
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseRouting();
 
@@ -61,10 +69,10 @@ namespace PresentationService
                 builder.AllowAnyMethod();
                 builder.AllowAnyHeader();
             });
-            app.UseGrpcWeb();
+
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<GrpcService>().EnableGrpcWeb();
+                endpoints.MapControllers();
                 endpoints.MapHub<SignalRHub>("/signalRHub");
             });
         }

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API;
-using PresentationService.API2;
 using Protobuf;
 using RunnerService.APIModels;
 using RunnerService.Db;
@@ -21,30 +20,30 @@ using Utilities.Extensions;
 using Shared.Types;
 using Vectors;
 using MessageHub;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PresentationService
 {
-    public class GrpcService : API2.PresentationService.PresentationServiceBase
+    [ApiController, Microsoft.AspNetCore.Mvc.Route("api/v1")]
+    public class MainController : ControllerBase
     {
         [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
-        [Inject] public TestsStorageService.API.TestsStorageService.TestsStorageServiceClient TestsStorageService { get; set; }
-        [Inject] public TestsSourceService.API.TestsSourceService.TestsSourceServiceClient TestsSourceService { get; set; }
+        [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public RunnerService.API.RunnerService.RunnerServiceClient RunnerService { get; set; }
         [Inject] public StateService.API.StateService.StateServiceClient StateService { get; set; }
         [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
-        [Inject] public ILogger<GrpcService> Logger { get; set; }
+        [Inject] public ILogger<MainController> Logger { get; set; }
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
         [Inject] public IMessageProducer MessageProducer { get; set; }
 
-        public GrpcService(IDependencyResolver di)
+        public MainController(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
 
-        public override async Task<GListTestsResponse> ListTests(GListTestsRequest gRequest, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.ListTestsAsync))]
+        public async Task<ListTestsResponse> ListTests(ListTestsRequest request)
         {
-            ListTestsRequest request = gRequest;
-
             ListTestsDataRequest lstRequest = null;
             if (request.IsByIds)
             {
@@ -61,7 +60,7 @@ namespace PresentationService
                     : new string[] { request.TestNameFilter };
                 lstRequest = new ListTestsDataRequest(filters, request.Range, false, request.ReturnNotSaved);
             }
-            ListTestsDataResponse tests = await TestsStorageService.ListTestsDataAsync(lstRequest);
+            ListTestsDataResponse tests = await TestsStorage.ListTestsDataAsync(lstRequest);
 
             var testsIds = tests.Tests.Select(c => c.TestName).ToArray();
             var getInfosR = new RunnerService.API.GetTestsInfoRequest(testsIds);
@@ -71,7 +70,7 @@ namespace PresentationService
 
             var fullInfos = tests.Tests.Zip(getInfosResp?.RunInfos ?? ((RunnerService.API.TestRunInfo)null).Repeat(tests.Tests.Length).ToArray() , (Case, RunInfo) => (Case, RunInfo));
 
-             var response = new ListTestsResponse(ddd().ToArray(), tests.Tests.Length, Protobuf.StatusCode.Ok);
+            var response = new ListTestsResponse(ddd().ToArray(), tests.Tests.Length);
 
             return response;
 
@@ -100,10 +99,10 @@ namespace PresentationService
             }
         }
 
-        public override async Task<GBeginAddTestResponse> BeginAddTest(GBeginAddTestRequest gRequest, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.BeginAddTestAsync))]
+        public async Task<IActionResult> BeginAddTest(BeginAddTestRequest request)
         {
-            BeginAddTestRequest request = gRequest;
-            var token = context.RequestHeaders.FirstOrDefault(h => h.Key == "token")?.Value ?? "";
+            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
 
             var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
             if (result.Valid)
@@ -112,18 +111,18 @@ namespace PresentationService
 
                 MessageProducer.FireBeginAddTest(new BeginAddTestMessage(userInfResp.UserName, new Dictionary<string, string>(request.TestParameters)));
 
-                return new BeginAddTestResponse(Protobuf.StatusCode.Ok);
+                return Ok(new BeginAddTestResponse());
             }
             else
             {
-                return new BeginAddTestResponse(Protobuf.StatusCode.NotAuthorized);
+                return Unauthorized();
             }
         }
 
-        public override async Task<GStopAddTestResponse> StopAddTest(GStopAddTestRequest gRequest, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.StopAddTestAsync))]
+        public async Task<IActionResult> StopAddTest(StopAddTestRequest request)
         {
-            StopAddTestRequest request = gRequest;
-            var token = context.RequestHeaders.FirstOrDefault(h => h.Key == "token")?.Value ?? "";
+            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
 
             var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
             if (result.Valid)
@@ -132,18 +131,18 @@ namespace PresentationService
 
                 MessageProducer.FireStopAddTest(new StopAddTestMessage(userInfResp.UserName));
 
-                return new StopAddTestResponse(Protobuf.StatusCode.Ok);
+                return Ok(new StopAddTestResponse());
             }
             else
             {
-                return new StopAddTestResponse(Protobuf.StatusCode.NotAuthorized);
+                return Unauthorized();
             }
         }
 
-        public override async Task<GRunTestResponse> BeginTest(GRunTestRequest gRequest, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.BeginTestAsync))]
+        public async Task<IActionResult> BeginTest(BeginTestRequest request)
         {
-            BeginTestRequest request = gRequest;
-            var token = context.RequestHeaders.FirstOrDefault(h => h.Key == "token")?.Value ?? "";
+            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
 
             var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
             if (result.Valid)
@@ -153,23 +152,24 @@ namespace PresentationService
                 var runReq = new RunnerService.API.RunTestRequest(request.TestNameFilter.ToSequence().ToArray(), userInfResp.UserName);
                 var runResponse = await RunnerService.RunTestAsync(runReq);
 
-                return new BeginTestResponse(runResponse.Status);
+                return Ok(new BeginTestResponse());
             }
             else
             {
-                return new BeginTestResponse(Protobuf.StatusCode.NotAuthorized);
+                return Unauthorized();
             }
         }
 
-        public override async Task<GGetTestDetailsResponse> GetTestDetails(GGetTestDetailsRequest gRequest, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.GetTestDetailsAsync))]
+        public async Task<GetTestDetailsResponse> GetTestDetails(GetTestDetailsRequest request)
         {
-            return await RunnerService.GetTestDetailsAsync(gRequest);
+            return await RunnerService.GetTestDetailsAsync(request);
         }
 
-        public override async Task<Protobuf.GDeleteTestResponse> DeleteTest(Protobuf.GDeleteTestRequest gRequest, ServerCallContext context)
+        [HttpDelete, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.DeleteTestAsync))]
+        public async Task<IActionResult> DeleteTest(API.DeleteTestRequest request)
         {
-            DeleteTestRequest request = gRequest;
-            var token = context.RequestHeaders.FirstOrDefault(h => h.Key == "token")?.Value ?? "";
+            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
             var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
             if (result.Valid)
             {
@@ -180,38 +180,43 @@ namespace PresentationService
                     : await getAuthorNameAsync(request.TestNameFilter, true) ?? await getAuthorNameAsync(request.TestNameFilter, false)).AuthorName;
                 if (userName == testAuthor)
                 {
-                    return await TestsStorageService.DeleteTestAsync(request);
+
+                    var response = await TestsStorage.DeleteTestAsync(request.IsById 
+                        ? new TestsStorageService.API.DeleteTestRequest(request.TestId) 
+                        : new TestsStorageService.API.DeleteTestRequest(request.TestNameFilter));
+
+                    return Ok(new API.DeleteTestResponse());
                 }
                 else
                 {
-                    return new DeleteTestResponse(Protobuf.StatusCode.NotAuthorized);
+                    return Unauthorized();
                 }
             }
             else
             {
-                return new DeleteTestResponse(Protobuf.StatusCode.NotAuthorized);
+                return Unauthorized();
             }
         }
 
         async Task<TestCase> getAuthorNameAsync(string testName, bool returnNotSaved)
         {
             var lstReq = new ListTestsDataRequest(new string[] { testName }, new IntInterval(0, 1), false, returnNotSaved);
-            ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
+            ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElementOrDefault();
         }
-
         async Task<TestCase> getAuthorNameAsync(int testId, bool returnNotSaved)
         {
             var lstReq = new ListTestsDataRequest(new int[] { testId }, new IntInterval(0, 1), false, returnNotSaved);
-            ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
+            ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElement();
         }
 
-        public override async Task<GGetTestsAddStateResponse> GetTestsAddState(GGetTestsAddStateRequest request, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.GetTestsAddStateAsync))]
+        public async Task<GetTestsAddStateResponse> GetTestsAddState(GetTestsAddStateRequest request)
         {
-            var token = context.RequestHeaders.FirstOrDefault(h => h.Key == "token")?.Value ?? "";
+            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
             var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
 
             var statusResponse = await StateService.GetTestsAddStateAsync(new StateService.API.GGetTestsAddStateRequest()
@@ -219,37 +224,26 @@ namespace PresentationService
                 UserName = userInfResp.UserName
             });
 
-            return new GGetTestsAddStateResponse()
-            {
-                Status = new GResponseStatus(),
-                HasBegan = statusResponse.HasBegan
-            };
+            return new GetTestsAddStateResponse(statusResponse.HasBegan);
         }
 
-        public override async Task<GSaveRecordedTestResponse> SaveRecordedTest(GSaveRecordedTestRequest gRequest, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.SaveRecordedTestAsync))]
+        public async Task<IActionResult> SaveRecordedTest(SaveRecordedTestRequest request)
         {
-            SaveRecordedTestRequest request = gRequest;
-
-            var token = context.RequestHeaders.FirstOrDefault(h => h.Key == "token")?.Value ?? "";
+            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
             var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
             if (result.Valid)
             {
                 var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
 
-                var saveRequest = new GSaveTestRequest()
-                {
-                    Author = userInfResp.UserName,
-                    DisplayName = request.TestDescription,
-                    TestId = request.TestId,
-                    TestName = request.TestName
-                };
-                var saveResponse = await TestsStorageService.SaveTestAsync(saveRequest);
+                var saveRequest = new SaveTestRequest(request.TestId, request.TestName, request.TestDescription, userInfResp.UserName);
+                var saveResponse = await TestsStorage.SaveTestAsync(saveRequest);
 
-                return new SaveRecordedTestResponse(saveResponse.Status);
+                return Ok(new SaveRecordedTestResponse());
             }
             else
             {
-                return new SaveRecordedTestResponse(Protobuf.StatusCode.NotAuthorized);
+                return Unauthorized();
             }
         }
     }

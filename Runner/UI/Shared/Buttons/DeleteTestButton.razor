@@ -1,4 +1,4 @@
-﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+﻿@inject IPresentationService PresentationService;
 @inject NavigationManager Navigation
 @inject IMessageService MessageService
 @inject IIdentityContext Identity
@@ -14,13 +14,8 @@
 
     async Task goToAsync()
     {
-        var response = await PresentationService.DeleteTestAsync(new DeleteTestRequest(TestNameFilter));
+        await PresentationService.DeleteTestAsync(new DeleteTestRequest(TestNameFilter));
 
-        MessageService.AddMessage(response.Status.Code.ToString());
-
-        if (response.Status.Code == StatusCode.Ok)
-        {
-            Navigation.NavigateTo(Pages.Index.URI);
-        }
+        Navigation.NavigateTo(Pages.Index.URI);
     }
 }

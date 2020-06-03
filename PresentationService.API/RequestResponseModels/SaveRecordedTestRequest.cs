@@ -6,22 +6,6 @@ namespace PresentationService.API
 {
     public class SaveRecordedTestRequest
     {
-        public static implicit operator global::PresentationService.API2.GSaveRecordedTestRequest(SaveRecordedTestRequest request)
-        {
-            var gRequest = new API2.GSaveRecordedTestRequest()
-            {
-                TestId = request.TestId,
-                TestName = request.TestName,
-                DisplayName = request.TestDescription,
-            };
-
-            return gRequest;
-        }
-        public static implicit operator SaveRecordedTestRequest(global::PresentationService.API2.GSaveRecordedTestRequest request)
-        {
-            return new SaveRecordedTestRequest(request.TestId, request.TestName, request.DisplayName);
-        }
-
         [Required]
         public int TestId { get; }
 
@@ -31,6 +15,7 @@ namespace PresentationService.API
         [Required]
         public string TestDescription { get; }
 
+        [JsonConstructor]
         public SaveRecordedTestRequest(int testId, string testName, string testDescription)
         {
             TestId = testId;

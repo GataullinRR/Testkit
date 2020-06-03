@@ -26,8 +26,7 @@ namespace RunnerService
     {
         [Inject] public RunnerContext Db { get; set; }
         [Inject] public IMessageProducer MessageProducer { get; set; }
-        [Inject] public TestsStorageService.API.TestsStorageService.TestsStorageServiceClient TestsStorageService { get; set; }
-        [Inject] public TestsSourceService.API.TestsSourceService.TestsSourceServiceClient TestsSourceService { get; set; }
+        [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
 
         public GrpcService(IDependencyResolver di)
@@ -39,7 +38,7 @@ namespace RunnerService
         {
             RunTestRequest request = gRequest;
             var listRequest = new ListTestsDataRequest(request.TestsIdsFilter, new Vectors.IntInterval(0, 1000), true, false);
-            ListTestsDataResponse listResponse = await TestsStorageService.ListTestsDataAsync(listRequest);
+            ListTestsDataResponse listResponse = await TestsStorage.ListTestsDataAsync(listRequest);
 
             var testIdFilter = request.TestsIdsFilter.Single();
             var tests = Db.TestRuns
@@ -129,7 +128,7 @@ namespace RunnerService
             if (missingIds.Length > 0)
             {
                 var lstReq = new ListTestsDataRequest(missingIds, new Vectors.IntInterval(0, missingIds.Length), false, false);
-                ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
+                ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
                 var missingRunInfos = lstResp.Tests
                     .Select(ti => new Db.TestRunInfo()

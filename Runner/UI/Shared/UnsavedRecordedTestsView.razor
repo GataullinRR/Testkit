@@ -1,4 +1,4 @@
-﻿@inject PresentationService.API2.PresentationService.PresentationServiceClient PresentationService;
+﻿@inject IPresentationService PresentationService;
 @inject IMessageService MessageService;
 @inject IWebMessageHub Hub;
 
@@ -93,9 +93,7 @@
         row.IsDisabled = true;
         StateHasChanged();
 
-        var response = await PresentationService.SaveRecordedTestAsync(new SaveRecordedTestRequest(testId, saveModel.TestName, saveModel.TestDescription));
-
-        MessageService.AddMessage(response.Status.Code.ToString());
+        await PresentationService.SaveRecordedTestAsync(new SaveRecordedTestRequest(testId, saveModel.TestName, saveModel.TestDescription));
     }
 
     async Task discardTestAsync(int testId, TestSaveModel saveModel, TableBase.Row row)
@@ -103,8 +101,6 @@
         row.IsDisabled = true;
         StateHasChanged();
 
-        var response = await PresentationService.DeleteTestAsync(new DeleteTestRequest(testId));
-
-        MessageService.AddMessage(response.Status.Code.ToString());
+        await PresentationService.DeleteTestAsync(new DeleteTestRequest(testId));
     }
 }

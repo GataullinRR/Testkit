@@ -14,27 +14,26 @@ using Google.Protobuf;
 using Shared;
 using Protobuf;
 using MessageHub;
-using PresentationService.API;
 using Shared.Types;
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TestsStorageService
 {
-    [GrpcService]
-    public class GrpcService : API.TestsStorageService.TestsStorageServiceBase
+    [ApiController, Microsoft.AspNetCore.Mvc.Route("api/v1")]
+    public class MainController : ControllerBase
     {
         [Inject] public IMessageProducer MessageProducer { get; set; }
         [Inject] public TestsContext Db { get; set; }
         
-        public GrpcService(IDependencyResolver di)
+        public MainController(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
 
-        public override async Task<GListTestsDataResponse> ListTestsData(GListTestsDataRequest gRequest, ServerCallContext context)
+        [Microsoft.AspNetCore.Mvc.Route("list"), HttpPost]
+        public async Task<ListTestsDataResponse> ListTestsData(ListTestsDataRequest request)
         {
-            ListTestsDataRequest request = gRequest;
-
             IQueryable<TestCase> cases = Db.Cases.AsNoTracking()
                 .Where(c => request.ReturnNotSaved
                     ? c.State == TestCaseState.RecordedButNotSaved
@@ -73,13 +72,12 @@ namespace TestsStorageService
             
             var result = await cases.ToArrayAsync();
 
-            return new ListTestsDataResponse(result, totalCount, Protobuf.StatusCode.Ok);
+            return new ListTestsDataResponse(result, totalCount);
         }
 
-        public override async Task<GDeleteTestResponse> DeleteTest(GDeleteTestRequest gRequest, ServerCallContext context)
+        [Microsoft.AspNetCore.Mvc.Route("delete"), HttpPost]
+        public async Task<DeleteTestResponse> DeleteTest(DeleteTestRequest request)
         {
-            DeleteTestRequest request = gRequest;
-
             TestCase[] casesToDelete = null;
             if (request.IsById)
             {
@@ -104,27 +102,29 @@ namespace TestsStorageService
                 }
             }
 
-            return new DeleteTestResponse(Protobuf.StatusCode.Ok);
+            return new DeleteTestResponse();
         }
 
-        public override async Task<GSaveTestResponse> SaveTest(GSaveTestRequest request, ServerCallContext context)
+        [Microsoft.AspNetCore.Mvc.Route("save"), HttpPost]
+        public async Task<IActionResult> SaveTest(SaveTestRequest request)
         {
             var test = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
             if (test?.State == TestCaseState.RecordedButNotSaved)
             {
-                test.DisplayName = request.DisplayName;
-                test.TestName = request.TestName;
+                test.DisplayName = request.Description;
+                test.TestName = request.Name;
                 test.State = TestCaseState.Saved;
+
+                await Db.SaveChangesAsync();
 
                 MessageProducer.FireTestAdded(new TestAddedMessage(test.TestId, test.TestName, test.AuthorName));
 
-                await Db.SaveChangesAsync();
-            };
-
-            return new GSaveTestResponse()
+                return Ok(new SaveTestResponse());
+            }
+            else
             {
-                Status = new GResponseStatus() { Code = test == null ? Protobuf.StatusCode.NotFound : Protobuf.StatusCode.Ok }
-            };
+                return NotFound();
+            }
         }
     }
 }

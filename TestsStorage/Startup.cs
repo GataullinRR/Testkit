@@ -19,6 +19,7 @@ using TestsStorageService;
 using TestsStorageService.Db;
 using UserService;
 using Utilities.Extensions;
+using Utilities.Types;
 
 namespace TestsStorage
 {
@@ -37,9 +38,14 @@ namespace TestsStorage
             services.AddDbContext<TestsContext>(options =>
                 options.UseSqlServer(Configuration.GetSection("DefaultConnection").Value));
 
-            services.AddGrpc();
+            services.AddControllers()
+                    .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
+                    });
+
             services.AddNecessaryFeatures();
-            services.AddGrpcServices();
             services.AddMessaging(Configuration.GetSection("Messaging"));
 
             services.AddDbInitializer<DbSeeder>();
@@ -49,13 +55,13 @@ namespace TestsStorage
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSingletonInitialization();
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcServices(Assembly.GetExecutingAssembly(),
-                    typeof(GrpcEndpointRouteBuilderExtensions).GetMethod("MapGrpcService", BindingFlags.Static | BindingFlags.Public));
+                endpoints.MapControllers();
             });
         }
     }

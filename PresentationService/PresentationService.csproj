@@ -6,19 +6,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
 	<PackageReference Include="Grpc.AspNetCore" Version="2.28.0" />
-	<PackageReference Include="Grpc.AspNetCore.Web" Version="2.28.0-pre2" />
 	<PackageReference Include="Grpc.Core" Version="2.29.0" />
 	<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="3.1.4" />
 	<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-	  <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.4" />
+	<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.4" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
     <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
     <ProjectReference Include="..\Protos\Protos.csproj" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\RunnerService.Db\RunnerService.Db.csproj" />
-    <ProjectReference Include="..\Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />

@@ -10,23 +10,8 @@ using Utilities.Types;
 
 namespace PresentationService.API
 {
-    public class BeginTestResponse : ResponseBase
+    public class BeginTestResponse
     {
-        public static implicit operator global::PresentationService.API2.GRunTestResponse(BeginTestResponse response)
-        {
-            return new global::PresentationService.API2.GRunTestResponse()
-            {
-                Status = response.Status
-            };
-        }
-        public static implicit operator BeginTestResponse(global::PresentationService.API2.GRunTestResponse response)
-        {
-            return new BeginTestResponse(response.Status);
-        }
 
-        public BeginTestResponse(ResponseStatus status) : base (status)
-        {
-
-        }
     }
 }

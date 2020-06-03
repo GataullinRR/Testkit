@@ -16,7 +16,7 @@ namespace PresentationService
     public class WebNotifier 
     {
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
-        [Inject] public TestsStorageService.API.TestsStorageService.TestsStorageServiceClient TestsStorageService { get; set; }
+        [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public IMessageConsumer MessageConsumer { get; set; }
         [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
 
@@ -69,7 +69,7 @@ namespace PresentationService
         async Task<TestCase> getAuthorNameAsync(string testId)
         {
             var lstReq = new ListTestsDataRequest(new string[] { testId }, new IntInterval(0, 1), false, false);
-            ListTestsDataResponse lstResp = await TestsStorageService.ListTestsDataAsync(lstReq);
+            ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElement();
         }
