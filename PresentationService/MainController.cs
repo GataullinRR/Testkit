@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API;
 using Protobuf;
-using RunnerService.APIModels;
+using RunnerService.API;
 using RunnerService.Db;
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace PresentationService
     {
         [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
         [Inject] public ITestsStorageService TestsStorage { get; set; }
-        [Inject] public RunnerService.API.RunnerService.RunnerServiceClient RunnerService { get; set; }
+        [Inject] public IRunnerService RunnerService { get; set; }
         [Inject] public StateService.API.StateService.StateServiceClient StateService { get; set; }
         [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
         [Inject] public ILogger<MainController> Logger { get; set; }
@@ -63,12 +63,12 @@ namespace PresentationService
             ListTestsDataResponse tests = await TestsStorage.ListTestsDataAsync(lstRequest);
 
             var testsIds = tests.Tests.Select(c => c.TestName).ToArray();
-            var getInfosR = new RunnerService.API.GetTestsInfoRequest(testsIds);
-            RunnerService.API.GetTestsInfoResponse getInfosResp = request.ReturnNotSaved 
-                ? (RunnerService.API.GetTestsInfoResponse)null
-                : (RunnerService.API.GetTestsInfoResponse)await RunnerService.GetTestsInfoAsync(getInfosR);
+            var getInfosR = new RunnerService.API.Models.GetTestsInfoRequest(testsIds);
+            RunnerService.API.Models.GetTestsInfoResponse getInfosResp = request.ReturnNotSaved 
+                ? (RunnerService.API.Models.GetTestsInfoResponse)null
+                : (RunnerService.API.Models.GetTestsInfoResponse)await RunnerService.GetTestsInfoAsync(getInfosR);
 
-            var fullInfos = tests.Tests.Zip(getInfosResp?.RunInfos ?? ((RunnerService.API.TestRunInfo)null).Repeat(tests.Tests.Length).ToArray() , (Case, RunInfo) => (Case, RunInfo));
+            var fullInfos = tests.Tests.Zip(getInfosResp?.RunInfos ?? ((RunnerService.API.Models.TestRunInfo)null).Repeat(tests.Tests.Length).ToArray() , (Case, RunInfo) => (Case, RunInfo));
 
             var response = new ListTestsResponse(ddd().ToArray(), tests.Tests.Length);
 
@@ -149,7 +149,7 @@ namespace PresentationService
             {
                 var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
 
-                var runReq = new RunnerService.API.RunTestRequest(request.TestNameFilter.ToSequence().ToArray(), userInfResp.UserName);
+                var runReq = new RunnerService.API.Models.RunTestRequest(request.TestNameFilter.ToSequence().ToArray(), userInfResp.UserName);
                 var runResponse = await RunnerService.RunTestAsync(runReq);
 
                 return Ok(new BeginTestResponse());
@@ -161,7 +161,7 @@ namespace PresentationService
         }
 
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.GetTestDetailsAsync))]
-        public async Task<GetTestDetailsResponse> GetTestDetails(GetTestDetailsRequest request)
+        public async Task<API.GetTestDetailsResponse> GetTestDetails(API.GetTestDetailsRequest request)
         {
             return await RunnerService.GetTestDetailsAsync(request);
         }

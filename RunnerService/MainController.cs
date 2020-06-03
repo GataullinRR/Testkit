@@ -2,12 +2,13 @@
 using Grpc.Core;
 using MessageHub;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using PresentationService.API;
 using Protobuf;
 using RunnerService.API;
-using RunnerService.APIModels;
+using RunnerService.API.Models;
 using RunnerService.Db;
 using Shared;
 using System;
@@ -18,25 +19,27 @@ using System.Threading.Tasks;
 using TestsStorageService.API;
 using Utilities.Extensions;
 using Utilities.Types;
+using GetTestDetailsRequest = RunnerService.API.Models.GetTestDetailsRequest;
+using GetTestDetailsResponse = RunnerService.API.Models.GetTestDetailsResponse;
 
 namespace RunnerService
 {
-    [GrpcService]
-    public class GrpcService : API.RunnerService.RunnerServiceBase
+    [ApiController, Microsoft.AspNetCore.Mvc.Route("api/v1")]
+    public class MainController : ControllerBase
     {
         [Inject] public RunnerContext Db { get; set; }
         [Inject] public IMessageProducer MessageProducer { get; set; }
         [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
 
-        public GrpcService(IDependencyResolver di)
+        public MainController(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
 
-        public override async Task<GRunTestResponse> RunTest(GRunTestRequest gRequest, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IRunnerService.RunTestAsync))]
+        public async Task<RunTestResponse> RunTest(RunTestRequest request)
         {
-            RunTestRequest request = gRequest;
             var listRequest = new ListTestsDataRequest(request.TestsIdsFilter, new Vectors.IntInterval(0, 1000), true, false);
             ListTestsDataResponse listResponse = await TestsStorage.ListTestsDataAsync(listRequest);
 
@@ -94,16 +97,17 @@ namespace RunnerService
                 MessageProducer.FireBeginTest(message());
             }
 
-            return new RunTestResponse(Protobuf.StatusCode.Ok);
+            return new RunTestResponse();
         }
 
-        public override async Task<GGetTestsInfoResponse> GetTestsInfo(GGetTestsInfoRequest request, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IRunnerService.GetTestsInfoAsync))]
+        public async Task<GetTestsInfoResponse> GetTestsInfo(GetTestsInfoRequest request)
         {
             var infos = await ensureDbPopulated(request.TestsIds.ToArray());
 
             return new GetTestsInfoResponse(
                 infos
-                    .Select(i => new API.TestRunInfo(
+                    .Select(i => new API.Models.TestRunInfo(
                         i.TestId,
                         i.TestName,
                         i.Results
@@ -112,8 +116,7 @@ namespace RunnerService
                             ?.ResultBase,
                         i.State,
                         i.RunPlan))
-                    .ToArray(),
-                Protobuf.StatusCode.Ok);
+                    .ToArray());
         }
 
         async Task<Db.TestRunInfo[]> ensureDbPopulated(string[] testIds)
@@ -150,10 +153,9 @@ namespace RunnerService
             return infos;
         }
 
-        public override async Task<GGetTestDetailsResponse> GetTestDetails(GGetTestDetailsRequest gRequest, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IRunnerService.GetTestDetailsAsync))]
+        public async Task<GetTestDetailsResponse> GetTestDetails(GetTestDetailsRequest request)
         {
-            GetTestDetailsRequest request = gRequest;
-
             var testIdFilter = request.TestIdFilters.Single();
             var dbResults = await Db.TestRuns
                 .IncludeGroup(EntityGroups.RESULTS, Db)
@@ -166,7 +168,7 @@ namespace RunnerService
                 .Take(request.CountFromEnd)
                 .ToArray();
 
-            return new GetTestDetailsResponse(results, dbResults.Length, Protobuf.StatusCode.Ok);
+            return new GetTestDetailsResponse(results, dbResults.Length);
         }
     }
 }

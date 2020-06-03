@@ -1,4 +1,5 @@
-﻿using RunnerService.APIModels;
+﻿using RunnerService.API;
+using RunnerService.API.Models;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Utilities.Types;

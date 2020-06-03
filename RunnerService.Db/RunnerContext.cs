@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RunnerService.APIModels;
+using RunnerService.API;
+using RunnerService.API.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;

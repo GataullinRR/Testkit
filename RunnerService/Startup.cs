@@ -15,23 +15,30 @@ using Microsoft.Extensions.Logging;
 using RunnerService.Db;
 using Shared;
 using Utilities.Extensions;
+using Utilities.Types;
 
 namespace RunnerService
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<RunnerContext>(options =>
                 options.UseSqlServer(Configuration.GetSection("DefaultConnection").Value));
+            services.AddControllers()
+                    .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
+                    });
 
             services.AddGrpc();
             services.AddNecessaryFeatures();
@@ -43,13 +50,13 @@ namespace RunnerService
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSingletonInitialization();
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcServices(Assembly.GetExecutingAssembly(),
-                    typeof(GrpcEndpointRouteBuilderExtensions).GetMethod("MapGrpcService", BindingFlags.Static | BindingFlags.Public));
+                endpoints.MapControllers();
             });
         }
     }

@@ -36,7 +36,7 @@ else
     async Task addMoreAsync(int count)
     {
         var newCount = _rows.Count + count;
-        GetTestDetailsResponse response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestNameFilter.ToSequence().ToArray(), newCount));
+        var response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestNameFilter.ToSequence().ToArray(), newCount));
 
         _totalCount = response.TotalCount;
         _rows.Clear();

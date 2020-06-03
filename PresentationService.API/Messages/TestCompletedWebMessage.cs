@@ -1,4 +1,5 @@
-﻿using RunnerService.APIModels;
+﻿using RunnerService.API;
+using RunnerService.API.Models;
 using System;
 
 namespace PresentationService.API

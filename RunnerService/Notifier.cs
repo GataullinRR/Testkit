@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Protobuf;
-using RunnerService.APIModels;
+using RunnerService.API;
 using RunnerService.Db;
 using System.Linq;
 using System.Threading.Tasks;
 using Utilities.Types;
 using Utilities.Extensions;
+using RunnerService.API.Models;
 
 namespace RunnerService
 {

@@ -1,4 +1,4 @@
-﻿namespace RunnerService.APIModels
+﻿namespace RunnerService.API.Models
 {
     public enum RunPlan
     {

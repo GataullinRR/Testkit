@@ -1,10 +1,11 @@
 ﻿using UserService.API;
-using RunnerService.APIModels;
+using RunnerService.API;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TestsStorageService.API;
 using TestsStorageService.Db;
+using RunnerService.API.Models;
 
 namespace DDD
 {

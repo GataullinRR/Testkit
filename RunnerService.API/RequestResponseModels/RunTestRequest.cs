@@ -5,25 +5,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
-namespace RunnerService.API
+namespace RunnerService.API.Models
 {
     public class RunTestRequest
     {
-        public static implicit operator GRunTestRequest(RunTestRequest request)
-        {
-            var gRequest = new GRunTestRequest()
-            {
-                UserName = request.UserName
-            };
-            gRequest.TestIdsFilter.AddRange(request.TestsIdsFilter);
-
-            return gRequest;
-        }
-        public static implicit operator RunTestRequest(GRunTestRequest request)
-        {
-            return new RunTestRequest(request.TestIdsFilter.ToArray(), request.UserName);
-        }
-
         [Required]
         public string[] TestsIdsFilter { get; }
         

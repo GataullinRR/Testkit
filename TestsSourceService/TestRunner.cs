@@ -1,7 +1,7 @@
 ﻿using MessageHub;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
-using RunnerService.APIModels;
+using RunnerService.API;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +11,7 @@ using Utilities.Types;
 using Utilities.Extensions;
 using System.Threading;
 using System.Text;
+using RunnerService.API.Models;
 
 namespace ExampleTestsSourceService
 {

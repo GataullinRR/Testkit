@@ -66,12 +66,12 @@ else
                             <td>
                                 @switch (test.RunPlan.RunPlan)
                                 {
-                                    case RunPlan.Manual:
+                                    case RunnerService.API.Models.RunPlan.Manual:
                                         <span>Manual</span>
                                         break;
-                                    case RunPlan.Periodic:
+                                    case RunnerService.API.Models.RunPlan.Periodic:
                                         <span>
-                                            @(test.RunPlan.To<PeriodicRunPlan>().NextRun.ToString())
+                                            @(test.RunPlan.To<RunnerService.API.Models.PeriodicRunPlan>().NextRun.ToString())
                                         </span>
                                         break;
 
@@ -89,12 +89,12 @@ else
                                 {
                                     @switch (test.State.State)
                                     {
-                                        case State.JustCreated:
-                                        case State.Ready:
+                                        case RunnerService.API.Models.State.JustCreated:
+                                        case RunnerService.API.Models.State.Ready:
                                             <RunTestButton TestNameFilter="@test.TestName" />
                                             break;
-                                        case State.AwaitingStart:
-                                        case State.Running:
+                                        case RunnerService.API.Models.State.AwaitingStart:
+                                        case RunnerService.API.Models.State.Running:
                                             @*<InlineButton class="action-danger">Cancel</InlineButton>*@
                                             <span>Running...</span>
                                             break;

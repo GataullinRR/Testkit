@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="RunnerService.proto" />
     <None Remove="StateService.proto" />
   </ItemGroup>
 	
@@ -22,7 +21,6 @@
 
 	<ItemGroup>
 		<Protobuf Include="StateService.proto" />
-		<Protobuf Include="RunnerService.proto" />
 		<Protobuf Include="UserService.proto" />
 		<Protobuf Include="Common.proto" />
 	</ItemGroup>

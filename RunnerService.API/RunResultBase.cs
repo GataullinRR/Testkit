@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
-namespace RunnerService.APIModels
+namespace RunnerService.API.Models
 {
     public abstract class RunResultBase
     {

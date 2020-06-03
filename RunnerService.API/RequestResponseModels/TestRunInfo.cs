@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using RunnerService.APIModels;
+using RunnerService.API;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace RunnerService.API
+namespace RunnerService.API.Models
 {
     public class TestRunInfo
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RunnerService.APIModels
+namespace RunnerService.API.Models
 {
     public class PeriodicRunPlan : RunPlanBase, IPredictableRunPlan
     {

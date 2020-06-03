@@ -27,7 +27,6 @@
     <ProjectReference Include="..\Protos\Protos.csproj" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
   </ItemGroup>
 

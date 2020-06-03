@@ -1,22 +1,14 @@
-﻿using AutoMapper.Mappers;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Newtonsoft.Json;
 using RunnerService.API;
-using RunnerService.API.Models;
 using Shared.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
-using Utilities;
 
-namespace PresentationService.API
+namespace RunnerService.API.Models
 {
     public class GetTestDetailsResponse
     {
-        public static implicit operator GetTestDetailsResponse(global::RunnerService.API.Models.GetTestDetailsResponse response)
-        {
-            return new GetTestDetailsResponse(response.RunResulsts, response.TotalCount);
-        }
-
         /// <summary>
         /// From new to old
         /// </summary>
