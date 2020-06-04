@@ -1,7 +1,7 @@
 ﻿@page "/profile" 
 @page "/profile/{UserName}"
 @inject IIdentityContext Context;
-@inject UserService.UserServiceClient UserService;
+@inject IUserService UserService;
 @inject ICookieStorage Cookies;
 @inject IMessageService Messages;
 
@@ -41,20 +41,7 @@
         }
         else
         {
-            var response = await UserService.GetUserInfoAsync(new GGetUserInfoRequest()
-            {
-                Token = await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "",
-                UserName = UserName
-            });
-
-            if (response.Status.Code == StatusCode.Ok)
-            {
-                _userInfo = response;
-            }
-            else
-            {
-                Messages.AddMessage(response.Status.Description);
-            }
+            _userInfo  = await UserService.GetUserInfoAsync(new GetUserInfoRequest(await Cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE) ?? "", UserName));
         }
 
         await base.OnParametersSetAsync();

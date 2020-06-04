@@ -11,7 +11,7 @@ namespace Runner
     [Service(ServiceLifetime.Singleton)]
     class IdentityContext : IIdentityContext
     {
-        [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
+        [Inject] public IUserService UserService { get; set; }
         [Inject] public ICookieStorage Cookies { get; set; }
         [Inject] public Browser Browser { get; set; }
 
@@ -37,16 +37,9 @@ namespace Runner
             }
             else
             {
-                var request = new GGetUserInfoRequest()
-                {
-                    Token = token
-                };
-
+                var request = new GetUserInfoRequest(token);
                 var response = await UserService.GetUserInfoAsync(request);
-                if (response.Status.Code == Protobuf.StatusCode.Ok)
-                {
-                    Identity = new Identity(true, response);
-                }
+                Identity = new Identity(true, response);
             }
         }
     }

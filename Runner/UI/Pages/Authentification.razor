@@ -1,5 +1,5 @@
 ﻿@page "/auth";
-@inject UserService.UserServiceClient UserService;
+@inject IUserService UserService;
 @inject IMessageService MessageService;
 @inject ICookieStorage Cookies;
 @inject NavigationManager NavigationManager;
@@ -40,24 +40,23 @@
 
     async void registerAsync(SignUpForm.SignUpPresentationModel model)
     {
-        var response = await UserService.SignUpAsync((SignUpRequest)model);
-        if (response.Status.Code == StatusCode.Ok)
+        try
         {
+            var response = await UserService.SignUpAsync((SignUpRequest)model);
             MessageService.AddMessage("You've been succesfully registered, now you can sign in");
-
             signInRequested();
         }
-        else
+        catch
         {
-            MessageService.AddMessage(response.Status.Description ?? "Ooops! Could not perform operation requested");
+            MessageService.AddMessage("Ooops! Could not perform operation requested");
         }
     }
 
     async void loginAsync(SignInForm.SignInPresentationModel model)
     {
-        var response = await UserService.SignInAsync((SignInRequest)model);
-        if (response.Status.Code == StatusCode.Ok)
+        try
         {
+            var response = await UserService.SignInAsync((SignInRequest)model);
             await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, response.Token);
             await UserChangeNotifier.FireAuthStateChangedAsync();
 
@@ -65,9 +64,9 @@
 
             NavigationManager.NavigateTo(Runner.UI.Pages.Index.URI);
         }
-        else
+        catch
         {
-            MessageService.AddMessage(response.Status.Description ?? "Ooops! Could not perform operation requested");
+            MessageService.AddMessage("Ooops! Could not perform operation requested");
         }
     }
 }

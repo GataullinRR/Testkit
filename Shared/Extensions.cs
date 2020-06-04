@@ -16,6 +16,7 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection;
 using TestsStorageService.API;
+using UserService.API;
 using Utilities.Extensions;
 
 namespace Shared
@@ -79,7 +80,10 @@ namespace Shared
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            services.AddGrpcService<UserService.API.UserService.UserServiceClient>("https://localhost:5001/");
+            services.AddHttpClient<IUserService, UserService.API.UserService>(c =>
+            {
+                c.BaseAddress = new Uri("http://localhost:5000/api/v1/");
+            });
             services.AddHttpClient<ITestsStorageService, TestsStorageService.API.TestsStorageService>(c =>
             {
                 c.BaseAddress = new Uri("http://localhost:5020/api/v1/");

@@ -11,7 +11,7 @@ namespace PresentationService
 {
     public class SignalRHub : Hub<IMainHub>
     {
-        [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
+        [Inject] public IUserService UserService { get; set; }
 
         public SignalRHub(IDependencyResolver di)
         {
@@ -23,8 +23,7 @@ namespace PresentationService
             var userName = "";
             if (authToken != null)
             {
-                var uInfReq = new GGetUserInfoRequest();
-                uInfReq.Token = authToken;
+                var uInfReq = new GetUserInfoRequest(authToken);
                 var uInfResp = await UserService.GetUserInfoAsync(uInfReq);
                 userName = uInfResp.UserName;
             }

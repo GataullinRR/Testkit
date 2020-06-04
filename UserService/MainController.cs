@@ -22,42 +22,37 @@ using UserServiceDb;
 using Utilities.Extensions;
 using Utilities.Types;
 using Protobuf;
+using Confluent.Kafka;
+using NJsonSchema.Validation;
 
 namespace UserService
 {
-    public class GrpcService : API.UserService.UserServiceBase
+    [ApiController, Microsoft.AspNetCore.Mvc.Route("api/v1")]
+    public class MainController : ControllerBase
     {
         [Inject] public SignInManager<User> SignInManager { get; set; }
         [Inject] public UserManager<User> UserManager { get; set; }
-        [Inject] public IMapper Mapper { get; set; }
         [Inject] public Microsoft.Extensions.Configuration.IConfiguration Configuration { get; set; } 
 
-        public GrpcService(IDependencyResolver di)
+        public MainController(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
 
-        public override async Task<GSignInResponse> SignIn(GSignInRequest request, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IUserService.SignInAsync))]
+        public async Task<IActionResult> SignIn(SignInRequest request)
         {
-            var response = new GSignInResponse()
-            {
-                Status = new GResponseStatus()
-            };
-
             var result = await SignInManager.PasswordSignInAsync(request.UserName, request.Password, true, false);
             if (result.Succeeded)
             {
                 var user = await UserManager.FindByNameAsync(request.UserName);
-                response.Token = generateJwtToken(user);
-                response.Status.Code = Protobuf.StatusCode.Ok;
+
+                return Ok(new SignInResponse(generateJwtToken(user)));
             }
             else
             {
-                response.Status.Code = Protobuf.StatusCode.Error;
-                response.Status.Description = "Could not authorize. Wrong credentials or the user does not exist";
+                return NotFound("Could not authorize. Wrong credentials or the user does not exist");
             }
-
-            return response;
 
             string generateJwtToken(IdentityUser user)
             {
@@ -84,10 +79,9 @@ namespace UserService
             }
         }
 
-        public override async Task<GSignUpResponse> SignUp(GSignUpRequest request, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IUserService.SignUpAsync))]
+        public async Task<IActionResult> SignUp(SignUpRequest request)
         {
-            var response = new GSignUpResponse();
-
             var user = new User
             {
                 UserName = request.UserName,
@@ -98,44 +92,28 @@ namespace UserService
             if (result.Succeeded)
             {
                 await UserManager.AddToRoleAsync(user, Roles.User);
-                response.Status = new GResponseStatus()
-                {
-                    Code = Protobuf.StatusCode.Ok,
-                    Description = "Done!"
-                };
+
+                return Ok(new SignUpResponse());
             }
             else
             {
-                response.Status = new GResponseStatus()
-                {
-                    Code = Protobuf.StatusCode.Error,
-                    Description = "Could not complete registration. Maybe the user with this name already exists."
-                };
+                return UnprocessableEntity("Could not complete registration. Maybe the user with this name already exists.");
             }
-
-            return response;
         }
 
-        public override async Task<GGetUserInfoResponse> GetUserInfo(GGetUserInfoRequest request, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IUserService.GetUserInfoAsync))]
+        public async Task<IActionResult> GetUserInfo(GetUserInfoRequest request)
         {
-            var response = new GGetUserInfoResponse()
-            {
-                Status = new GResponseStatus()
-            };
-
             var currentUser = await tryGetTokenOwnerAsync(request.Token);
             if (request.UserName.IsNullOrEmpty()) // get current
             {
                 if (currentUser == null)
                 {
-                    response.Status.Code = Protobuf.StatusCode.Error;
-                    response.Status.Description = "Authentification required!";
+                    return Unauthorized();
                 }
                 else
                 {
-                    response.UserName = currentUser.UserName;
-                    response.EMail = currentUser.Email;
-                    response.Phone = currentUser.PhoneNumber;
+                    return Ok(new GetUserInfoResponse(currentUser.UserName, currentUser.Email, currentUser.PhoneNumber));
                 }
             }
             else
@@ -143,40 +121,30 @@ namespace UserService
                 var targetUser = await UserManager.FindByNameAsync(request.UserName);
                 if (targetUser == null)
                 {
-                    response.Status.Code = Protobuf.StatusCode.Error;
-                    response.Status.Description = "User not found";
+                    return NotFound("User not found");
                 }
                 else
                 {
                     if (currentUser == targetUser)
                     {
-                        response.UserName = targetUser.UserName;
-                        response.EMail = targetUser.Email;
-                        response.Phone = targetUser.PhoneNumber;
+                        return Ok(new GetUserInfoResponse(targetUser.UserName, targetUser.Email, targetUser.PhoneNumber));
                     }
                     else if (currentUser != null) // authorized
                     {
-                        response.UserName = targetUser.UserName;
-                        response.EMail = targetUser.Email;
+                        return Ok(new GetUserInfoResponse(targetUser.UserName, targetUser.Email, null));
                     }
                     else // anon
                     {
-                        response.UserName = targetUser.UserName;
+                        return Ok(new GetUserInfoResponse(targetUser.UserName, null, null));
                     }
                 }
             }
-
-            return response;
         }
 
-        public override async Task<GValidateTokenResponse> ValidateToken(GValidateTokenRequest request, ServerCallContext context)
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IUserService.ValidateTokenAsync))]
+        public async Task<ValidateTokenResponse> ValidateToken(ValidateTokenRequest request)
         {
-            var response = new GValidateTokenResponse()
-            {
-                Valid = validateToken(request.Token)
-            };
-
-            return response;
+            return new ValidateTokenResponse(validateToken(request.Token));
         }
 
         async Task<User?> tryGetTokenOwnerAsync(string token)

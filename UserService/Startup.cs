@@ -65,10 +65,15 @@ namespace UserService
 
             services.AddDbContext<UserContext>(options =>
                 options.UseSqlServer(Configuration.GetSection("DefaultConnection").Value));
+            services.AddControllers()
+                    .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
+                    });
 
             services.AddGrpc();
             services.AddCors();
-            services.AddAutoMapper(typeof(MappingProfile));
             services.AddUtilityServices();
             services.AddAttributeRegisteredServices();
 
@@ -78,13 +83,7 @@ namespace UserService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //app.UseServiceRequiringInstantiation<DbBootstrapper>();
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -97,11 +96,10 @@ namespace UserService
             }); 
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseGrpcWeb();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<GrpcService>().EnableGrpcWeb();
+                endpoints.MapControllers();
             });
         }
     }

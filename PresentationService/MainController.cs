@@ -27,7 +27,7 @@ namespace PresentationService
     [ApiController, Microsoft.AspNetCore.Mvc.Route("api/v1")]
     public class MainController : ControllerBase
     {
-        [Inject] public UserService.API.UserService.UserServiceClient UserService { get; set; }
+        [Inject] public IUserService UserService { get; set; }
         [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public IRunnerService RunnerService { get; set; }
         [Inject] public StateService.API.StateService.StateServiceClient StateService { get; set; }
@@ -82,7 +82,7 @@ namespace PresentationService
                     {
                         TestId = info.Case.TestId,
                         TestName = info.Case.TestName,
-                        Author = new GetUserInfoResponse(info.Case.AuthorName, null, null, Protobuf.StatusCode.Ok),
+                        Author = new GetUserInfoResponse(info.Case.AuthorName, null, null),
                         Target = new TestCaseInfo() 
                         {  
                             DisplayName = info.Case.DisplayName, 
@@ -104,10 +104,10 @@ namespace PresentationService
         {
             var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
 
-            var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
-            if (result.Valid)
+            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
+            if (result.IsValid)
             {
-                var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
+                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
 
                 MessageProducer.FireBeginAddTest(new BeginAddTestMessage(userInfResp.UserName, new Dictionary<string, string>(request.TestParameters)));
 
@@ -124,10 +124,10 @@ namespace PresentationService
         {
             var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
 
-            var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
-            if (result.Valid)
+            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
+            if (result.IsValid)
             {
-                var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
+                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
 
                 MessageProducer.FireStopAddTest(new StopAddTestMessage(userInfResp.UserName));
 
@@ -144,10 +144,10 @@ namespace PresentationService
         {
             var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
 
-            var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
-            if (result.Valid)
+            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
+            if (result.IsValid)
             {
-                var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
+                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
 
                 var runReq = new RunnerService.API.Models.RunTestRequest(request.TestNameFilter.ToSequence().ToArray(), userInfResp.UserName);
                 var runResponse = await RunnerService.RunTestAsync(runReq);
@@ -170,10 +170,10 @@ namespace PresentationService
         public async Task<IActionResult> DeleteTest(API.DeleteTestRequest request)
         {
             var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
-            var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
-            if (result.Valid)
+            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
+            if (result.IsValid)
             {
-                var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
+                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
                 var userName = userInfResp.UserName;
                 var testAuthor = (request.IsById
                     ? await getAuthorNameAsync(request.TestId, true) ?? await getAuthorNameAsync(request.TestId, false)
@@ -217,7 +217,7 @@ namespace PresentationService
         public async Task<GetTestsAddStateResponse> GetTestsAddState(GetTestsAddStateRequest request)
         {
             var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
-            var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
+            var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
 
             var statusResponse = await StateService.GetTestsAddStateAsync(new StateService.API.GGetTestsAddStateRequest()
             {
@@ -231,10 +231,10 @@ namespace PresentationService
         public async Task<IActionResult> SaveRecordedTest(SaveRecordedTestRequest request)
         {
             var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
-            var result = await UserService.ValidateTokenAsync(new GValidateTokenRequest() { Token = token });
-            if (result.Valid)
+            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
+            if (result.IsValid)
             {
-                var userInfResp = await UserService.GetUserInfoAsync(new GGetUserInfoRequest() { Token = token });
+                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
 
                 var saveRequest = new SaveTestRequest(request.TestId, request.TestName, request.TestDescription, userInfResp.UserName);
                 var saveResponse = await TestsStorage.SaveTestAsync(saveRequest);

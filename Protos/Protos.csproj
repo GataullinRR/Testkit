@@ -21,7 +21,6 @@
 
 	<ItemGroup>
 		<Protobuf Include="StateService.proto" />
-		<Protobuf Include="UserService.proto" />
 		<Protobuf Include="Common.proto" />
 	</ItemGroup>
 </Project>
