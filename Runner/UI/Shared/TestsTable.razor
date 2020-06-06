@@ -43,14 +43,7 @@ else
                             </td>
 
                             <td>
-                                @if (test.CreationState == TestsStorageService.API.TestCaseState.NotRecorded)
-                                {
-                                    <span>NotRecorded</span>
-                                }
-                                else
-                                {
-                                    @test.State.State
-                                }
+                                @test.State.State
                             </td>
 
                             <td>
@@ -164,7 +157,7 @@ else
 
     async Task addTestsAsync(int from, int to)
     {
-        var response = await PresentationService.ListTestsAsync(new ListTestsRequest(TestNameFilter, false, new IntInterval(from, to)));
+        var response = await PresentationService.ListTestsAsync(ListTestsRequest.ByNameFilter(TestNameFilter, new IntInterval(from, to), false));
 
         _totalCount = response.TotalCount;
         _tests.AddRange(response.Tests);

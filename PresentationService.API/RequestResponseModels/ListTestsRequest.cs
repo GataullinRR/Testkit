@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Shared.Types;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vectors;
 
@@ -14,38 +15,51 @@ namespace PresentationService.API
         public bool IsByAuthorName { get; }
         public string? AuthorName { get; }
 
+        public bool IsByNameFilter { get; }
         public string? TestNameFilter { get; }
-        public bool ReturnNotSaved { get; }
-        
+
+        public bool IsByParameters { get; }
+        public Dictionary<string, string>? TestParameters { get; set; }
+
         [JsonConverter(typeof(IntIntervalSerializer))]
         public IntInterval Range { get; }
-
-        public ListTestsRequest(string? testNameFilter, bool returnNotSaved, IntInterval range) 
-            : this(false, null, false, null, testNameFilter, returnNotSaved, range)
-        {
-
-        }
-        public ListTestsRequest(int[] testIds, bool returnNotSaved, IntInterval range) 
-            : this(false, testIds, false, null, null, returnNotSaved, range)
-        {
-
-        }
+        public bool ReturnNotSaved { get; }
 
         [JsonConstructor]
-        ListTestsRequest(bool isByIds, int[]? testIds, bool isByAuthorName, string? authorName, string? testNameFilter, bool returnNotSaved, IntInterval range)
+        ListTestsRequest(
+            bool isByIds, int[]? testIds, 
+            bool isByAuthorName, string? authorName,
+            bool isByNameFilter, string? testNameFilter, 
+            bool isByParameters, Dictionary<string, string>? testParameters, 
+            IntInterval range, bool returnNotSaved)
         {
             IsByIds = isByIds;
             TestIds = testIds;
             IsByAuthorName = isByAuthorName;
             AuthorName = authorName;
+            IsByNameFilter = isByNameFilter;
             TestNameFilter = testNameFilter;
-            ReturnNotSaved = returnNotSaved;
+            IsByParameters = isByParameters;
+            TestParameters = testParameters;
             Range = range;
+            ReturnNotSaved = returnNotSaved;
         }
 
-        public static ListTestsRequest ByAuthorName(string? authorName, bool returnNotSaved, IntInterval range)
+        public static ListTestsRequest ByIdsName(int[] ids, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(false, null, true, authorName, null, returnNotSaved, range);
+            return new ListTestsRequest(true, ids, false, default, false, default, false, default, range, returnNotSaved);
+        }
+        public static ListTestsRequest ByAuthorName(string? authorName, IntInterval range, bool returnNotSaved)
+        {
+            return new ListTestsRequest(false, default, true, authorName, false, default, false, default, range, returnNotSaved);
+        }
+        public static ListTestsRequest ByNameFilter(string? nameFilter, IntInterval range, bool returnNotSaved)
+        {
+            return new ListTestsRequest(false, default, false, default, true, nameFilter, false, default, range, returnNotSaved);
+        }
+        public static ListTestsRequest ByParameters(Dictionary<string, string> testParameters, IntInterval range, bool returnNotSaved)
+        {
+            return new ListTestsRequest(false, default, false, default, false, default, true, testParameters, range, returnNotSaved);
         }
     }
 }

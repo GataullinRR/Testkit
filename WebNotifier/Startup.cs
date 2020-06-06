@@ -2,22 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grpc.Net.Client;
-using MessageHub;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Shared;
-using Utilities.Extensions;
-using Utilities.Types;
 
-namespace PresentationService
+namespace WebNotificationService
 {
     public class Startup
     {
@@ -29,27 +23,28 @@ namespace PresentationService
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers()
-                    .AddNewtonsoftJson(options =>
+            services.AddSignalR()
+                    .AddNewtonsoftJsonProtocol(options =>
                     {
-                        options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
-                        options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
+                        options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All; // Add one more security breach!
+                    });
+            services.AddResponseCompression(opts =>
+                    {
+                        opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
                     });
 
-            services.AddGrpc();
             services.AddCors();
-            services.AddNecessaryFeatures();
             services.AddServices();
+            services.AddNecessaryFeatures();
+            services.AddMessaging(Configuration.GetSection("Messaging"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseSingletonInitialization();
-            app.UseMiddleware<RequestResponseLoggingMiddleware>();
-
             app.UseRouting();
 
             app.UseCors(builder =>
@@ -61,7 +56,7 @@ namespace PresentationService
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapHub<SignalRHub>("/signalRHub");
             });
         }
     }

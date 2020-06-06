@@ -6,12 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Utilities.Types;
 using Utilities.Extensions;
-using Microsoft.Extensions.Hosting;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components;
 
-namespace PresentationService.API
+namespace WebNotificationService.API
 {
     [Service(ServiceLifetime.Transient)]
     class WebMessageHub : IWebMessageHub, IDisposable
@@ -23,7 +22,6 @@ namespace PresentationService.API
         public event Func<TestDeletedWebMessage, Task> TestDeletedAsync = m => Task.CompletedTask;
         public event Func<TestBegunWebMessage, Task> TestBegunAsync = m => Task.CompletedTask;
         public event Func<TestRecordedWebMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
-        public event Func<TestAddProgressChangedWebMessage, Task> TestAddProgressChangedAsync = m => Task.CompletedTask;
 
         [Inject] public IWebMessageHubConnectionProvider ConnectionProvider { get; set; }
 
@@ -33,16 +31,6 @@ namespace PresentationService.API
 
             _subscriptions = new DisposingActions()
             {
-                ConnectionProvider.Connection.On<TestAddProgressChangedWebMessage>("TestAddProgressChanged", async (message) =>
-                {
-                    await TestAddProgressChangedAsync.InvokeAndWaitAsync(message);
-                }),
-
-                ConnectionProvider.Connection.On<TestRecordedWebMessage>("TestRecorded", async (message) =>
-                {
-                    await TestRecordedAsync.InvokeAndWaitAsync(message);
-                }),
-
                 ConnectionProvider.Connection.On<TestAddedWebMessage>("TestAdded", async (message) =>
                 {
                     await TestAddedAsync.InvokeAndWaitAsync(message);
@@ -61,7 +49,12 @@ namespace PresentationService.API
                 ConnectionProvider.Connection.On<TestBegunWebMessage>("TestBegun", async (message) =>
                 {
                    await TestBegunAsync.InvokeAndWaitAsync(message);
-                })
+                }),
+
+                ConnectionProvider.Connection.On<TestRecordedWebMessage>("TestRecorded", async (message) =>
+                {
+                    await TestRecordedAsync.InvokeAndWaitAsync(message);
+                }),
             };
         }
 

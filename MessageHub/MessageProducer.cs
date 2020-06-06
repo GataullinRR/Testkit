@@ -21,10 +21,7 @@ namespace MessageHub
         readonly IProducer<Null, TestCompletedOnSourceMessage> _testCompletedOnSourceProducer;
         readonly IProducer<Null, TestDeletedMessage> _testDeletedProducer;
         readonly IProducer<Null, BeginTestMessage> _beginTestProducer;
-        readonly IProducer<Null, BeginAddTestMessage> _beginAddTestProducer;
-        readonly IProducer<Null, StopAddTestMessage> _stopAddTestProducer;
         readonly IProducer<Null, TestRecordedMessage> _testRecordedProducer;
-        readonly IProducer<Null, TestAddProgressChangedMessage> _testAddProgressChangedMessageProducer;
 
         public MessageProducer(ILogger<MessageProducer> logger, JsonSerializerSettings serializerSettings)
         {
@@ -40,10 +37,7 @@ namespace MessageHub
             _testCompletedOnSourceProducer = new ProducerBuilder<Null, TestCompletedOnSourceMessage>(conf).Build(serializerSettings);
             _testDeletedProducer = new ProducerBuilder<Null, TestDeletedMessage>(conf).Build(serializerSettings);
             _beginTestProducer = new ProducerBuilder<Null, BeginTestMessage>(conf).Build(serializerSettings);
-            _beginAddTestProducer = new ProducerBuilder<Null, BeginAddTestMessage>(conf).Build(serializerSettings);
-            _stopAddTestProducer = new ProducerBuilder<Null, StopAddTestMessage>(conf).Build(serializerSettings);
             _testRecordedProducer = new ProducerBuilder<Null, TestRecordedMessage>(conf).Build(serializerSettings);
-            _testAddProgressChangedMessageProducer = new ProducerBuilder<Null, TestAddProgressChangedMessage>(conf).Build(serializerSettings);
         }
 
         public void FireTestExecuted(TestExecutedMessage args)
@@ -91,25 +85,9 @@ namespace MessageHub
         {
             _beginTestProducer.Produce(_options.BeginTestTopic, new Message<Null, BeginTestMessage> { Value = args });
         }
-
-        public void FireBeginAddTest(BeginAddTestMessage args)
-        {
-            _beginAddTestProducer.Produce(_options.BeginAddTestTopic, new Message<Null, BeginAddTestMessage> { Value = args });
-        }
-
-        public void FireStopAddTest(StopAddTestMessage args)
-        {
-            _stopAddTestProducer.Produce(_options.StopAddTestTopic, new Message<Null, StopAddTestMessage> { Value = args });
-        }
-
         public void FireTestRecorded(TestRecordedMessage args)
         {
             _testRecordedProducer.Produce(_options.TestRecordedTopic, new Message<Null, TestRecordedMessage> { Value = args });
-        }
-
-        public void FireTestAddProgressChanged(TestAddProgressChangedMessage args)
-        {
-            _testAddProgressChangedMessageProducer.Produce(_options.TestAddProgressChanged, new Message<Null, TestAddProgressChangedMessage> { Value = args });
         }
     }
 }

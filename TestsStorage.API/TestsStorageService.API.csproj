@@ -15,6 +15,7 @@
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Vectors\VectorsStandard\VectorsStandard.csproj" />
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
+    <ProjectReference Include="..\Utilities.EFCore31\Utilities.EFCore31.csproj" />
   </ItemGroup>
 
 </Project>

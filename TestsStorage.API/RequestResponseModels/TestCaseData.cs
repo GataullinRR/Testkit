@@ -1,19 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Utilities.Types;
 
 namespace TestsStorageService.API
 {
     public class TestCaseData
     {
-        [Required]
-        public string Type { get; set; }
-
-        [Required]
-        public byte[] Data { get; set; }
+        public string? Type { get; set; }
+        public byte[]? Data { get; set; }
 
         /// <summary>
         /// Xml tree
         /// </summary>
-        public string Parameters { get; set; }
+        public string? Parameters { get; set; }
+
+        [Required]
+        [Include(EntityGroups.ALL)]
+        public List<KeyParameter> KeyParameters { get; set; }
     }
 }

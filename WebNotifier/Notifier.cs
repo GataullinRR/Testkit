@@ -1,26 +1,25 @@
-﻿using DDD;
-using MessageHub;
+﻿using MessageHub;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
-using PresentationService.API;
 using System.Threading.Tasks;
 using TestsStorageService.API;
 using Utilities.Types;
 using Vectors;
 using Utilities.Extensions;
+using WebNotificationService.API;
 
-namespace PresentationService
+namespace WebNotificationService
 {
     [Service(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton, RegisterAsPolicy.Self)]
-    public class WebNotifier 
+    public class Notifier 
     {
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
         [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public IMessageConsumer MessageConsumer { get; set; }
         [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
 
-        public WebNotifier(IDependencyResolver di)
+        public Notifier(IDependencyResolver di)
         {
             di.ResolveProperties(this);
 
@@ -29,21 +28,11 @@ namespace PresentationService
             MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync;
             MessageConsumer.BeginTestAsync += MessageConsumer_BeginTestAsync;
             MessageConsumer.TestRecordedAsync += MessageConsumer_TestRecordedAsync;
-            MessageConsumer.TestAddProgressChangedAsync += MessageConsumer_TestAddProgressChangedAsync;
-        }
-
-        async Task MessageConsumer_TestAddProgressChangedAsync(TestAddProgressChangedMessage arg)
-        {
-            await Hub.Clients
-                .Group(arg.UserName)
-                .TestAddProgressChanged(new TestAddProgressChangedWebMessage(arg.UserName, arg.Log));
         }
 
         async Task MessageConsumer_TestRecordedAsync(TestRecordedMessage arg)
         {
-            await Hub.Clients
-                .Group(arg.AuthorName)
-                .TestRecorded(new TestRecordedWebMessage(arg.TestId, arg.AuthorName));
+            await Hub.Clients.All.TestRecorded(new TestRecordedWebMessage(arg.TestId));
         }
 
         async Task MessageConsumer_TestAddedAsync(TestAddedMessage arg)
@@ -64,14 +53,6 @@ namespace PresentationService
         async Task MessageConsumer_TestCompletedAsync(TestCompletedMessage arg)
         {
             await Hub.Clients.All.TestCompleted(new TestCompletedWebMessage(arg.TestId, arg.Result));
-        }
-
-        async Task<TestCase> getAuthorNameAsync(string testId)
-        {
-            var lstReq = new ListTestsDataRequest(new string[] { testId }, new IntInterval(0, 1), false, false);
-            ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
-
-            return lstResp.Tests.FirstElement();
         }
     }
 }

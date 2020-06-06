@@ -1,19 +1,23 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Mime;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Shared.Types
 {
     public abstract class ServiceBase
     {
-        static readonly JsonSerializerSettings JSON_SETTINGS = new JsonSerializerSettings()
+        protected readonly JsonSerializerSettings _json_settings = new JsonSerializerSettings()
         {
             Formatting = Formatting.Indented,
-            TypeNameHandling = TypeNameHandling.All
+            TypeNameHandling = TypeNameHandling.All,
         };
 
         readonly HttpClient _client;
@@ -23,9 +27,9 @@ namespace Shared.Types
             _client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        protected async Task<TResponse> MakeRequestAsync<TRequest, TResponse>(HttpMethod method, string url, TRequest request)
+        protected async Task<TResponse> MakeRequestAsync<TRequest, TResponse>(HttpMethod method, string url, TRequest request, JsonSerializerSettings? settings = null)
         {
-            var json = JsonConvert.SerializeObject(request, JSON_SETTINGS);
+            var json = JsonConvert.SerializeObject(request, settings ?? _json_settings);
             var stringContent = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
             var requestMessage = new HttpRequestMessage(method, url)
             {
@@ -37,7 +41,7 @@ namespace Shared.Types
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<TResponse>(jsonResponse, JSON_SETTINGS);
+            return JsonConvert.DeserializeObject<TResponse>(jsonResponse, settings ?? _json_settings);
         }
     }
 }

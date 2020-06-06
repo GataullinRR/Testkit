@@ -1,4 +1,4 @@
-﻿namespace PresentationService.API
+﻿namespace WebNotificationService.API
 {
     public class TestDeletedWebMessage
     {

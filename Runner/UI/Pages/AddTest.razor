@@ -6,34 +6,20 @@
 @page "/add-case"
 
 <RootContainer>
-    @*<div class="row">
-        <div class="col">*@
-            <CascadingValue Name="IsDisabled" Value="!_isReady">
-                <FormTemplate Model="_model" OnSubmit="onSubmit">
-                    <FormHeader Name="Lookup parameters" />
-                    <CascadingValue Name="IsDisabled" Value="_hasBegun">
-                        <FormTextInput Name="ServiceId" @bind-Value="_model.ServiceId" />
-                        <FormTextInput Name="UserId" @bind-Value="_model.UserId" />
-                    </CascadingValue>
+    <CascadingValue Name="IsDisabled" Value="!_isReady">
+        <FormTemplate Model="_model" OnSubmit="onSubmit">
+            <FormHeader Name="Lookup parameters" />
+            <FormTextInput Name="ServiceId" @bind-Value="_model.ServiceId" />
+            <FormTextInput Name="UserId" @bind-Value="_model.UserId" />
 
-                    @if (!_hasBegun)
-                    {
-                        <FormValidator />
-                    }
+            <FormValidator />
 
-                    <FormButton IsSubmit="true" Name="@_hasBegun.Ternar("Stop", "Begin")" />
-                </FormTemplate>
-            </CascadingValue>
-        @*</div>
-        <div class="col">
-            <textarea readonly>
-                <span>@_log</span>
-            </textarea>
-        </div>
-    </div>*@
+            <FormButton IsSubmit="true" Name="Show" />
+        </FormTemplate>
+    </CascadingValue>
 </RootContainer>
 
-<UnsavedRecordedTestsView AuthorName="@Context.Identity.User.UserName" />
+<UnsavedRecordedTestsView Parameters="_testParameters" />
 
 @code {
     public static string BuildPath()
@@ -43,40 +29,24 @@
 
     class LookupParameters
     {
-        [Required]
         public string ServiceId { get; set; }
 
-        [Required]
         public string UserId { get; set; }
     }
 
-    bool _isReady = false;
-    bool _hasBegun = false;
-    readonly LookupParameters _model = new LookupParameters();
+    Dictionary<string, string> _testParameters = new Dictionary<string, string>();
 
-    //string _log;
+    bool _isReady = false;
+    readonly LookupParameters _model = new LookupParameters();
 
     async void onSubmit()
     {
-        if (_hasBegun)
-        {
-            var request = new StopAddTestRequest();
-
-            await PresentationService.StopAddTestAsync(request);
-        }
-        else
-        {
-            var request = new BeginAddTestRequest(
-                new Dictionary<string, string>()
-                {
-                    { "UserId", _model.UserId },
-                    { "ServiceId", _model.ServiceId }
-                });
-
-            await PresentationService.BeginAddTestAsync(request);
-        }
-
         _isReady = false;
+        _testParameters = new Dictionary<string, string>()
+        {
+            { nameof(LookupParameters.UserId), _model.UserId },
+            { nameof(LookupParameters.ServiceId), _model.ServiceId },
+        };
         StateHasChanged();
 
         await updateAsync();
@@ -91,27 +61,12 @@
 
     async Task updateAsync()
     {
-        var response = await PresentationService.GetTestsAddStateAsync(new GetTestsAddStateRequest());
-        _hasBegun = response.HasBegan;
         _isReady = true;
         StateHasChanged();
     }
 
     protected override Task OnInitializedAsync()
     {
-        //MessageHub.TestAddProgressChangedAsync += async (m) =>
-        //{
-        //    _log = m.Log;
-
-        //    StateHasChanged();
-        //};
-
         return base.OnInitializedAsync();
     }
-
-    //async Task onRecordedAsync(TestAddedWebMessage webMessage)
-    //{
-    //    _isReady = false;
-    //    StateHasChanged();
-    //}
 }

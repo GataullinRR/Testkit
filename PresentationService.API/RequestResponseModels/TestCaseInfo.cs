@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using TestsStorageService.API;
 
 namespace DDD
 {
@@ -22,5 +24,8 @@ namespace DDD
         /// XML
         /// </summary>
         public string Parameters { get; set; }
+        
+        [Required]
+        public string KeyParameters { get; set; }
     }
 }

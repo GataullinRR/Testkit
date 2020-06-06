@@ -20,7 +20,6 @@ using Shared.Types;
 using Vectors;
 using MessageHub;
 using Microsoft.AspNetCore.Mvc;
-using StateService.API;
 
 namespace PresentationService
 {
@@ -30,11 +29,8 @@ namespace PresentationService
         [Inject] public IUserService UserService { get; set; }
         [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public IRunnerService RunnerService { get; set; }
-        [Inject] public IStateService StateService { get; set; }
-        [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
         [Inject] public ILogger<MainController> Logger { get; set; }
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
-        [Inject] public IMessageProducer MessageProducer { get; set; }
 
         public MainController(IDependencyResolver di)
         {
@@ -47,18 +43,26 @@ namespace PresentationService
             ListTestsDataRequest lstRequest = null;
             if (request.IsByIds)
             {
-                lstRequest = new ListTestsDataRequest(request.TestIds, request.Range, false, request.ReturnNotSaved);
+                lstRequest = ListTestsDataRequest.ByIds(request.TestIds, request.Range, request.ReturnNotSaved, false);
             }
             else if (request.IsByAuthorName)
             {
-                lstRequest = new ListTestsDataRequest(request.AuthorName, request.Range, false, request.ReturnNotSaved);
+                lstRequest = ListTestsDataRequest.ByAuthorName(request.AuthorName, request.Range, request.ReturnNotSaved, false);
             }
-            else
+            else if (request.IsByParameters)
+            {
+                lstRequest = ListTestsDataRequest.ByParameters(request.TestParameters, request.Range, request.ReturnNotSaved, false);
+            }
+            else if (request.IsByNameFilter)
             {
                 var filters = request.TestNameFilter == null
                     ? new string[0]
                     : new string[] { request.TestNameFilter };
-                lstRequest = new ListTestsDataRequest(filters, request.Range, false, request.ReturnNotSaved);
+                lstRequest = ListTestsDataRequest.ByNameFilter(filters, request.Range, request.ReturnNotSaved, false);
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
             ListTestsDataResponse tests = await TestsStorage.ListTestsDataAsync(lstRequest);
 
@@ -82,13 +86,16 @@ namespace PresentationService
                     {
                         TestId = info.Case.TestId,
                         TestName = info.Case.TestName,
-                        Author = new GetUserInfoResponse(info.Case.AuthorName, null, null),
+                        Author = info.Case.AuthorName == null 
+                            ? null 
+                            : new GetUserInfoResponse(info.Case.AuthorName, null, null),
                         Target = new TestCaseInfo() 
                         {  
-                            DisplayName = info.Case.DisplayName, 
+                            DisplayName = info.Case.TestDescription, 
                             TargetType = info.Case?.Data?.Type, 
                             Parameters = info.Case?.Data?.Parameters,
-                            CreateDate = info.Case?.CreationDate ?? default
+                            CreateDate = info.Case?.CreationDate ?? default,
+                            KeyParameters = info.Case?.Data?.KeyParameters.Select(p => p.Key + "###" + p.Value).Aggregate(Environment.NewLine) // xD
                         },
                         State = info.RunInfo?.State,
                         LastResult = info.RunInfo?.LastResult,
@@ -96,46 +103,6 @@ namespace PresentationService
                         CreationState = info.Case.State
                     };
                 }
-            }
-        }
-
-        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.BeginAddTestAsync))]
-        public async Task<IActionResult> BeginAddTest(BeginAddTestRequest request)
-        {
-            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
-
-            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
-            if (result.IsValid)
-            {
-                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
-
-                MessageProducer.FireBeginAddTest(new BeginAddTestMessage(userInfResp.UserName, new Dictionary<string, string>(request.TestParameters)));
-
-                return Ok(new BeginAddTestResponse());
-            }
-            else
-            {
-                return Unauthorized();
-            }
-        }
-
-        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.StopAddTestAsync))]
-        public async Task<IActionResult> StopAddTest(StopAddTestRequest request)
-        {
-            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
-
-            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
-            if (result.IsValid)
-            {
-                var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
-
-                MessageProducer.FireStopAddTest(new StopAddTestMessage(userInfResp.UserName));
-
-                return Ok(new StopAddTestResponse());
-            }
-            else
-            {
-                return Unauthorized();
             }
         }
 
@@ -200,28 +167,17 @@ namespace PresentationService
 
         async Task<TestCase> getAuthorNameAsync(string testName, bool returnNotSaved)
         {
-            var lstReq = new ListTestsDataRequest(new string[] { testName }, new IntInterval(0, 1), false, returnNotSaved);
+            var lstReq = ListTestsDataRequest.ByNameFilter(new string[] { testName }, new IntInterval(0, 1), returnNotSaved, false);
             ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElementOrDefault();
         }
         async Task<TestCase> getAuthorNameAsync(int testId, bool returnNotSaved)
         {
-            var lstReq = new ListTestsDataRequest(new int[] { testId }, new IntInterval(0, 1), false, returnNotSaved);
+            var lstReq = ListTestsDataRequest.ByIds(new int[] { testId }, new IntInterval(0, 1), returnNotSaved, false);
             ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElement();
-        }
-
-        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.GetTestsAddStateAsync))]
-        public async Task<API.GetTestsAddStateResponse> GetTestsAddState(API.GetTestsAddStateRequest request)
-        {
-            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
-            var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
-
-            var statusResponse = await StateService.GetTestsAddStateAsync(new StateService.API.GetTestsAddStateRequest(userInfResp.UserName));
-
-            return new API.GetTestsAddStateResponse(statusResponse.HasBegun);
         }
 
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.SaveRecordedTestAsync))]

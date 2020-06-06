@@ -33,11 +33,12 @@ namespace TestsStorageService
         public async Task<ListTestsDataResponse> ListTestsData(ListTestsDataRequest request)
         {
             IQueryable<TestCase> cases = Db.Cases.AsNoTracking()
+                .IncludeGroup(EntityGroups.ALL, Db)
                 .Where(c => request.ReturnNotSaved
                     ? c.State == TestCaseState.RecordedButNotSaved
                     : c.State == TestCaseState.Saved)
                 .OrderByDescending(c => c.CreationDate);
-            if (request.IsById)
+            if (request.IsByIds)
             {
                 cases = cases.Where(c => request.TestIds.Contains(c.TestId));
             }
@@ -45,7 +46,7 @@ namespace TestsStorageService
             {
                 cases = cases.Where(c => c.AuthorName == request.AuthorName);
             }
-            else
+            else if (request.IsByNameFilters)
             {
                 if (request.TestNameFilters.Length > 0)
                 {
@@ -59,6 +60,20 @@ namespace TestsStorageService
                     }
                     cases = original;
                 }
+            }
+            else if (request.IsByParameters)
+            {
+                foreach (var fp in request.TestParameters)
+                {
+                    if (fp.Value != null)
+                    {
+                        cases = cases.Where(c => c.Data.KeyParameters.Any(p => p.Key == fp.Key && p.Value == fp.Value));
+                    }
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
             }
 
             var totalCount = await cases.CountAsync();
@@ -77,16 +92,17 @@ namespace TestsStorageService
         public async Task<DeleteTestResponse> DeleteTest(DeleteTestRequest request)
         {
             TestCase[] casesToDelete = null;
+            var cases = Db.Cases.IncludeGroup(EntityGroups.ALL, Db);
             if (request.IsById)
             {
-                var caseToDelete = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
+                var caseToDelete = await cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
                 casesToDelete = caseToDelete == null
                     ? new TestCase[0]
                     : new TestCase[] { caseToDelete };
             }
             else
             {
-                casesToDelete = await Db.Cases.Where(c => c.TestName.StartsWith(request.TestNameFilter)).ToArrayAsync();
+                casesToDelete = await cases.Where(c => c.TestName != null && c.TestName.StartsWith(request.TestNameFilter)).ToArrayAsync();
             }
 
             if (casesToDelete.Length > 0)
@@ -109,10 +125,10 @@ namespace TestsStorageService
             var test = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
             if (test?.State == TestCaseState.RecordedButNotSaved)
             {
-                test.DisplayName = request.Description;
+                test.AuthorName = request.AuthorName;
+                test.TestDescription = request.Description;
                 test.TestName = request.Name;
                 test.State = TestCaseState.Saved;
-
                 await Db.SaveChangesAsync();
 
                 MessageProducer.FireTestAdded(new TestAddedMessage(test.TestId, test.TestName, test.AuthorName));

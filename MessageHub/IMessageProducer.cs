@@ -11,8 +11,5 @@
         void FireTestRecorded(TestRecordedMessage args);
 
         void FireBeginTest(BeginTestMessage args);
-        void FireBeginAddTest(BeginAddTestMessage args);
-        void FireStopAddTest(StopAddTestMessage args);
-        void FireTestAddProgressChanged(TestAddProgressChangedMessage args);
     }
 }

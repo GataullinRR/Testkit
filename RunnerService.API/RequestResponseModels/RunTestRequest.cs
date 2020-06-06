@@ -10,14 +10,14 @@ namespace RunnerService.API.Models
     public class RunTestRequest
     {
         [Required]
-        public string[] TestsIdsFilter { get; }
+        public string[] TestNameFilters { get; }
         
         [Required]
-        public string UserName { get; set; }
+        public string UserName { get; }
 
-        public RunTestRequest(string[] testsIdsFilter, string userName)
+        public RunTestRequest(string[] testNameFilters, string userName)
         {
-            TestsIdsFilter = testsIdsFilter ?? throw new ArgumentNullException(nameof(testsIdsFilter));
+            TestNameFilters = testNameFilters ?? throw new ArgumentNullException(nameof(testNameFilters));
             UserName = userName ?? throw new ArgumentNullException(nameof(userName));
         }
     }

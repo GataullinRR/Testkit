@@ -18,8 +18,20 @@ namespace TestsStorageService.Db
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder
-                .Entity<TestCase>()
-                .OwnsOne(p => p.Data);
+                .Entity<TestCaseData>()
+                .Property<int>("_Id")
+                .UseIdentityColumn();
+            builder
+                .Entity<TestCaseData>()
+                .HasKey("_Id");
+
+            builder
+                .Entity<KeyParameter>()
+                .Property<int>("_Id")
+                .UseIdentityColumn();
+            builder
+                .Entity<KeyParameter>()
+                .HasKey("_Id");
 
             base.OnModelCreating(builder);
         }

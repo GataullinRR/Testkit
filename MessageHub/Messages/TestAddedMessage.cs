@@ -2,6 +2,9 @@
 
 namespace MessageHub
 {
+    /// <summary>
+    /// Test saved by user
+    /// </summary>
     public class TestAddedMessage
     {
         public int TestId { get; }

@@ -1,8 +1,7 @@
-﻿using RunnerService.API;
-using RunnerService.API.Models;
+﻿using RunnerService.API.Models;
 using System;
 
-namespace PresentationService.API
+namespace WebNotificationService.API
 {
     public class TestCompletedWebMessage
     {

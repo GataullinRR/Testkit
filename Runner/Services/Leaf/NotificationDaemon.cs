@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Utilities.Types;
 using Microsoft.AspNetCore.Components;
 using PresentationService.API;
+using WebNotificationService.API;
 
 namespace Runner
 {
@@ -19,12 +20,6 @@ namespace Runner
             WebMessageHub.TestAddedAsync += WebMessageHub_TestAddedAsync;
             WebMessageHub.TestCompletedAsync += WebMessageHub_TestCompletedAsync;
             WebMessageHub.TestDeletedAsync += WebMessageHub_TestDeletedAsync;
-            WebMessageHub.TestRecordedAsync += WebMessageHub_TestRecordedAsync;
-        }
-
-        async Task WebMessageHub_TestRecordedAsync(TestRecordedWebMessage arg)
-        {
-            MessageService.AddMessage($"{arg.TestId} has been recorded");
         }
 
         async Task WebMessageHub_TestDeletedAsync(TestDeletedWebMessage arg)

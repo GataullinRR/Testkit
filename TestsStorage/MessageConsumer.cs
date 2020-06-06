@@ -39,20 +39,22 @@ namespace TestsStorageService
 
             var test = new TestCase()
             {
-                AuthorName = arg.AuthorName,
+                TestName = arg.DefaultTestName,
+                TestDescription = arg.DefaultTestDescription,
                 CreationDate = DateTime.UtcNow,
                 Data = new TestCaseData()
                 {
                     Data = arg.TestData,
                     Type = arg.TestType,
-                    Parameters = arg.Parameters
+                    Parameters = arg.Parameters,
+                    KeyParameters = arg.KeyParameters.Select(kvp => new KeyParameter(kvp.Key, kvp.Value)).ToList()
                 },
                 State = TestCaseState.RecordedButNotSaved,
             };
             await db.Cases.AddAsync(test);
             await db.SaveChangesAsync();
 
-            MessageProducer.FireTestRecorded(new TestRecordedMessage(test.TestId, test.AuthorName));
+            MessageProducer.FireTestRecorded(new TestRecordedMessage(test.TestId, test.TestName, test.TestDescription));
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UserService.API;
 using Utilities.Types;
 
-namespace PresentationService
+namespace WebNotificationService
 {
     public class SignalRHub : Hub<IMainHub>
     {

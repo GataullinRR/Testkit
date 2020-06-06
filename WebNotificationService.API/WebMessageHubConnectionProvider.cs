@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Utilities.Extensions;
 using Utilities.Types;
 
-namespace PresentationService.API
+namespace WebNotificationService.API
 {
     [Service(ServiceLifetime.Singleton)]
     class WebMessageHubConnectionProvider : IWebMessageHubConnectionProvider, IInitializibleService, IAsyncDisposable
@@ -23,7 +23,7 @@ namespace PresentationService.API
             di.ResolveProperties(this);
 
             Connection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:5011/signalRHub")
+                .WithUrl("https://localhost:5041/signalRHub")
                 .AddNewtonsoftJsonProtocol(options =>
                 {
                     options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;

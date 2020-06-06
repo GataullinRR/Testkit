@@ -2,15 +2,20 @@
 
 namespace MessageHub
 {
+    /// <summary>
+    /// Added to Db, but not saved
+    /// </summary>
     public class TestRecordedMessage
     {
         public int TestId { get; }
-        public string AuthorName { get; }
+        public string? TestName { get; }
+        public string? TestDescription { get; }
 
-        public TestRecordedMessage(int testId, string authorName)
+        public TestRecordedMessage(int testId, string? testName, string? testDescription)
         {
             TestId = testId;
-            AuthorName = authorName ?? throw new ArgumentNullException(nameof(authorName));
+            TestName = testName;
+            TestDescription = testDescription;
         }
     }
 }

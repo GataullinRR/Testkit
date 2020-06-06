@@ -40,33 +40,19 @@
 
     async void registerAsync(SignUpForm.SignUpPresentationModel model)
     {
-        try
-        {
-            var response = await UserService.SignUpAsync((SignUpRequest)model);
-            MessageService.AddMessage("You've been succesfully registered, now you can sign in");
-            signInRequested();
-        }
-        catch
-        {
-            MessageService.AddMessage("Ooops! Could not perform operation requested");
-        }
+        var response = await UserService.SignUpAsync((SignUpRequest)model);
+        MessageService.AddMessage("You've been succesfully registered, now you can sign in");
+        signInRequested();
     }
 
     async void loginAsync(SignInForm.SignInPresentationModel model)
     {
-        try
-        {
-            var response = await UserService.SignInAsync((SignInRequest)model);
-            await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, response.Token);
-            await UserChangeNotifier.FireAuthStateChangedAsync();
+        var response = await UserService.SignInAsync((SignInRequest)model);
+        await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, response.Token);
+        await UserChangeNotifier.FireAuthStateChangedAsync();
 
-            MessageService.AddMessage($"Hi, {model.UserName}!");
+        MessageService.AddMessage($"Hi, {model.UserName}!");
 
-            NavigationManager.NavigateTo(Runner.UI.Pages.Index.URI);
-        }
-        catch
-        {
-            MessageService.AddMessage("Ooops! Could not perform operation requested");
-        }
+        NavigationManager.NavigateTo(Runner.UI.Pages.Index.URI);
     }
 }

@@ -27,63 +27,50 @@ namespace ExampleTestsSourceService
         public TestRunner(IDependencyResolver di)
         {
             di.ResolveProperties(this);
+            accquireDaemon();
 
             Consumer.BeginTestAsync += Consumer_BeginTestAsync;
-            Consumer.BeginAddTestAsync += Consumer_BeginAddTestAsync;
-            Consumer.StopAddTestAsync += Consumer_StopAddTestAsync;
         }
 
-        async Task Consumer_StopAddTestAsync(StopAddTestMessage arg)
+        async void accquireDaemon()
         {
-            if (_addProcesses.ContainsKey(arg.UserName))
-            {
-                _addProcesses[arg.UserName].Cancel();
-                _addProcesses.Remove(arg.UserName);
-            }
-
-            Producer.FireTestAddProgressChanged(new TestAddProgressChangedMessage(arg.UserName, "STOPPED"));
-        }
-
-        async Task Consumer_BeginAddTestAsync(BeginAddTestMessage arg)
-        {
-            var cts = new CancellationTokenSource();
-            _addProcesses[arg.UserName] = cts;
-            var additionalParameters = arg.Parameters.Select(p => $"<p name=\"{p.Key}\">{p.Value}</p>").Aggregate("");
-
             await ThreadingUtils.ContinueAtDedicatedThread();
-
-            var sb = new StringBuilder();
 
             while (true)
             {
-                sb.AppendLine($"[{DateTime.UtcNow.ToString()}] Got some data from /start");
-                Producer.FireTestAddProgressChanged(new TestAddProgressChangedMessage(arg.UserName, sb.ToString()));
-
-                var testCase = await CaseSource.GetCaseAsync(arg.Parameters, default);
-                if (testCase == null)
+                var parameters = "<Operation>";
+                for (int i = 0; i < Global.Random.Next(1, 4); i++)
                 {
-                    Producer.FireTestAcquired(new TestAcquiringResultMessage()
-                    {
-                        ResultCode = AcquiringResult.TargetNotFound
-                    });
-                }
-                else
-                {
-                    Producer.FireTestAcquired(new TestAcquiringResultMessage()
-                    {
-                        AuthorName = arg.UserName,
-                        TestData = testCase.Data,
-                        TestType = testCase.TargetType,
-                        Parameters = $"<root>{additionalParameters}<user name=\"Bill Gates\"><company>Microsoft</company><age>48</age ></user><user name=\"Larry Page\"><company>Google</company><age>42</age></user><parameter name=\"Author\">Hello, kitty!</parameter></root>",
-                    });
-                }
+                    parameters += $"<Step{i}>";
 
-                await Task.Delay(Global.Random.Next(3000, 10000), cts.Token);
+                    for (int k = 0; k < Global.Random.Next(2, 10); k++)
+                    {
+                        parameters += $"<p name=\"{Global.Random.NextRUWord()}\">{Global.Random.NextObjFrom(Global.Random.NextDateTime(default, DateTime.UtcNow).ToString(), Global.Random.NextDouble(0, 10000).ToString(), Global.Random.Next(-10000, 10000).ToString(), Global.Random.NextRUWord().ToString(), Global.Random.NextENWord().ToString())}</p>";
+                    }
+
+                    parameters += $"</Step{i}>";
+                }
+                parameters += "</Operation>";
+
+                Producer.FireTestAcquired(new TestAcquiringResultMessage(
+                    Global.Random.NextENWord(),
+                    Global.Random.NextRUWord(),
+                    $"SomeType{Global.Random.Next(0, 3)}",
+                    new byte[] { 0, 2, 4, 8 },
+                    new Dictionary<string, string>()
+                    {
+                        { "ServiceId", Global.Random.Next(0, 5).ToString() },
+                        { "UserId", Global.Random.Next(0, 5).ToString() },
+                    }, parameters));
+
+                await Task.Delay(10000);
             }
         }
 
         async Task Consumer_BeginTestAsync(BeginTestMessage arg)
         {
+            await Task.Delay(3000);
+
             var completedMessage = new TestCompletedOnSourceMessage(
                     arg.TestId,
                     arg.ResultId,

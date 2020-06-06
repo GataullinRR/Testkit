@@ -12,11 +12,6 @@ namespace PresentationService.API
 
         }
 
-        public Task<StopAddTestResponse> BeginAddTestAsync(BeginAddTestRequest request)
-        {
-            return MakeRequestAsync<BeginAddTestRequest, StopAddTestResponse>(HttpMethod.Post, nameof(BeginAddTestAsync), request);
-        }
-
         public Task<BeginTestResponse> BeginTestAsync(BeginTestRequest request)
         {
             return MakeRequestAsync<BeginTestRequest, BeginTestResponse>(HttpMethod.Post, nameof(BeginTestAsync), request);
@@ -32,11 +27,6 @@ namespace PresentationService.API
             return MakeRequestAsync<GetTestDetailsRequest, GetTestDetailsResponse>(HttpMethod.Post, nameof(GetTestDetailsAsync), request);
         }
 
-        public Task<GetTestsAddStateResponse> GetTestsAddStateAsync(GetTestsAddStateRequest request)
-        {
-            return MakeRequestAsync<GetTestsAddStateRequest, GetTestsAddStateResponse>(HttpMethod.Post, nameof(GetTestsAddStateAsync), request);
-        }
-
         public Task<ListTestsResponse> ListTestsAsync(ListTestsRequest request)
         {
             return MakeRequestAsync<ListTestsRequest, ListTestsResponse>(HttpMethod.Post, nameof(ListTestsAsync), request);
@@ -45,11 +35,6 @@ namespace PresentationService.API
         public Task<SaveRecordedTestResponse> SaveRecordedTestAsync(SaveRecordedTestRequest request)
         {
             return MakeRequestAsync<SaveRecordedTestRequest, SaveRecordedTestResponse>(HttpMethod.Post, nameof(SaveRecordedTestAsync), request);
-        }
-
-        public Task<StopAddTestResponse> StopAddTestAsync(StopAddTestRequest request)
-        {
-            return MakeRequestAsync<StopAddTestRequest, StopAddTestResponse>(HttpMethod.Post, nameof(StopAddTestAsync), request);
         }
     }
 }

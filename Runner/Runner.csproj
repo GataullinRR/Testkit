@@ -27,6 +27,7 @@
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
+    <ProjectReference Include="..\WebNotificationService.API\WebNotificationService.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>

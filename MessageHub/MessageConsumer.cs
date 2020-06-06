@@ -26,10 +26,7 @@ namespace MessageHub
         public event Func<TestCompletedOnSourceMessage, Task> TestCompletedOnSourceAsync = m => Task.CompletedTask;
         public event Func<TestDeletedMessage, Task> TestDeletedAsync = m => Task.CompletedTask;
         public event Func<BeginTestMessage, Task> BeginTestAsync = m => Task.CompletedTask;
-        public event Func<BeginAddTestMessage, Task> BeginAddTestAsync = m => Task.CompletedTask;
-        public event Func<StopAddTestMessage, Task> StopAddTestAsync = m => Task.CompletedTask;
         public event Func<TestRecordedMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
-        public event Func<TestAddProgressChangedMessage, Task> TestAddProgressChangedAsync = m => Task.CompletedTask;
 
         public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options, 
             IOptions<MessageConsumerOptions> consumerOptions)
@@ -62,13 +59,7 @@ namespace MessageHub
                 .Build(serializerSettings);
             var beginTest = new ConsumerBuilder<Ignore, BeginTestMessage>(conf)
                 .Build(serializerSettings);
-            var beginAddTest = new ConsumerBuilder<Ignore, BeginAddTestMessage>(conf)
-                .Build(serializerSettings);
-            var stopAddTest = new ConsumerBuilder<Ignore, StopAddTestMessage>(conf)
-                .Build(serializerSettings);
             var testRecorded = new ConsumerBuilder<Ignore, TestRecordedMessage>(conf)
-                .Build(serializerSettings);
-            var testAddProgressChanged = new ConsumerBuilder<Ignore, TestAddProgressChangedMessage>(conf)
                 .Build(serializerSettings);
 
             cosumeDaemon(testExecuted, options.TestExecutedTopic, m => TestExecutedAsync.InvokeAndWaitAsync(m));
@@ -78,10 +69,7 @@ namespace MessageHub
             cosumeDaemon(testCompletedOnSource, options.TestCompletedOnSourceTopic, m => TestCompletedOnSourceAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testDeleted, options.TestDeletedTopic, m => TestDeletedAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(beginTest, options.BeginTestTopic, m => BeginTestAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(beginAddTest, options.BeginAddTestTopic, m => BeginAddTestAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(stopAddTest, options.StopAddTestTopic, m => StopAddTestAsync.InvokeAndWaitAsync(m));
             cosumeDaemon(testRecorded, options.TestRecordedTopic, m => TestRecordedAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(testAddProgressChanged, options.TestAddProgressChanged, m => TestAddProgressChangedAsync.InvokeAndWaitAsync(m));
         }
 
         async void cosumeDaemon<T>(IConsumer<Ignore, T> consumer, string topic, Func<T, Task> fireEventAsync)

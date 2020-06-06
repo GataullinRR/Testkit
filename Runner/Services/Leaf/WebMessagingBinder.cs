@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Utilities.Types;
 using Microsoft.AspNetCore.Components;
 using PresentationService.API;
+using WebNotificationService.API;
 
 namespace Runner
 {

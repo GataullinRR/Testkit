@@ -7,19 +7,13 @@
 <TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" />
 
 @code {
-    [Parameter]
-    public string AuthorName { get; set; }
+        [Parameter]
+        public Dictionary<string, string> Parameters { get; set; }
 
-    TableBase.Column[] _columns = new TableBase.Column[]
-    {
-        new TableBase.Column() { Name = "Test Id" },
-        new TableBase.Column() { Name = "Date" },
-        new TableBase.Column() { Name = "" },
-    };
+        readonly List<TableBase.Column> _columns = new List<TableBase.Column>();
 
-    readonly List<TableBase.Row> _rows = new List<TableBase.Row>();
-    int _totalCount = 0;
-    readonly TestSaveModel _saveFormModel = new TestSaveModel();
+        readonly List<TableBase.Row> _rows = new List<TableBase.Row>();
+        int _totalCount = 0;
 
     class TestSaveModel
     {
@@ -48,31 +42,54 @@
 
     async Task rerenderAsync()
     {
-        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByAuthorName(AuthorName, true, new IntInterval(0, 1000)));
+        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByParameters(Parameters, new IntInterval(0, 1000), true));
         _totalCount = response.TotalCount;
         _rows.Clear();
-
+        _columns.Clear();
+        _columns.Add(new TableBase.Column() { Name = "Test Id" });
+        _columns.Add(new TableBase.Column() { Name = "Date" });
+        var newCols = response.Tests
+            .SelectMany(t => t.Target.KeyParameters.Split(Environment.NewLine).Where(p => p.Split("###").Length == 2).Select(p => p.Split("###")[0]))
+            .Distinct()
+            .Select(pk => new TableBase.Column() { Name = pk })
+            .ToArray();
+        _columns.AddRange(newCols);
         foreach (var test in response.Tests)
         {
-            var rowIndex = _rows.Count;
-            _rows.Add(new TableBase.Row()
+            var saveModel = new TestSaveModel()
             {
-                ExpandLastRow = true,
-                Cells = new RenderFragment[]
-                {
-                    @<span class="align-middle">@test.TestId</span>,
-                    @<span class="align-middle">@test.Target.CreateDate.ToString("hh:mm dd.MM.yyyy")</span>,
+                TestName = test.TestName,
+                TestDescription = test.Target.DisplayName
+            };
+            var rowIndex = _rows.Count;
 
-                    @<FormTemplate class="ml-auto" IsInline="true" Model="_saveFormModel">
-                        <FormTextInput Name="Test name" @bind-Value="_saveFormModel.TestName" />
-                        <FormTextInput Name="Test description" @bind-Value="_saveFormModel.TestDescription" />
+            var cells = new List<RenderFragment>();
+            cells.Add(@<span>@test.TestId</span>);
+            cells.Add(@<span>@test.Target.CreateDate.ToString("hh:mm dd.MM.yyyy")</span>);
+            for (int i = 0; i < newCols.Length; i++)
+            {
+                cells.Add(@<span></span>);
+            }
+            foreach (var p in test.Target.KeyParameters.Split(Environment.NewLine).Where(p => p.Split("###").Length == 2))
+            {
+                var k = p.Split("###")[0];
+                var v = p.Split("###")[1];
+                var col = _columns.FindIndex(c => c.Name == k);
+                cells[col] = @<span>@v</span>;
+            }
+            cells.Add(@<FormTemplate class="ml-auto" IsInline="true" Model="saveModel">
+                        <FormTextInput Name="Test name" @bind-Value="saveModel.TestName" />
+                        <FormTextInput Name="Test description" @bind-Value="saveModel.TestDescription" />
 
                         <FormValidator/>
 
-                        <FormButton Name="Save" IsSubmit="true" OnClick="async () => await saveTestAsync(test.TestId, _saveFormModel, _rows[rowIndex])"/>
-                        <FormButton Name="Discard" Type="@FormButton.ButtonType.Danger" OnClick="async () => await discardTestAsync(test.TestId, _saveFormModel, _rows[rowIndex])"/>
-                    </FormTemplate>
-                }
+                        <FormButton Name="Save" IsSubmit="true" OnClick="async () => await saveTestAsync(test.TestId, saveModel, _rows[rowIndex])"/>
+                        <FormButton Name="Discard" Type="@FormButton.ButtonType.Danger" OnClick="async () => await discardTestAsync(test.TestId, saveModel, _rows[rowIndex])"/>
+                    </FormTemplate>);
+            _rows.Add(new TableBase.Row()
+            {
+                ExpandLastRow = true,
+                Cells = cells.ToArray()
             });
 
             _rows.Add(new TableBase.Row()
