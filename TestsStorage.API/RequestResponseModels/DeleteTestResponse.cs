@@ -1,5 +1,4 @@
-﻿using Protobuf;
-using Shared.Types;
+﻿using Shared.Types;
 
 namespace TestsStorageService.API
 {

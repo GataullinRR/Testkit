@@ -26,7 +26,6 @@
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
     <ProjectReference Include="..\PresentationService.Shared\PresentationService.API.csproj" />
-    <ProjectReference Include="..\Protos\Protos.csproj" />
     <ProjectReference Include="..\Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\UserDb\UserService.Db.csproj" />

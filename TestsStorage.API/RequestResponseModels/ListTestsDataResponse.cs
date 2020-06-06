@@ -1,5 +1,4 @@
-﻿using Google.Protobuf;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Shared.Types;
 using System;
 using System.ComponentModel.DataAnnotations;

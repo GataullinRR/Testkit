@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API;
 using RunnerService.API;
+using StateService.API;
 using System;
 using System.Data.SqlTypes;
 using System.Linq;
@@ -92,7 +93,10 @@ namespace Shared
             {
                 c.BaseAddress = new Uri("http://localhost:5030/api/v1/");
             });
-            services.AddGrpcService<StateService.API.StateService.StateServiceClient>("https://localhost:5035");
+            services.AddHttpClient<IStateService, StateService.API.StateService>(c =>
+            {
+                c.BaseAddress = new Uri("http://localhost:5040/api/v1/");
+            });
 
             return services;
         }

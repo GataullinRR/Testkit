@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API;
-using Protobuf;
 using RunnerService.API;
 using RunnerService.Db;
 using System;
@@ -21,6 +20,7 @@ using Shared.Types;
 using Vectors;
 using MessageHub;
 using Microsoft.AspNetCore.Mvc;
+using StateService.API;
 
 namespace PresentationService
 {
@@ -30,7 +30,7 @@ namespace PresentationService
         [Inject] public IUserService UserService { get; set; }
         [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public IRunnerService RunnerService { get; set; }
-        [Inject] public StateService.API.StateService.StateServiceClient StateService { get; set; }
+        [Inject] public IStateService StateService { get; set; }
         [Inject] public IHubContext<SignalRHub, IMainHub> Hub { get; set; }
         [Inject] public ILogger<MainController> Logger { get; set; }
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
@@ -214,17 +214,14 @@ namespace PresentationService
         }
 
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.GetTestsAddStateAsync))]
-        public async Task<GetTestsAddStateResponse> GetTestsAddState(GetTestsAddStateRequest request)
+        public async Task<API.GetTestsAddStateResponse> GetTestsAddState(API.GetTestsAddStateRequest request)
         {
             var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
             var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
 
-            var statusResponse = await StateService.GetTestsAddStateAsync(new StateService.API.GGetTestsAddStateRequest()
-            {
-                UserName = userInfResp.UserName
-            });
+            var statusResponse = await StateService.GetTestsAddStateAsync(new StateService.API.GetTestsAddStateRequest(userInfResp.UserName));
 
-            return new GetTestsAddStateResponse(statusResponse.HasBegan);
+            return new API.GetTestsAddStateResponse(statusResponse.HasBegun);
         }
 
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.SaveRecordedTestAsync))]

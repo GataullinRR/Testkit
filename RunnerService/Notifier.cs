@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Protobuf;
 using RunnerService.API;
 using RunnerService.Db;
 using System.Linq;

@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Protos\Protos.csproj" />
     <ProjectReference Include="..\Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj" />
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
   </ItemGroup>

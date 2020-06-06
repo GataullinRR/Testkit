@@ -1,5 +1,4 @@
-﻿using Google.Protobuf;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RunnerService.API;
 using Shared.Types;
 using System;

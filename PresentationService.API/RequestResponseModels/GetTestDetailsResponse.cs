@@ -1,5 +1,4 @@
 ﻿using AutoMapper.Mappers;
-using Google.Protobuf;
 using Newtonsoft.Json;
 using RunnerService.API;
 using RunnerService.API.Models;

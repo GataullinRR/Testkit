@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Shared;
 using StateService.Db;
 using Utilities.Extensions;
+using Utilities.Types;
 
 namespace StateService
 {
@@ -31,10 +32,15 @@ namespace StateService
         {
             services.AddDbContext<StateContext>(options =>
                 options.UseSqlServer(Configuration.GetSection("DefaultConnection").Value));
+            services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+                    options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
+                });
 
             services.AddGrpc();
             services.AddNecessaryFeatures();
-            //services.AddGrpcServices();
             services.AddMessaging(Configuration.GetSection("Messaging"));
 
             services.AddHostedService<MessageHandler>();
@@ -43,15 +49,13 @@ namespace StateService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //app.UseSingletonInitialization();
-
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
+            
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<GrpcService>(); // it uses lock(){} inside!
-                //endpoints.MapGrpcServices(Assembly.GetExecutingAssembly(),
-                //    typeof(GrpcEndpointRouteBuilderExtensions).GetMethod("MapGrpcService", BindingFlags.Static | BindingFlags.Public));
+                endpoints.MapControllers();
             });
         }
     }

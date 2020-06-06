@@ -21,7 +21,6 @@ using UserService.API;
 using UserServiceDb;
 using Utilities.Extensions;
 using Utilities.Types;
-using Protobuf;
 using Confluent.Kafka;
 using NJsonSchema.Validation;
 

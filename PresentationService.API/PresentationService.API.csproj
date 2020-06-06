@@ -11,7 +11,6 @@
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Vectors\VectorsStandard\VectorsStandard.csproj" />
-    <ProjectReference Include="..\Protos\Protos.csproj" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using PresentationService.API;
-using Protobuf;
 using RunnerService.API;
 using RunnerService.API.Models;
 using RunnerService.Db;

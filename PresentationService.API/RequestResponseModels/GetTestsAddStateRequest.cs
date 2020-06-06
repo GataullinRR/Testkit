@@ -1,6 +1,4 @@
-﻿using Protobuf;
-
-namespace PresentationService.API
+﻿namespace PresentationService.API
 {
     public class GetTestsAddStateRequest
     {

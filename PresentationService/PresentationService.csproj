@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
+	  <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,10 +16,10 @@
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
     <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
-    <ProjectReference Include="..\Protos\Protos.csproj" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\RunnerService.Db\RunnerService.Db.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\StateService.API\StateService.API.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
