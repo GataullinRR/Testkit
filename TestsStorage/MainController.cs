@@ -84,6 +84,13 @@ namespace TestsStorageService
             }
             
             var result = await cases.ToArrayAsync();
+            if (!request.IncludeData)
+            {
+                foreach (var r in result)
+                {
+                    r.Data.Data = null;
+                }
+            }
 
             return new ListTestsDataResponse(result, totalCount);
         }

@@ -40,6 +40,8 @@ namespace WebNotificationService
             services.AddServices();
             services.AddNecessaryFeatures();
             services.AddMessaging(Configuration.GetSection("Messaging"));
+
+            services.AddHostedService<Notifier>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
