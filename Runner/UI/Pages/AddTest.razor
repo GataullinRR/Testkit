@@ -44,8 +44,8 @@
         _isReady = false;
         _testParameters = new Dictionary<string, string>()
         {
-            { nameof(LookupParameters.UserId), _model.UserId },
-            { nameof(LookupParameters.ServiceId), _model.ServiceId },
+            { nameof(LookupParameters.UserId), _model.UserId.IsNullOrEmpty() ? null : _model.UserId },
+            { nameof(LookupParameters.ServiceId), _model.ServiceId.IsNullOrEmpty() ? null : _model.ServiceId  },
         };
         StateHasChanged();
 

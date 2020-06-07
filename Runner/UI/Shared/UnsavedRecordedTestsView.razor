@@ -7,13 +7,13 @@
 <TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" />
 
 @code {
-        [Parameter]
-        public Dictionary<string, string> Parameters { get; set; }
+    [Parameter]
+    public Dictionary<string, string> Parameters { get; set; }
 
-        readonly List<TableBase.Column> _columns = new List<TableBase.Column>();
+    readonly List<TableBase.Column> _columns = new List<TableBase.Column>();
 
-        readonly List<TableBase.Row> _rows = new List<TableBase.Row>();
-        int _totalCount = 0;
+    readonly List<TableBase.Row> _rows = new List<TableBase.Row>();
+    int _totalCount = 0;
 
     class TestSaveModel
     {
@@ -54,6 +54,7 @@
             .Select(pk => new TableBase.Column() { Name = pk })
             .ToArray();
         _columns.AddRange(newCols);
+        _columns.Add(new TableBase.Column() { Name = "" });
         foreach (var test in response.Tests)
         {
             var saveModel = new TestSaveModel()

@@ -51,7 +51,14 @@ else
         var hasTextNode = node.HasChildNodes
             && node.ChildNodes.Count == 1
             && node.ChildNodes[0].NodeType == System.Xml.XmlNodeType.Text;
-        yield return@<div><span>@("   ".Repeat(depth) + name + (hasTextNode ? $" = \"{node.InnerText}\"" : ""))</span></div>;
+        if (hasTextNode)
+        { 
+            yield return @<div><span>@("   ".Repeat(depth) + $"{name} = \"{node.InnerText}\"")</span></div>;
+        }
+        else
+        {
+            yield return @<div><strong><span>@("   ".Repeat(depth) + name)</span></strong></div>;
+        }
         if (node.HasChildNodes && !hasTextNode)
         {
             foreach (var childNode in node.ChildNodes)

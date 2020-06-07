@@ -33,7 +33,7 @@ else
                                     for (int i = 0; i < row.Cells.Length; i++)
                                     {
                                         var span = i == row.Cells.Length - 1 && row.ExpandLastRow
-                                            ? Columns.Count() - row.Cells.Length
+                                            ? (Columns.Count() - row.Cells.Length).NegativeToZero().Exchange(0, 1)
                                             : 1;
                                         <td colspan="@span">@row.Cells[i]</td>
                                     }
