@@ -102,7 +102,7 @@ namespace RunnerService
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IRunnerService.GetTestsInfoAsync))]
         public async Task<GetTestsInfoResponse> GetTestsInfo(GetTestsInfoRequest request)
         {
-            var infos = await ensureDbPopulated(request.TestNames.ToArray());
+            var infos = await ensureDbPopulated(request.TestIds);
 
             return new GetTestsInfoResponse(
                 infos
@@ -118,18 +118,18 @@ namespace RunnerService
                     .ToArray());
         }
 
-        async Task<Db.TestRunInfo[]> ensureDbPopulated(string[] testIds)
+        async Task<Db.TestRunInfo[]> ensureDbPopulated(int[] testIds)
         {
             var infos = await Db.TestRuns
                 .IncludeGroup(RunnerService.Db.EntityGroups.ALL, Db)
-                .Where(r => testIds.Contains(r.TestName))
+                .Where(r => testIds.Contains(r.TestId))
                 .ToArrayAsync();
             var missingIds = testIds
-                .Where(id => infos.NotContains(i => i.TestName == id))
+                .Where(id => infos.NotContains(i => i.TestId == id))
                 .ToArray();
             if (missingIds.Length > 0)
             {
-                var lstReq = ListTestsDataRequest.ByNameFilter(missingIds, new Vectors.IntInterval(0, missingIds.Length), false, false);
+                var lstReq = ListTestsDataRequest.ByIds(missingIds, new Vectors.IntInterval(0, missingIds.Length), false, false);
                 ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
                 var missingRunInfos = lstResp.Tests

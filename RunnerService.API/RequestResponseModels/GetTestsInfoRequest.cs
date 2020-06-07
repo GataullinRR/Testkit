@@ -10,12 +10,12 @@ namespace RunnerService.API.Models
     public class GetTestsInfoRequest
     {
         [Required]
-        public string[] TestNames { get; }
+        public int[] TestIds { get; }
 
         [JsonConstructor]
-        public GetTestsInfoRequest(string[] testNames)
+        public GetTestsInfoRequest(int[] testIds)
         {
-            TestNames = testNames ?? throw new ArgumentNullException(nameof(testNames));
+            TestIds = testIds ?? throw new ArgumentNullException(nameof(testIds));
         }
     }
 }

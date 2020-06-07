@@ -10,6 +10,7 @@ namespace RunnerService.Db
     public class RunnerContext : DbContext
     {
         public DbSet<TestRunInfo> TestRuns { get; set; }
+        public DbSet<Result> RunResults { get; set; }
 
         public RunnerContext(DbContextOptions<RunnerContext> options) : base(options)
         {

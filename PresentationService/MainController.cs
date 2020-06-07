@@ -66,13 +66,14 @@ namespace PresentationService
             }
             ListTestsDataResponse tests = await TestsStorage.ListTestsDataAsync(lstRequest);
 
-            var testsIds = tests.Tests.Select(c => c.TestName).ToArray();
+            var testsIds = tests.Tests.Select(c => c.TestId).ToArray();
             var getInfosR = new RunnerService.API.Models.GetTestsInfoRequest(testsIds);
             RunnerService.API.Models.GetTestsInfoResponse getInfosResp = request.ReturnNotSaved 
                 ? (RunnerService.API.Models.GetTestsInfoResponse)null
                 : (RunnerService.API.Models.GetTestsInfoResponse)await RunnerService.GetTestsInfoAsync(getInfosR);
 
-            var fullInfos = tests.Tests.Zip(getInfosResp?.RunInfos ?? ((RunnerService.API.Models.TestRunInfo)null).Repeat(tests.Tests.Length).ToArray() , (Case, RunInfo) => (Case, RunInfo));
+            var fullInfos = tests.Tests.Select(c => (Case: c, RunInfo: getInfosResp == null ? (RunnerService.API.Models.TestRunInfo)null : getInfosResp.RunInfos.FirstOrDefault(r => r.TestId == c.TestId)));
+            //var fullInfos = tests.Tests.Zip(getInfosResp?.RunInfos ?? ((RunnerService.API.Models.TestRunInfo)null).Repeat(tests.Tests.Length).ToArray() , (Case, RunInfo) => (Case, RunInfo));
 
             var response = new ListTestsResponse(ddd().ToArray(), tests.Tests.Length);
 
@@ -95,7 +96,7 @@ namespace PresentationService
                             TargetType = info.Case?.Data?.Type, 
                             Parameters = info.Case?.Data?.Parameters,
                             CreateDate = info.Case?.CreationDate ?? default,
-                            KeyParameters = info.Case?.Data?.KeyParameters.Select(p => p.Key + "###" + p.Value).Aggregate(Environment.NewLine) // xD
+                            KeyParameters = info.Case?.Data?.KeyParameters.Select(p => p.Key + "###" + p.Value).Aggregate(Environment.NewLine) // Someone, pls, rewrite :D
                         },
                         State = info.RunInfo?.State,
                         LastResult = info.RunInfo?.LastResult,
