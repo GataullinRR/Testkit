@@ -2,9 +2,8 @@
 {
     public enum State
     {
-        JustCreated,
-        AwaitingStart,
-        Running,
-        Ready,
+        JustCreated = 0,
+        Running = 1000,
+        Ready = 2000,
     }
 }

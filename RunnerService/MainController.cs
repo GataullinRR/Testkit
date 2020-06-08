@@ -56,9 +56,9 @@ namespace RunnerService
                 {
                     tests.Add(new RunnerService.Db.TestRunInfo()
                     {
+                        TestId = testFromStorge.TestId,
                         Results = new List<Result>(),
                         RunPlan = new ManualRunPlan(),
-                        State = new JustCreatedState(),
                         TestName = testFromStorge.TestName
                     });
 
@@ -69,24 +69,20 @@ namespace RunnerService
             var messages = new List<Func<BeginTestMessage>>();
             foreach (var test in tests)
             {
-                if (test.State.State.IsOneOf(State.JustCreated, State.AwaitingStart, State.Ready))
+                var result = new Result()
                 {
-                    var result = new Result()
+                    ResultBase = new PendingCompletionResult()
                     {
-                        ResultBase = new PendingCompletionResult()
-                        {
-                            StartTime = DateTime.UtcNow,
-                            StartedByUser = request.UserName,
-                            TestId = test.TestId,
-                            TestName = test.TestName,
-                        }
-                    };
-                    test.Results.Add(result);
-                    test.State = new RunningState();
+                        StartTime = DateTime.UtcNow,
+                        StartedByUser = request.UserName,
+                        TestId = test.TestId,
+                        TestName = test.TestName,
+                    }
+                };
+                test.Results.Add(result);
 
-                    var data = listResponse.Tests.First(t => t.TestName == test.TestName).Data;
-                    messages.Add(() => new BeginTestMessage(test.TestId, result.Id, data.Type, data.Data));
-                }
+                var data = listResponse.Tests.First(t => t.TestName == test.TestName).Data;
+                messages.Add(() => new BeginTestMessage(test.TestId, result.Id, data.Type, data.Data));
             }
 
             await Db.SaveChangesAsync();
@@ -104,18 +100,45 @@ namespace RunnerService
         {
             var infos = await ensureDbPopulated(request.TestIds);
 
-            return new GetTestsInfoResponse(
-                infos
-                    .Select(i => new API.Models.TestRunInfo(
+            return new GetTestsInfoResponse(ges().ToArray());
+
+            IEnumerable<API.Models.TestRunInfo> ges()
+            {
+                foreach (var i in infos)
+                {
+                    var lastResult = i.Results
+                        .OrderByDescending(r => r.ResultBase.StartTime)
+                        .FirstOrDefault()
+                        ?.ResultBase;
+
+                    StateBase state = new JustCreatedState();
+                    if (i.Results.Any(r => r.ResultBase.Result == RunResult.Running))
+                    {
+                        state = new RunningState();
+                    }
+                    else
+                    {
+                        state = lastResult?.Result switch
+                        {
+                            RunResult.Aborted => new ReadyState(),
+                            RunResult.Passed => new ReadyState(),
+                            RunResult.SUTError => new ReadyState(),
+                            RunResult.RunnerError => new ReadyState(),
+                            RunResult.Running => new RunningState(),
+                            null => new JustCreatedState(),
+
+                            _ => throw new NotSupportedException()
+                        };
+                    }
+
+                    yield return new API.Models.TestRunInfo(
                         i.TestId,
                         i.TestName,
-                        i.Results
-                            .OrderByDescending(r => r.ResultBase.StartTime)
-                            .FirstOrDefault(r => r.ResultBase?.Result != RunResult.PendingCompletion)
-                            ?.ResultBase,
-                        i.State,
-                        i.RunPlan))
-                    .ToArray());
+                        lastResult,
+                        state,
+                        i.RunPlan);
+                }
+            }
         }
 
         async Task<Db.TestRunInfo[]> ensureDbPopulated(int[] testIds)
@@ -137,7 +160,6 @@ namespace RunnerService
                     {
                         TestId = ti.TestId,
                         TestName = ti.TestName,
-                        State = new JustCreatedState(),
                         RunPlan = new ManualRunPlan(),
                     }).ToArray();
                 if (missingRunInfos.Length > 0)

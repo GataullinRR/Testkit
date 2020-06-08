@@ -44,7 +44,7 @@ namespace RunnerService
                         .AsNoTracking()
                         .ToArrayAsync();
                     hang = hang
-                        .Where(d => d.ResultBase.Result == API.Models.RunResult.PendingCompletion 
+                        .Where(d => d.ResultBase.Result == API.Models.RunResult.Running 
                             && DateTime.UtcNow - d.ResultBase.StartTime > TimeSpan.FromMinutes(3))
                         .ToArray();
                     db.RunResults.RemoveRange(hang);

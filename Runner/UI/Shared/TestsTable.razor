@@ -86,10 +86,10 @@ else
                                         case RunnerService.API.Models.State.Ready:
                                             <RunTestButton TestNameFilter="@test.TestName" />
                                             break;
-                                        case RunnerService.API.Models.State.AwaitingStart:
                                         case RunnerService.API.Models.State.Running:
-                                            @*<InlineButton class="action-danger">Cancel</InlineButton>*@
-                                            <span>Running...</span>
+                                            <InlineButton class="action-danger">Cancel</InlineButton>
+                                            <span> | </span>
+                                            <RunTestButton TestNameFilter="@test.TestName" />
                                             break;
 
                                         default:

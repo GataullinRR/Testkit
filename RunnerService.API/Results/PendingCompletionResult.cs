@@ -2,7 +2,7 @@
 {
     public class PendingCompletionResult : RunResultBase
     {
-        public PendingCompletionResult() : base(RunResult.PendingCompletion)
+        public PendingCompletionResult() : base(RunResult.Running)
         {
 
         }

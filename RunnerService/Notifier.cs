@@ -54,19 +54,20 @@ namespace RunnerService
                 .FirstAsync(r => r.TestId == arg.TestId);
             var result = runInfo.Results
                 .FirstOrDefault(r => r.Id == arg.ResultId);
-#warning MM
-            arg.Result.TestId = arg.TestId;
-            arg.Result.TestName = runInfo.TestName;
-            arg.Result.StartedByUser = result.ResultBase.StartedByUser;
-            result.ResultBase = arg.Result;
-            runInfo.State = new ReadyState();
-            await db.SaveChangesAsync();
+            if (result != null) // because it could have been deleted
+            {
+                arg.Result.TestId = arg.TestId;
+                arg.Result.TestName = runInfo.TestName;
+                arg.Result.StartedByUser = result.ResultBase.StartedByUser;
+                result.ResultBase = arg.Result;
+                await db.SaveChangesAsync();
 
-            MessageProducer.FireTestCompleted(new TestCompletedMessage() 
-            { 
-                TestId = runInfo.TestName, 
-                Result = arg.Result
-            });
+                MessageProducer.FireTestCompleted(new TestCompletedMessage()
+                {
+                    TestId = runInfo.TestName,
+                    Result = arg.Result
+                });
+            }
         }
     }
 }

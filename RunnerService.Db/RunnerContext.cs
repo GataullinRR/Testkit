@@ -29,7 +29,6 @@ namespace RunnerService.Db
             //    .UsePropertyAccessMode(PropertyAccessMode.Field);
             builder.Entity<StateBase>()
                 .HasDiscriminator(r => r.State)
-                .HasValue<AwaitingStartState>(State.AwaitingStart)
                 .HasValue<ReadyState>(State.Ready)
                 .HasValue<RunningState>(State.Running)
                 .HasValue<JustCreatedState>(State.JustCreated);
@@ -50,9 +49,9 @@ namespace RunnerService.Db
             builder.Entity<RunResultBase>()
                 .HasDiscriminator(r => r.Result)
                 .HasValue<PassedResult>(RunResult.Passed)
-                .HasValue<AbortedByUserResult>(RunResult.AbortedByUser)
+                .HasValue<AbortedResult>(RunResult.Aborted)
                 .HasValue<RunnerErrorResult>(RunResult.RunnerError)
-                .HasValue<PendingCompletionResult>(RunResult.PendingCompletion)
+                .HasValue<PendingCompletionResult>(RunResult.Running)
                 .HasValue<SUTErrorResult>(RunResult.SUTError);
 
             builder.Entity<RunPlanBase>()
