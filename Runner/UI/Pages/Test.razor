@@ -37,15 +37,16 @@
     public string TestNameFilter { get; set; }
 
     string? _parameters = null;
-    int _testsCount;
 
     async Task onTestsLoadedAsync(IList<TestInfo> tests)
     {
-        _parameters = null;
         if (tests.Count == 1)
         {
             _parameters = tests.Single().Target.Parameters;
         }
-        _testsCount = tests.Count;
+        else
+        {
+            _parameters = null;
+        }
     }
 }

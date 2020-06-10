@@ -73,9 +73,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecordingHandler", "..\WORK
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebNotificationSvc", "WebNotificationSvc", "{3C5B0476-2979-47AD-8B25-64A6A98AC825}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebNotificationService", "WebNotifier\WebNotificationService.csproj", "{66B4534A-1F1C-4D2C-853F-B53FA0BECC0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebNotificationService", "WebNotifier\WebNotificationService.csproj", "{66B4534A-1F1C-4D2C-853F-B53FA0BECC0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebNotificationService.API", "WebNotificationService.API\WebNotificationService.API.csproj", "{30B43F50-47DE-4ECB-806B-F047804D4313}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebNotificationService.API", "WebNotificationService.API\WebNotificationService.API.csproj", "{30B43F50-47DE-4ECB-806B-F047804D4313}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,9 +1,12 @@
 ﻿@inject IMessageService MessageService;
 @inject ICookieStorage Cookies;
+@inject Browser Browser;
 
-@if (Columns == null)
+@if (Columns == null || !_isInitialized)
 {
-    <RootContainer>Loading...</RootContainer>
+    <RootContainer>
+        <LoadingIndicator/>
+    </RootContainer>
 }
 else
 {
@@ -46,14 +49,14 @@ else
         </div>
 
         <div class="row px-3">
-            <div class="col ml-auto">Shown @shownCount of @TotalCount entries</div>
-            @if (TotalCount - shownCount > 0)
+            <div class="col ml-auto">Shown @_shownCount of @TotalCount entries</div>
+            @if (TotalCount - _shownCount > 0)
             {
-                for (int i = 0; i < ADD_MORE_BUTTONS_COUNT; i++)
+                for (int i = 0; i < AddButtonsCount; i++)
                 {
                     var addCount = getCount(i);
                     <div class="col-1 text-center">
-                        <InlineButton @onclick="() => onAdd(addCount)">Add @addCount</InlineButton>
+                        <InlineButton @onclick="() => onAddAsync(addCount)">Add @addCount</InlineButton>
                     </div>
                 }
             }
@@ -62,10 +65,6 @@ else
 }
 
 @code {
-    const int ADD_MORE_BUTTONS_COUNT = 3;
-
-    int shownCount { get; set; }
-
     public class Column
     {
         public string Name { get; set; }
@@ -79,6 +78,9 @@ else
         public RenderFragment[] Cells { get; set; }
     }
 
+    int _shownCount;
+    bool _isInitialized = false;
+
     [Parameter]
     public IEnumerable<Column> Columns { get; set; }
 
@@ -89,26 +91,42 @@ else
     public int TotalCount { get; set; }
 
     [Parameter]
-    public Func<int, Task> OnAddRequestedAsync { get; set; }
+    public int InitialCount { get; set; } = 10;
 
-    protected override Task OnParametersSetAsync()
+    [Parameter]
+    public int AddButtonsCount { get; set; } = 3;
+
+    [Parameter]
+    public RenderFragment EmptyMessage { get; set; } = @<span>There are nothing to show yet</span>;
+
+    [Parameter]
+    public Func<int, Task> OnAddRequestedAsync { get; set; } = _ => Task.CompletedTask;
+
+    protected override async Task OnParametersSetAsync()
     {
-        shownCount = Rows?.Count() ?? 0;
-
-        return base.OnParametersSetAsync();
+        await base.OnParametersSetAsync();
     }
 
-    async Task onAdd(int count)
+    protected override async Task OnInitializedAsync()
+    {
+        await onAddAsync(10);
+        _isInitialized = true;
+
+        await base.OnInitializedAsync();
+    }
+
+    async Task onAddAsync(int count)
     {
         await OnAddRequestedAsync(count);
+        _shownCount = Rows?.Count() ?? 0;
 
         StateHasChanged();
     }
 
     int getCount(int buttonIndex)
     {
-        var x = Math.Log(TotalCount - shownCount);
-        var xk = x / ADD_MORE_BUTTONS_COUNT;
+        var x = Math.Log(TotalCount - _shownCount);
+        var xk = x / AddButtonsCount;
 
         return Math.Exp((buttonIndex + 1) * xk).Round();
     }

@@ -1,16 +1,8 @@
 ﻿@inject IPresentationService PresentationService;
 @inject IWebMessageHub Hub;
 
-@if (_rows.Count == 0)
-{
-    <RootContainer>
-        <span>The is nothing to show yet :/ Run test to see the results</span>
-    </RootContainer>
-}
-else
-{
-    <TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" />
-}
+<TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" />
+
 @code {
     readonly TableBase.Column[] _columns = new TableBase.Column[]
     {
@@ -19,12 +11,29 @@ else
         new TableBase.Column() { Name = "Test name" },
         new TableBase.Column() { Name = "Run date" },
         new TableBase.Column() { Name = "Started by" },
-                };
+    };
     List<TableBase.Row> _rows = new List<TableBase.Row>();
     int _totalCount = 0;
+    int _testsToShow = 0;
+    RenderFragment _emptyMessage = @<span>The are nothing to show yet :/ Run test to see the results</span>;
 
     [Parameter]
     public string TestNameFilter { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Hub.TestCompletedAsync += async m =>
+        {
+            if (m.TestName.StartsWith(TestNameFilter))
+            {
+                await rerenderAsync();
+            }
+        };
+        Hub.TestDeletedAsync += m => rerenderAsync();
+        Hub.TestBegunAsync += m => rerenderAsync();
+
+        await base.OnInitializedAsync();
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -33,10 +42,17 @@ else
         await base.OnParametersSetAsync();
     }
 
+    async Task rerenderAsync()
+    {
+        await addMoreAsync(0);
+
+        StateHasChanged();
+    }
+
     async Task addMoreAsync(int count)
     {
-        var newCount = _rows.Count + count;
-        var response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestNameFilter.ToSequence().ToArray(), newCount));
+        _testsToShow = _rows.Count + count;
+        var response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestNameFilter.ToSequence().ToArray(), _testsToShow));
 
         _totalCount = response.TotalCount;
         _rows.Clear();
@@ -55,23 +71,5 @@ else
                 }
             });
         }
-    }
-
-    protected override void OnInitialized()
-    {
-        Hub.TestCompletedAsync += m => rerenderAsync();
-        Hub.TestDeletedAsync += m => rerenderAsync();
-        Hub.TestBegunAsync += m => rerenderAsync();
-
-        base.OnInitialized();
-    }
-
-    async Task rerenderAsync()
-    {
-        _rows.Clear();
-
-        await addMoreAsync(10);
-
-        StateHasChanged();
     }
 }

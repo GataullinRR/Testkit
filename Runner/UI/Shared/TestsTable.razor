@@ -160,6 +160,7 @@ else
         var response = await PresentationService.ListTestsAsync(ListTestsRequest.ByNameFilter(TestNameFilter, new IntInterval(from, to), false));
 
         _totalCount = response.TotalCount;
+        _tests.Clear();
         _tests.AddRange(response.Tests);
 
         await OnTestsUpdatedAsync.InvokeAsync(_tests);
@@ -191,9 +192,7 @@ else
     {
         await AppInitializer.AwaitInitializedAsync();
 
-        _tests.Clear();
         await addTestsAsync(0, NUM_OF_TESTS);
-
         shownCount = _tests?.Count() ?? 0;
 
         StateHasChanged();
