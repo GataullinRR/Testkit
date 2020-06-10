@@ -1,4 +1,4 @@
-﻿@using global::Shared.Types;
+﻿@using global::SharedT.Types;
 
 @if (_lines == null)
 {
@@ -25,32 +25,31 @@ else
 }
 
 @code {
-        async Task onParametersExpanderClickAsync()
-        {
-            _parametersContainerClass = _parametersContainerClass == "d-none"
-                ? ""
-                : "d-none";
-        }
+    async Task onParametersExpanderClickAsync()
+    {
+        _parametersContainerClass = _parametersContainerClass == "d-none"
+            ? ""
+            : "d-none";
+    }
 
-        string _parametersContainerClass = "d-none";
-        RenderFragment[] _lines;
+    string _parametersContainerClass = "d-none";
+    RenderFragment[] _lines;
 
-        [Parameter]
-        public string? Parameters { get; set; }
+    [Parameter]
+    public NodeParameter Parameters { get; set; }
 
-        [Parameter]
-        public string Name { get; set; } = "Parameters";
+    [Parameter]
+    public string Name { get; set; } = "Parameters";
 
-        [Parameter]
-        public bool IsFirstLevel { get; set; } = true;
+    [Parameter]
+    public bool IsFirstLevel { get; set; } = true;
 
     protected override void OnParametersSet()
     {
         _lines = null;
         if (Parameters != null)
         {
-            var root = NodeParameter.Deserialize(Parameters);
-            _lines = renderParametersView(root).ToArray();
+            _lines = renderParametersView(Parameters).ToArray();
         }
 
         base.OnParametersSet();

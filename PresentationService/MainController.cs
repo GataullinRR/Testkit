@@ -16,7 +16,7 @@ using TestsStorageService.API;
 using UserService.API;
 using Utilities.Types;
 using Utilities.Extensions;
-using Shared.Types;
+using SharedT.Types;
 using Vectors;
 using MessageHub;
 using Microsoft.AspNetCore.Mvc;

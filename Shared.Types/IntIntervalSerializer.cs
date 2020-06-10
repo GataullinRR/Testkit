@@ -6,7 +6,7 @@ using System.Text;
 using Utilities.Extensions;
 using Vectors;
 
-namespace Shared.Types
+namespace SharedT.Types
 {
     public class IntIntervalSerializer : JsonConverter
     {

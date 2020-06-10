@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Shared.Types;
+using SharedT.Types;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;

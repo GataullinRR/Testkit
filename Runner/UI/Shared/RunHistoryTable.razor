@@ -1,4 +1,5 @@
-﻿@inject IPresentationService PresentationService;
+﻿@using global::SharedT.Types;
+@inject IPresentationService PresentationService;
 @inject IWebMessageHub Hub;
 
 <TableBase Columns="_columns" Rows="_rows" GetCount="() => _rows.Count / 2" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" />
@@ -15,7 +16,7 @@
     List<TableBase.Row> _rows = new List<TableBase.Row>();
     int _totalCount = 0;
     int _testsToShow = 0;
-    RenderFragment _emptyMessage = @<span>The are nothing to show yet :/ Run test to see the results</span>;
+    RenderFragment _emptyMessage = @<span>There are nothing to show yet :/ Run test to see the results</span>;
 
     [Parameter]
     public string TestNameFilter { get; set; }
@@ -70,25 +71,27 @@
                     @<UserProfileButton UserName="@result.StartedByUser" />
                 }
             });
+
+            IEnumerable<global::SharedT.Types.Difference> differences = null;
+            if (result.ActualParameters != null && result.ExpectedParameters != null)
+            {
+                var actual = NodeParameter.TryDeserialize(result.ActualParameters);
+                var expected = NodeParameter.TryDeserialize(result.ExpectedParameters);
+                differences = expected.CompareWith(actual);
+            }
+
             _rows.Add(new TableBase.Row()
             {
                 IsFullRowWide = true,
                 Cells = new RenderFragment[]
                 {
-                    @<div>
-                        <div><ParametersView Parameters="@result.ExpectedParameters" Name="Expected parameters" /></div>
-                        <div><ParametersView Parameters="@result.ActualParameters" Name="Actual parameters" /></div>
-                    </div>
+                    @<Expander Name="Log">
+                        <div><ParametersDifferenceView Differences="@differences" /></div>
+                        <div><ParametersView Parameters="@NodeParameter.TryDeserialize(result.ActualParameters)" Name="Actual parameters" /></div>
+                        <div><ParametersView Parameters="@NodeParameter.TryDeserialize(result.ExpectedParameters)" Name="Expected parameters" /></div>
+                    </Expander>
                 }
             });
-            @*_rows.Add(new TableBase.Row()
-            {
-                IsFullRowWide = true,
-                Cells = new RenderFragment[]
-                {
-                    @<ParametersView Parameters="@result.ExpectedParameters" Name="Expected parameters"/>
-                }
-            });*@
         }
     }
 }

@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using RunnerService.API;
 using RunnerService.API.Models;
-using Shared.Types;
+using SharedT.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Utilities;

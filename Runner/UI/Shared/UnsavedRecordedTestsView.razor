@@ -1,4 +1,5 @@
-﻿@inject IPresentationService PresentationService;
+﻿@using global::SharedT.Types;
+@inject IPresentationService PresentationService;
 @inject IMessageService MessageService;
 @inject IWebMessageHub Hub;
 
@@ -98,7 +99,7 @@
                 IsFullRowWide = true,
                 Cells = new RenderFragment[]
                 {
-                    @<ParametersView Parameters="@test.Target.Parameters" />,
+                    @<ParametersView Parameters="@NodeParameter.TryDeserialize(test.Target.Parameters)" />,
                 }
             });
         }

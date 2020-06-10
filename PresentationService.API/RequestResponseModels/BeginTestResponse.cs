@@ -1,7 +1,7 @@
 ﻿using Grpc.Core;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Types;
+using SharedT.Types;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;

@@ -1,4 +1,4 @@
-﻿using Shared.Types;
+﻿using SharedT.Types;
 
 namespace TestsStorageService.API
 {

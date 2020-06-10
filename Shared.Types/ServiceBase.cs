@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Shared.Types
+namespace SharedT.Types
 {
     public abstract class ServiceBase
     {

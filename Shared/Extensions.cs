@@ -20,7 +20,7 @@ using UserService.API;
 using Utilities.Extensions;
 using WebNotificationService.API;
 
-namespace Shared
+namespace SharedT
 {
     public static class Extensions
     {

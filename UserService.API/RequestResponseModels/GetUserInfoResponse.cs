@@ -1,4 +1,4 @@
-﻿using Shared.Types;
+﻿using SharedT.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
 using UserService.API;

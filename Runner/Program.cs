@@ -14,7 +14,7 @@ using Grpc.Net.Client.Web;
 using Microsoft.JSInterop;
 using System.Reflection;
 using Utilities.Extensions;
-using Shared;
+using SharedT;
 using Microsoft.AspNetCore.SignalR.Client;
 using PresentationService.API;
 using UserService.API;

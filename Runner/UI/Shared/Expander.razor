@@ -1,0 +1,33 @@
+﻿<div>
+    @if (IsFirstLevel)
+    {
+        <h4 class="d-block" @onclick="() => onParametersExpanderClickAsync()">@Name (click to collapse/expand)</h4>
+    }
+    else
+    {
+        <span class="d-block" @onclick="() => onParametersExpanderClickAsync()">@Name (click to collapse/expand)</span>
+    }
+    <div class="@_parametersContainerClass">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    async Task onParametersExpanderClickAsync()
+    {
+        _parametersContainerClass = _parametersContainerClass == "d-none"
+            ? ""
+            : "d-none";
+    }
+
+    string _parametersContainerClass = "d-none";
+
+    [Parameter]
+    public string? Name { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public bool IsFirstLevel { get; set; } = true;
+}

@@ -22,7 +22,7 @@ using Utilities.Extensions;
 using AutoMapper;
 using System.Reflection;
 using Utilities.Types;
-using Shared;
+using SharedT;
 
 namespace UserService
 {
