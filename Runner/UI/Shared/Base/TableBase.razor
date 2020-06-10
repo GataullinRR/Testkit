@@ -8,6 +8,12 @@
         <LoadingIndicator/>
     </RootContainer>
 }
+else if (Rows == null || Rows.Count() == 0)
+{
+    <RootContainer>
+        @EmptyMessage
+    </RootContainer>
+}
 else
 {
     <div class="col-12">
@@ -85,7 +91,7 @@ else
     public IEnumerable<Column> Columns { get; set; }
 
     [Parameter]
-    public IEnumerable<Row> Rows { get; set; }
+    public IList<Row> Rows { get; set; }
 
     [Parameter]
     public int TotalCount { get; set; }
@@ -95,6 +101,9 @@ else
 
     [Parameter]
     public int AddButtonsCount { get; set; } = 3;
+
+    [Parameter]
+    public Func<int> GetCount { get; set; }
 
     [Parameter]
     public RenderFragment EmptyMessage { get; set; } = @<span>There are nothing to show yet</span>;
@@ -109,6 +118,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        GetCount = () => Rows?.Count ?? 0;
         await onAddAsync(10);
         _isInitialized = true;
 
@@ -118,7 +128,7 @@ else
     async Task onAddAsync(int count)
     {
         await OnAddRequestedAsync(count);
-        _shownCount = Rows?.Count() ?? 0;
+        _shownCount = GetCount();
 
         StateHasChanged();
     }

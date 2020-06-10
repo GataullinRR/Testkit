@@ -1,7 +1,7 @@
 ﻿@inject IPresentationService PresentationService;
 @inject IWebMessageHub Hub;
 
-<TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" />
+<TableBase Columns="_columns" Rows="_rows" GetCount="() => _rows.Count / 2" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" />
 
 @code {
     readonly TableBase.Column[] _columns = new TableBase.Column[]
@@ -70,6 +70,25 @@
                     @<UserProfileButton UserName="@result.StartedByUser" />
                 }
             });
+            _rows.Add(new TableBase.Row()
+            {
+                IsFullRowWide = true,
+                Cells = new RenderFragment[]
+                {
+                    @<div>
+                        <div><ParametersView Parameters="@result.ExpectedParameters" Name="Expected parameters" /></div>
+                        <div><ParametersView Parameters="@result.ActualParameters" Name="Actual parameters" /></div>
+                    </div>
+                }
+            });
+            @*_rows.Add(new TableBase.Row()
+            {
+                IsFullRowWide = true,
+                Cells = new RenderFragment[]
+                {
+                    @<ParametersView Parameters="@result.ExpectedParameters" Name="Expected parameters"/>
+                }
+            });*@
         }
     }
 }

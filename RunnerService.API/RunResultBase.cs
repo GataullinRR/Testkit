@@ -18,5 +18,8 @@ namespace RunnerService.API.Models
         public DateTime StartTime { get; set; }
         public TimeSpan Duration { get; set; }
         public string StartedByUser { get; set; }
+        
+        public string? ExpectedParameters { get; set; }
+        public string? ActualParameters { get; set; }
     }
 }
