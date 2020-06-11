@@ -16,15 +16,15 @@
             {
                 if (difference.Kind == DiferenceKind.P2Missing)
                 {
-                    <div>--- @difference.P1.GetFullPath() = @getValueView(difference.P1.Value)</div>
+                    <div><span style="font-family: monospace">---</span> @difference.P1.GetFullPath() = @getValueView(difference.P1.Value)</div>
                 }
                 else if (difference.Kind == DiferenceKind.P2Created)
                 {
-                    <div>+++ @difference.P2.GetFullPath() = @getValueView(difference.P2.Value)</div>
+                    <div><span style="font-family: monospace">+++</span> @difference.P2.GetFullPath() = @getValueView(difference.P2.Value)</div>
                 }
                 else if (difference.Kind == DiferenceKind.ValueMismatch)
                 {
-                    <div>~~~ @difference.P1.GetFullPath() = @getValueView(difference.P1.Value) => @getValueView(difference.P2.Value)</div>
+                    <div><span style="font-family: monospace">~~~</span> @difference.P1.GetFullPath() = @getValueView(difference.P1.Value) => @getValueView(difference.P2.Value)</div>
                 }
                 else
                 {

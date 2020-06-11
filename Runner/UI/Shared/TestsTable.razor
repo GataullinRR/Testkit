@@ -38,7 +38,7 @@ else
                             <td>
                                 @if (test.LastResult != null)
                                 {
-                                    @($"{test.LastResult.Result} in {test.LastResult.Duration.TotalSeconds:F0}s")
+                                    @($"{test.LastResult.Result} in {test.LastResult.Duration.TotalSeconds:F1}s")
                                 }
                             </td>
 
@@ -54,7 +54,9 @@ else
                                 <InlineButton @onclick="() => goToTest(test.TestName)">@test.Target.DisplayName</InlineButton>
                             </td>
 
-                            <td>@(test.LastResult == null ? "" : test.LastResult.StartTime.ToString("hh:mm dd.MM.yyyy"))</td>
+                            <td>
+                                @(test.LastResult == null ? "" : test.LastResult.StartTime.ToLocalTime().ToString("hh:mm dd.MM.yyyy"))
+                            </td>
 
                             <td>
                                 @switch (test.RunPlan.RunPlan)
@@ -64,7 +66,7 @@ else
                                         break;
                                     case RunnerService.API.Models.RunPlan.Periodic:
                                         <span>
-                                            @(test.RunPlan.To<RunnerService.API.Models.PeriodicRunPlan>().NextRun.ToString())
+                                            @(test.RunPlan.To<RunnerService.API.Models.PeriodicRunPlan>().NextRun.ToLocalTime().ToString("hh:mm dd.MM.yyyy"))
                                         </span>
                                         break;
 

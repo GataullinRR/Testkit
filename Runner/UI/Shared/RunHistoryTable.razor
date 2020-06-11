@@ -67,7 +67,7 @@
                     @<span>@result.Result</span>,
                     @<span>@result.Duration.TotalSeconds.ToString("F1") secouns</span>,
                     @<TestReferenceButton TestName="@result.TestName" />,
-                    @<span>@result.StartTime.ToString("hh:mm dd.MM.yyy")</span>,
+                    @<span>@result.StartTime.ToLocalTime().ToString("hh:mm dd.MM.yyy")</span>,
                     @<UserProfileButton UserName="@result.StartedByUser" />
                 }
             });
