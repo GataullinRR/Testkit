@@ -200,5 +200,22 @@ namespace PresentationService
                 return Unauthorized();
             }
         }
+
+        [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.CancelTestAsync))]
+        public async Task<IActionResult> CancelTest(CancelTestRequest request, [FromServices]IMessageProducer messageProducer)
+        {
+            var token = HttpContext.Request.Headers.FirstOrDefault(h => h.Key == "token").Value.FirstElementOrDefault() ?? "";
+            var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
+            if (result.IsValid)
+            {
+                messageProducer.FireCancelTest(new CancelTestMessage(request.TestId));
+                
+                return Ok(new CancelTestResponse());
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
     }
 }

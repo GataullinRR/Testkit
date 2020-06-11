@@ -32,11 +32,17 @@ namespace WebNotificationService
             MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync;
             MessageConsumer.BeginTestAsync += MessageConsumer_BeginTestAsync;
             MessageConsumer.TestRecordedAsync += MessageConsumer_TestRecordedAsync;
+            MessageConsumer.TestCancelledAsync += MessageConsumer_TestCancelledAsync;
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
 
+        }
+
+        async Task MessageConsumer_TestCancelledAsync(TestCancelledMessage arg)
+        {
+            await Hub.Clients.All.TestCancelled(new TestCancelledWebMessage(arg.TestId, arg.TestName));
         }
 
         async Task MessageConsumer_TestRecordedAsync(TestRecordedMessage arg)

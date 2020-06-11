@@ -27,6 +27,8 @@ namespace MessageHub
         public event Func<TestDeletedMessage, Task> TestDeletedAsync = m => Task.CompletedTask;
         public event Func<BeginTestMessage, Task> BeginTestAsync = m => Task.CompletedTask;
         public event Func<TestRecordedMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
+        public event Func<CancelTestMessage, Task> CancelTestAsync = m => Task.CompletedTask;
+        public event Func<TestCancelledMessage, Task> TestCancelledAsync = m => Task.CompletedTask;
 
         public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options, 
             IOptions<MessageConsumerOptions> consumerOptions)
@@ -62,17 +64,27 @@ namespace MessageHub
             var testRecorded = new ConsumerBuilder<Ignore, TestRecordedMessage>(conf)
                 .Build(serializerSettings);
 
-            cosumeDaemon(testExecuted, options.TestExecutedTopic, m => TestExecutedAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(testAdded, options.TestAddedTopic, m => TestAddedAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(testAcquired, options.TestAcquiredTopic, m => TestAcquiredAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(testCompleted, options.TestCompletedTopic, m => TestCompletedAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(testCompletedOnSource, options.TestCompletedOnSourceTopic, m => TestCompletedOnSourceAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(testDeleted, options.TestDeletedTopic, m => TestDeletedAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(beginTest, options.BeginTestTopic, m => BeginTestAsync.InvokeAndWaitAsync(m));
-            cosumeDaemon(testRecorded, options.TestRecordedTopic, m => TestRecordedAsync.InvokeAndWaitAsync(m));
+            consumeDaemon(testExecuted, options.TestExecutedTopic, m => TestExecutedAsync.InvokeAndWaitAsync(m));
+            consumeDaemon(testAdded, options.TestAddedTopic, m => TestAddedAsync.InvokeAndWaitAsync(m));
+            consumeDaemon(testAcquired, options.TestAcquiredTopic, m => TestAcquiredAsync.InvokeAndWaitAsync(m));
+            consumeDaemon(testCompleted, options.TestCompletedTopic, m => TestCompletedAsync.InvokeAndWaitAsync(m));
+            consumeDaemon(testCompletedOnSource, options.TestCompletedOnSourceTopic, m => TestCompletedOnSourceAsync.InvokeAndWaitAsync(m));
+            consumeDaemon(testDeleted, options.TestDeletedTopic, m => TestDeletedAsync.InvokeAndWaitAsync(m));
+            consumeDaemon(beginTest, options.BeginTestTopic, m => BeginTestAsync.InvokeAndWaitAsync(m));
+            consumeDaemon(testRecorded, options.TestRecordedTopic, m => TestRecordedAsync.InvokeAndWaitAsync(m));
+
+            startConsumeDaemon<CancelTestMessage>(conf, serializerSettings, options.CancelTestTopic, m => CancelTestAsync.InvokeAndWaitAsync(m));
+            startConsumeDaemon<TestCancelledMessage>(conf, serializerSettings, options.TestCancelledTopic, m => TestCancelledAsync.InvokeAndWaitAsync(m));
         }
 
-        async void cosumeDaemon<T>(IConsumer<Ignore, T> consumer, string topic, Func<T, Task> fireEventAsync)
+        async void startConsumeDaemon<TMessage>(ConsumerConfig config, JsonSerializerSettings serializerSettings, string topic, Func<TMessage, Task> fireEventAsync) 
+            where TMessage : class
+        {
+            var testExecuted = new ConsumerBuilder<Ignore, TMessage>(config).Build(serializerSettings);
+            consumeDaemon(testExecuted, topic, fireEventAsync);
+        }
+
+        async void consumeDaemon<T>(IConsumer<Ignore, T> consumer, string topic, Func<T, Task> fireEventAsync)
         {
             await Task.Delay(3000); // To remove deadlock
             await ThreadingUtils.ContinueAtDedicatedThread();

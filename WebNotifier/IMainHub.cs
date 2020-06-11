@@ -10,5 +10,6 @@ namespace WebNotificationService
         Task TestBegun(TestBegunWebMessage message);
         Task TestDeleted(TestDeletedWebMessage message);
         Task TestRecorded(TestRecordedWebMessage message);
+        Task TestCancelled(TestCancelledWebMessage message);
     }
 }

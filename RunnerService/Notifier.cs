@@ -24,7 +24,41 @@ namespace RunnerService
             di.ResolveProperties(this);
 
             MessageConsumer.TestCompletedOnSourceAsync += MessageConsumer_TestCompletedOnSourceAsync;
-            MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync; 
+            MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync;
+            MessageConsumer.CancelTestAsync += MessageConsumer_CancelTestAsync;
+        }
+
+        async Task MessageConsumer_CancelTestAsync(CancelTestMessage arg)
+        {
+            using var scope = ScopeFactory.CreateScope();
+            using var db = scope.ServiceProvider.GetRequiredService<RunnerContext>();
+            var runs = await db.RunResults
+                .Include(r => r.ResultBase)
+                .Where(r => r.ResultBase.TestId == arg.TestId)
+                .Where(r => r.ResultBase.Result == RunResult.Running)
+                .ToArrayAsync();
+            if (runs.Length != 0)
+            {
+                foreach (var run in runs)
+                {
+                    run.ResultBase = new AbortedResult()
+                    {
+                        ActualParameters = run.ResultBase.ActualParameters,
+                        ExpectedParameters = run.ResultBase.ExpectedParameters,
+                        Duration = run.ResultBase.Duration,
+                        StartedByUser = run.ResultBase.StartedByUser,
+                        StartTime = run.ResultBase.StartTime,
+                        TestId = run.ResultBase.TestId,
+                        TestName = run.ResultBase.TestName
+                    };
+                }
+                await db.SaveChangesAsync();
+                
+                foreach (var run in runs)
+                {
+                    MessageProducer.FireTestCancelled(new TestCancelledMessage(run.ResultBase.TestId, run.ResultBase.Id, run.ResultBase.TestName, run.ResultBase.StartedByUser));
+                }
+            }
         }
 
         async Task MessageConsumer_TestDeletedAsync(TestDeletedMessage arg)
@@ -46,8 +80,7 @@ namespace RunnerService
         async Task MessageConsumer_TestCompletedOnSourceAsync(TestCompletedOnSourceMessage arg)
         {
             using var scope = ScopeFactory.CreateScope();
-            var sp = scope.ServiceProvider;
-            using var db = sp.GetRequiredService<RunnerContext>();
+            using var db = scope.ServiceProvider.GetRequiredService<RunnerContext>();
 
             var runInfo = await db.TestRuns
                 .IncludeGroup(EntityGroups.ALL, db)
@@ -56,17 +89,20 @@ namespace RunnerService
                 .FirstOrDefault(r => r.Id == arg.ResultId);
             if (result != null) // because it could have been deleted
             {
-                arg.Result.TestId = arg.TestId;
-                arg.Result.TestName = runInfo.TestName;
-                arg.Result.StartedByUser = result.ResultBase.StartedByUser;
-                result.ResultBase = arg.Result;
-                await db.SaveChangesAsync();
-
-                MessageProducer.FireTestCompleted(new TestCompletedMessage()
+                if (result.ResultBase.Result != RunResult.Aborted)
                 {
-                    TestId = runInfo.TestName,
-                    Result = arg.Result
-                });
+                    arg.Result.TestId = arg.TestId;
+                    arg.Result.TestName = runInfo.TestName;
+                    arg.Result.StartedByUser = result.ResultBase.StartedByUser;
+                    result.ResultBase = arg.Result;
+                    await db.SaveChangesAsync();
+
+                    MessageProducer.FireTestCompleted(new TestCompletedMessage()
+                    {
+                        TestId = runInfo.TestName,
+                        Result = arg.Result
+                    });
+                }
             }
         }
     }

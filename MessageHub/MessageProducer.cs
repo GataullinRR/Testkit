@@ -22,6 +22,8 @@ namespace MessageHub
         readonly IProducer<Null, TestDeletedMessage> _testDeletedProducer;
         readonly IProducer<Null, BeginTestMessage> _beginTestProducer;
         readonly IProducer<Null, TestRecordedMessage> _testRecordedProducer;
+        readonly IProducer<Null, TestCancelledMessage> _testCancelledProducer;
+        readonly IProducer<Null, CancelTestMessage> _cancelTestProducer;
 
         public MessageProducer(ILogger<MessageProducer> logger, JsonSerializerSettings serializerSettings)
         {
@@ -38,6 +40,8 @@ namespace MessageHub
             _testDeletedProducer = new ProducerBuilder<Null, TestDeletedMessage>(conf).Build(serializerSettings);
             _beginTestProducer = new ProducerBuilder<Null, BeginTestMessage>(conf).Build(serializerSettings);
             _testRecordedProducer = new ProducerBuilder<Null, TestRecordedMessage>(conf).Build(serializerSettings);
+            _testCancelledProducer = new ProducerBuilder<Null, TestCancelledMessage>(conf).Build(serializerSettings);
+            _cancelTestProducer = new ProducerBuilder<Null, CancelTestMessage>(conf).Build(serializerSettings);
         }
 
         public void FireTestExecuted(TestExecutedMessage args)
@@ -88,6 +92,16 @@ namespace MessageHub
         public void FireTestRecorded(TestRecordedMessage args)
         {
             _testRecordedProducer.Produce(_options.TestRecordedTopic, new Message<Null, TestRecordedMessage> { Value = args });
+        }
+
+        public void FireCancelTest(CancelTestMessage args)
+        {
+            _cancelTestProducer.Produce(_options.CancelTestTopic, new Message<Null, CancelTestMessage> { Value = args });
+        }
+
+        public void FireTestCancelled(TestCancelledMessage args)
+        {
+            _testCancelledProducer.Produce(_options.TestCancelledTopic, new Message<Null, TestCancelledMessage> { Value = args });
         }
     }
 }

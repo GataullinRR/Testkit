@@ -1,0 +1,13 @@
+﻿@inject IPresentationService PresentationService;
+
+<InlineButton @onclick="() => goToAsync()">Cancel</InlineButton>
+
+@code {
+    [Parameter]
+    public int TestId { get; set; }
+
+    async Task goToAsync()
+    {
+        await PresentationService.CancelTestAsync(new CancelTestRequest(TestId));
+    }
+}

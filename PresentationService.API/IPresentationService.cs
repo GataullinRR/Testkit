@@ -13,5 +13,6 @@ namespace PresentationService.API
         Task<GetTestDetailsResponse> GetTestDetailsAsync(GetTestDetailsRequest request);
         Task<DeleteTestResponse> DeleteTestAsync(DeleteTestRequest request);
         Task<SaveRecordedTestResponse> SaveRecordedTestAsync(SaveRecordedTestRequest request);
+        Task<CancelTestResponse> CancelTestAsync(CancelTestRequest request);
     }
 }

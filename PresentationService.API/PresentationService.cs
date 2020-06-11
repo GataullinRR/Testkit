@@ -17,6 +17,11 @@ namespace PresentationService.API
             return MakeRequestAsync<BeginTestRequest, BeginTestResponse>(HttpMethod.Post, nameof(BeginTestAsync), request);
         }
 
+        public Task<CancelTestResponse> CancelTestAsync(CancelTestRequest request)
+        {
+            return MakeRequestAsync<CancelTestRequest, CancelTestResponse>(HttpMethod.Post, nameof(CancelTestAsync), request);
+        }
+
         public Task<DeleteTestResponse> DeleteTestAsync(DeleteTestRequest request)
         {
             return MakeRequestAsync<DeleteTestRequest, DeleteTestResponse>(HttpMethod.Delete, nameof(DeleteTestAsync), request);

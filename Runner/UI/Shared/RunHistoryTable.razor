@@ -30,6 +30,13 @@
                 await rerenderAsync();
             }
         };
+        Hub.TestCancelledAsync += async m =>
+        {
+            if (m.TestName.StartsWith(TestNameFilter))
+            {
+                await rerenderAsync();
+            }
+        };
         Hub.TestDeletedAsync += m => rerenderAsync();
         Hub.TestBegunAsync += m => rerenderAsync();
 

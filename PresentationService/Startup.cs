@@ -42,6 +42,7 @@ namespace PresentationService
             services.AddCors();
             services.AddNecessaryFeatures();
             services.AddServices();
+            services.AddMessaging(Configuration.GetSection("Messaging"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

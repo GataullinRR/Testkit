@@ -11,5 +11,7 @@
         void FireTestRecorded(TestRecordedMessage args);
 
         void FireBeginTest(BeginTestMessage args);
+        void FireCancelTest(CancelTestMessage args);
+        void FireTestCancelled(TestCancelledMessage args);
     }
 }

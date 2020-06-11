@@ -89,7 +89,7 @@ else
                                             <RunTestButton TestNameFilter="@test.TestName" />
                                             break;
                                         case RunnerService.API.Models.State.Running:
-                                            <InlineButton class="action-danger">Cancel</InlineButton>
+                                            <CancelTestButton TestId="@test.TestId"/>
                                             <span> | </span>
                                             <RunTestButton TestNameFilter="@test.TestName" />
                                             break;
@@ -122,21 +122,21 @@ else
 }
 
 @code {
-    const int ADD_MORE_BUTTONS_COUNT = 3;
-    const int NUM_OF_TESTS = 10;
+        const int ADD_MORE_BUTTONS_COUNT = 3;
+        const int NUM_OF_TESTS = 10;
 
-    [Parameter]
-    public string? TestNameFilter { get; set; }
+        [Parameter]
+        public string? TestNameFilter { get; set; }
 
-    [Parameter]
-    public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
+        [Parameter]
+        public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
 
-    int shownCount { get; set; }
+        int shownCount { get; set; }
 
-    int _totalCount;
-    readonly List<TestInfo> _tests = new List<TestInfo>();
+        int _totalCount;
+        readonly List<TestInfo> _tests = new List<TestInfo>();
 
-    bool _setting = false; // no inf loops!
+        bool _setting = false; // no inf loops!
     protected override async Task OnParametersSetAsync()
     {
         if (!_setting)
@@ -186,6 +186,13 @@ else
         Hub.TestCompletedAsync += m => rerenderAsync();
         Hub.TestDeletedAsync += m => rerenderAsync();
         Hub.TestBegunAsync += m => rerenderAsync();
+        Hub.TestCancelledAsync += async m =>
+        {
+            if (_tests.Any(t => t.TestId == m.TestId))
+            {
+                await rerenderAsync();
+            }
+        };
 
         return base.OnInitializedAsync();
     }

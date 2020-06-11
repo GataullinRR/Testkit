@@ -14,5 +14,7 @@ namespace MessageHub
         event Func<TestRecordedMessage, Task> TestRecordedAsync;
 
         event Func<BeginTestMessage, Task> BeginTestAsync;
+        event Func<CancelTestMessage, Task> CancelTestAsync;
+        event Func<TestCancelledMessage, Task> TestCancelledAsync;
     }
 }
