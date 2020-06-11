@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Utilities.Extensions;
@@ -31,6 +32,15 @@ namespace SharedT.Types
                     yield return parrent;
                 }
             }
+        }
+
+        public string SerializeToJson()
+        {
+            return JsonConvert.SerializeObject(this, new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                PreserveReferencesHandling = PreserveReferencesHandling.Objects
+            });
         }
     }
 }
