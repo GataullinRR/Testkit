@@ -6,6 +6,8 @@ namespace TestsStorageService.API
 {
     public class TestCase
     {
+        public bool IsDeleted { get; set; }
+
         [Key]
         public int TestId { get; set; }
 

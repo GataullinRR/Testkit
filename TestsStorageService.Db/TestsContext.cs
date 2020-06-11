@@ -33,6 +33,10 @@ namespace TestsStorageService.Db
                 .Entity<KeyParameter>()
                 .HasKey("_Id");
 
+            builder
+                .Entity<TestCase>()
+                .HasQueryFilter(p => !p.IsDeleted);
+            
             base.OnModelCreating(builder);
         }
     }

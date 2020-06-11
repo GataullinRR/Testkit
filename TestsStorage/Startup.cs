@@ -45,6 +45,7 @@ namespace TestsStorage
                         options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
                     });
 
+            services.AddHostedService<UnsavedTestsCleanerDaemon>();
             services.AddNecessaryFeatures();
             services.AddMessaging(Configuration.GetSection("Messaging"));
 
