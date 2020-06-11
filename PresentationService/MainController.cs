@@ -75,7 +75,7 @@ namespace PresentationService
             var fullInfos = tests.Tests.Select(c => (Case: c, RunInfo: getInfosResp == null ? (RunnerService.API.Models.TestRunInfo)null : getInfosResp.RunInfos.FirstOrDefault(r => r.TestId == c.TestId)));
             //var fullInfos = tests.Tests.Zip(getInfosResp?.RunInfos ?? ((RunnerService.API.Models.TestRunInfo)null).Repeat(tests.Tests.Length).ToArray() , (Case, RunInfo) => (Case, RunInfo));
 
-            var response = new ListTestsResponse(ddd().ToArray(), tests.Tests.Length);
+            var response = new ListTestsResponse(ddd().ToArray(), tests.TotalCount);
 
             return response;
 

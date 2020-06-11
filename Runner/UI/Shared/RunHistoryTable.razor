@@ -2,7 +2,7 @@
 @inject IPresentationService PresentationService;
 @inject IWebMessageHub Hub;
 
-<TableBase Columns="_columns" Rows="_rows" GetCount="() => _rows.Count / 2" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" />
+<TableBase Columns="_columns" Rows="_rows" RowsPerItem="2" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" />
 
 @code {
     readonly TableBase.Column[] _columns = new TableBase.Column[]

@@ -1,8 +1,18 @@
-﻿<div class="row mb-2">
+﻿@if (IsInline)
+{
+    <div class="row mb-2">
+        <h3>@Name</h3>
+    </div>
+}
+else
+{
     <h3>@Name</h3>
-</div>
+}
 
 @code {
     [Parameter]
     public string Name { get; set; }
+
+    [CascadingParameter]
+    public bool IsInline { get; set; }
 }

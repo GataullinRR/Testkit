@@ -3,18 +3,19 @@
 @inject IIdentityContext Context;
 @inject IMessageService Messages;
 @inject IWebMessageHub MessageHub;
+@inject Browser Browser;
 @page "/add-case"
 
 <RootContainer>
     <CascadingValue Name="IsDisabled" Value="!_isReady">
         <FormTemplate Model="_model" OnSubmit="onSubmit">
-            <FormHeader Name="Lookup parameters" />
+            <FormHeader Name="Unsaved tests" />
             <FormTextInput Name="ServiceId" @bind-Value="_model.ServiceId" />
             <FormTextInput Name="UserId" @bind-Value="_model.UserId" />
 
             <FormValidator />
 
-            <FormButton IsSubmit="true" Name="Show" />
+            <FormButton IsSubmit="true" Name="Show"/>
         </FormTemplate>
     </CascadingValue>
 </RootContainer>
@@ -30,14 +31,14 @@
     class LookupParameters
     {
         public string ServiceId { get; set; }
-
         public string UserId { get; set; }
     }
 
     Dictionary<string, string> _testParameters = new Dictionary<string, string>();
 
-    bool _isReady = false;
+    bool _isReady = true;
     readonly LookupParameters _model = new LookupParameters();
+    bool _submitClicked = true;
 
     async void onSubmit()
     {
@@ -47,26 +48,32 @@
             { nameof(LookupParameters.UserId), _model.UserId.IsNullOrEmpty() ? null : _model.UserId },
             { nameof(LookupParameters.ServiceId), _model.ServiceId.IsNullOrEmpty() ? null : _model.ServiceId  },
         };
-        StateHasChanged();
-
-        await updateAsync();
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        await updateAsync();
-
-        await base.OnParametersSetAsync();
-    }
-
-    async Task updateAsync()
-    {
+        _submitClicked = true;
         _isReady = true;
         StateHasChanged();
     }
 
+    protected override bool ShouldRender()
+    {
+        if (_submitClicked)
+        {
+            _submitClicked = false;
+            return true && base.ShouldRender();
+        }
+        return false;
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        Browser.LogToConsoleAsync("!!!2");
+
+        return base.OnParametersSetAsync();
+    }
+
     protected override Task OnInitializedAsync()
     {
+        Browser.LogToConsoleAsync("!!!");
+
         return base.OnInitializedAsync();
     }
 }

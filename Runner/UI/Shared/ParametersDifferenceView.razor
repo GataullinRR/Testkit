@@ -1,36 +1,38 @@
 ﻿@using global::SharedT.Types;
 
 <Expander Name="Differences">
-    @if (Differences == null)
-    {
-        <LoadingIndicator />
-    }
-    else if (!Differences.Any())
-    {
-        <span>No differences found!</span>
-    }
-    else
-    {
-        foreach (var difference in Differences.OrderBy(d => d.Kind))
+    <div class="mb-2">
+        @if (Differences == null)
         {
-            if (difference.Kind == DiferenceKind.P2Missing)
+            <LoadingIndicator />
+        }
+        else if (!Differences.Any())
+        {
+            <span>No differences found!</span>
+        }
+        else
+        {
+            foreach (var difference in Differences.OrderBy(d => d.Kind))
             {
-                <div>--- @difference.P1.GetFullPath() = @getValueView(difference.P1.Value)</div>
-            }
-            else if (difference.Kind == DiferenceKind.P2Created)
-            {
-                <div>+++ @difference.P2.GetFullPath() = @getValueView(difference.P2.Value)</div>
-            }
-            else if (difference.Kind == DiferenceKind.ValueMismatch)
-            {
-                <div>~~~ @difference.P1.GetFullPath() = @getValueView(difference.P1.Value) => @getValueView(difference.P2.Value)</div>
-            }
-            else
-            {
-                <div>??? UNKNOWN DIFFERENCE KIND</div>
+                if (difference.Kind == DiferenceKind.P2Missing)
+                {
+                    <div>--- @difference.P1.GetFullPath() = @getValueView(difference.P1.Value)</div>
+                }
+                else if (difference.Kind == DiferenceKind.P2Created)
+                {
+                    <div>+++ @difference.P2.GetFullPath() = @getValueView(difference.P2.Value)</div>
+                }
+                else if (difference.Kind == DiferenceKind.ValueMismatch)
+                {
+                    <div>~~~ @difference.P1.GetFullPath() = @getValueView(difference.P1.Value) => @getValueView(difference.P2.Value)</div>
+                }
+                else
+                {
+                    <div>??? UNKNOWN DIFFERENCE KIND</div>
+                }
             }
         }
-    }
+    </div>
 </Expander>
 
 @code {

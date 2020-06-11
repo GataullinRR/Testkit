@@ -3,17 +3,15 @@
 @inject IMessageService MessageService;
 @inject IWebMessageHub Hub;
 
-<h3>Unsaved tests</h3>
-
-<TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" />
+<TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" RowsPerItem="2" OnAddRequestedAsync="addAsync"  />
 
 @code {
     [Parameter]
     public Dictionary<string, string> Parameters { get; set; }
 
-    readonly List<TableBase.Column> _columns = new List<TableBase.Column>();
+    List<TableBase.Column> _columns = new List<TableBase.Column>();
 
-    readonly List<TableBase.Row> _rows = new List<TableBase.Row>();
+    List<TableBase.Row> _rows = new List<TableBase.Row>();
     int _totalCount = 0;
 
     class TestSaveModel
@@ -41,9 +39,13 @@
         return base.OnInitializedAsync();
     }
 
-    async Task rerenderAsync()
+    async Task addAsync(int count)
     {
-        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByParameters(Parameters, new IntInterval(0, 1000), true));
+        var newCount = _rows.Count / 2 + count;
+        _rows = new List<TableBase.Row>();
+        _columns = new List<TableBase.Column>();
+
+        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByParameters(Parameters, new IntInterval(0, newCount), true));
         _totalCount = response.TotalCount;
         _rows.Clear();
         _columns.Clear();
@@ -67,7 +69,7 @@
 
             var cells = new List<RenderFragment>();
             cells.Add(@<span>@test.TestId</span>);
-            cells.Add(@<span>@test.Target.CreateDate.ToString("hh:mm dd.MM.yyyy")</span>);
+            cells.Add(@<span>@test.Target.CreateDate.ToLocalTime().ToString("hh:mm dd.MM.yyyy")</span>);
             for (int i = 0; i < newCols.Length; i++)
             {
                 cells.Add(@<span></span>);
@@ -107,6 +109,20 @@
         StateHasChanged();
     }
 
+    async Task rerenderAsync()
+    {
+        if (_rows.Count < 20)
+        {
+            await addAsync(10 - _rows.Count / 2);
+        }
+        else
+        {
+            await addAsync(0);
+        }
+
+        StateHasChanged();
+    }
+
     async Task saveTestAsync(int testId, TestSaveModel saveModel, TableBase.Row row)
     {
         row.IsDisabled = true;
@@ -119,7 +135,7 @@
     {
         row.IsDisabled = true;
         StateHasChanged();
-
+        
         await PresentationService.DeleteTestAsync(new DeleteTestRequest(testId));
     }
 }

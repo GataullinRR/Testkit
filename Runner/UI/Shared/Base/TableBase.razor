@@ -55,8 +55,8 @@ else
         </div>
 
         <div class="row px-3">
-            <div class="col ml-auto">Shown @_shownCount of @TotalCount entries</div>
-            @if (TotalCount - _shownCount > 0)
+            <div class="col ml-auto">Shown @getCurrentItemsCount() of @TotalCount entries</div>
+            @if (TotalCount - getCurrentItemsCount() > 0)
             {
                 for (int i = 0; i < AddButtonsCount; i++)
                 {
@@ -83,8 +83,6 @@ else
         public bool ExpandLastRow { get; set; }
         public RenderFragment[] Cells { get; set; }
     }
-
-    int _shownCount;
     bool _isInitialized = false;
 
     [Parameter]
@@ -103,7 +101,7 @@ else
     public int AddButtonsCount { get; set; } = 3;
 
     [Parameter]
-    public Func<int> GetCount { get; set; }
+    public int RowsPerItem { get; set; } = 1;
 
     [Parameter]
     public RenderFragment EmptyMessage { get; set; } = @<span>There are nothing to show yet</span>;
@@ -113,13 +111,14 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        onAddAsync(0);
+
         await base.OnParametersSetAsync();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        GetCount = () => Rows?.Count ?? 0;
-        await onAddAsync(10);
+        await onAddAsync(InitialCount);
         _isInitialized = true;
 
         await base.OnInitializedAsync();
@@ -127,17 +126,21 @@ else
 
     async Task onAddAsync(int count)
     {
-        await OnAddRequestedAsync(count);
-        _shownCount = GetCount();
+        if (count != 0)
+        {
+            await OnAddRequestedAsync(count);
+        }
 
         StateHasChanged();
     }
 
     int getCount(int buttonIndex)
     {
-        var x = Math.Log(TotalCount - _shownCount);
+        var x = Math.Log(TotalCount - getCurrentItemsCount());
         var xk = x / AddButtonsCount;
 
         return Math.Exp((buttonIndex + 1) * xk).Round();
     }
+
+    int getCurrentItemsCount() => Rows.Count / RowsPerItem;
 }
