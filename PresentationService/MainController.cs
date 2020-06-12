@@ -60,6 +60,10 @@ namespace PresentationService
                     : new string[] { request.TestNameFilter };
                 lstRequest = ListTestsDataRequest.ByNameFilter(filters, request.Range, request.ReturnNotSaved, false);
             }
+            else if (request.IsByQuery)
+            {
+                lstRequest = ListTestsDataRequest.ByQuery(request.Query , request.Range, request.ReturnNotSaved, false);
+            }
             else
             {
                 throw new NotSupportedException();

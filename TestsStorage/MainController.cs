@@ -71,19 +71,48 @@ namespace TestsStorageService
                     }
                 }
             }
+            else if (request.IsByQuery)
+            {
+                if (request.Query.IsNotNullOrEmpty())
+                {
+                    var queryKeywords = request.Query
+                        .Split(" ")
+                        .Take(5)
+                        .ToArray();
+                    cases = cases
+                        .AsEnumerable()
+                        .Select(c => new
+                        {
+                            Case = c,
+                            Keywords = c.Data.KeyParameters
+                                .Select(p => p.Value)
+                                .Concat(c.TestDescription.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                                .Concat(new[] { c.TestName })
+                                .ToArray(),
+                        })
+                        .OrderByDescending(c => c.Keywords.Select(k => queryKeywords.Select(qk => k.FindAll(qk).Count() * qk.Length).Sum()).Sum() / (double)c.Keywords.Sum(k => k.Length))
+                        .Select(c => c.Case)
+                        .AsQueryable();
+                }
+            }
             else
             {
                 throw new NotSupportedException();
             }
 
-            var totalCount = await cases.CountAsync();
+
+            var totalCount = cases is Microsoft.EntityFrameworkCore.Query.Internal.IAsyncQueryProvider
+                ? await cases.CountAsync()
+                : cases.Count();
             if (request.Range != null)
             {
                 var count = (request.Range.To - request.Range.From).NegativeToZero();
                 cases = cases.Take(count);
             }
-            
-            var result = await cases.ToArrayAsync();
+
+            var result = cases is Microsoft.EntityFrameworkCore.Query.Internal.IAsyncQueryProvider
+                ? await cases.ToArrayAsync()
+                : cases.ToArray();
             if (!request.IncludeData)
             {
                 foreach (var r in result)

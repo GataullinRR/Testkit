@@ -19,8 +19,11 @@ namespace TestsStorageService.API
         public string[]? TestNameFilters { get; }
 
         public bool IsByParameters { get; }
-        public Dictionary<string, string>? TestParameters { get; set; }
-        
+        public Dictionary<string, string>? TestParameters { get; }
+
+        public bool IsByQuery { get; }
+        public string? Query { get; }
+
         [JsonConverter(typeof(IntIntervalSerializer))]
         public IntInterval Range { get; }
         public bool IncludeData { get; }
@@ -32,6 +35,7 @@ namespace TestsStorageService.API
             bool isByAuthorName, string? authorName,
             bool isByNameFilters, string[]? testNameFilters,
             bool isByParameters, Dictionary<string, string>? testParameters,
+            bool isByQuery, string? query,
             IntInterval range, bool returnNotSaved, bool includeData)
         {
             IsByIds = isByIds;
@@ -42,6 +46,8 @@ namespace TestsStorageService.API
             TestNameFilters = testNameFilters;
             IsByParameters = isByParameters;
             TestParameters = testParameters;
+            IsByQuery = isByQuery;
+            Query = query;
             Range = range;
             ReturnNotSaved = returnNotSaved;
             IncludeData = includeData;
@@ -49,19 +55,23 @@ namespace TestsStorageService.API
 
         public static ListTestsDataRequest ByIds(int[] ids, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(true, ids, false, default, false, default, false, default, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(true, ids, false, default, false, default, false, default, false, default, range, returnNotSaved, includeData);
         }
         public static ListTestsDataRequest ByAuthorName(string? authorName, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(false, default, true, authorName, false, default, false, default, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(false, default, true, authorName, false, default, false, default, false, default, range, returnNotSaved, includeData);
         }
         public static ListTestsDataRequest ByNameFilter(string[]? nameFilters, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(false, default, false, default, true, nameFilters, false, default, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(false, default, false, default, true, nameFilters, false, default, false, default, range, returnNotSaved, includeData);
         }
         public static ListTestsDataRequest ByParameters(Dictionary<string, string> testParameters, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(false, default, false, default, false, default, true, testParameters, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(false, default, false, default, false, default, true, testParameters, false, default, range, returnNotSaved, includeData);
+        }
+        public static ListTestsDataRequest ByQuery(string query, IntInterval range, bool returnNotSaved, bool includeData)
+        {
+            return new ListTestsDataRequest(false, default, false, default, false, default, false, default, true, query, range, returnNotSaved, includeData);
         }
     }
 }

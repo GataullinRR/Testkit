@@ -19,7 +19,10 @@ namespace PresentationService.API
         public string? TestNameFilter { get; }
 
         public bool IsByParameters { get; }
-        public Dictionary<string, string>? TestParameters { get; set; }
+        public Dictionary<string, string>? TestParameters { get; }
+
+        public bool IsByQuery { get; }
+        public string? Query { get; }
 
         [JsonConverter(typeof(IntIntervalSerializer))]
         public IntInterval Range { get; }
@@ -31,6 +34,7 @@ namespace PresentationService.API
             bool isByAuthorName, string? authorName,
             bool isByNameFilter, string? testNameFilter, 
             bool isByParameters, Dictionary<string, string>? testParameters, 
+            bool isByQuery, string? query, 
             IntInterval range, bool returnNotSaved)
         {
             IsByIds = isByIds;
@@ -41,25 +45,31 @@ namespace PresentationService.API
             TestNameFilter = testNameFilter;
             IsByParameters = isByParameters;
             TestParameters = testParameters;
+            IsByQuery = isByQuery;
+            Query = query;
             Range = range;
             ReturnNotSaved = returnNotSaved;
         }
 
         public static ListTestsRequest ByIdsName(int[] ids, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(true, ids, false, default, false, default, false, default, range, returnNotSaved);
+            return new ListTestsRequest(true, ids, false, default, false, default, false, default, false, default, range, returnNotSaved);
         }
         public static ListTestsRequest ByAuthorName(string? authorName, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(false, default, true, authorName, false, default, false, default, range, returnNotSaved);
+            return new ListTestsRequest(false, default, true, authorName, false, default, false, default, false, default, range, returnNotSaved);
         }
         public static ListTestsRequest ByNameFilter(string? nameFilter, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(false, default, false, default, true, nameFilter, false, default, range, returnNotSaved);
+            return new ListTestsRequest(false, default, false, default, true, nameFilter, false, default, false, default, range, returnNotSaved);
         }
         public static ListTestsRequest ByParameters(Dictionary<string, string> testParameters, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(false, default, false, default, false, default, true, testParameters, range, returnNotSaved);
+            return new ListTestsRequest(false, default, false, default, false, default, true, testParameters, false, default, range, returnNotSaved);
+        }
+        public static ListTestsRequest ByQuery(string query, IntInterval range, bool returnNotSaved)
+        {
+            return new ListTestsRequest(false, default, false, default, false, default, false, default, true, query, range, returnNotSaved);
         }
     }
 }

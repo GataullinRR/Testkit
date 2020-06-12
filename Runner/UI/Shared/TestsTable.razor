@@ -18,14 +18,38 @@
 else
 {
     <div class="col-12">
+        @if (UseQuery)
+        {
+            <div class="row mx-1 mt-2">
+                <div class="col">
+                    <input @bind-value="_query" @bind-value:event="oninput" placeholder="Enter set of space separated keywords" style="width: 100%"/>
+                </div>
+                @if (shouldApplyQuery)
+                {
+                    <div class="col">
+                        <LoadingIndicator />
+                    </div>
+                }
+            </div>
+            @if(_readyQuery.IsNotNullOrEmpty())
+            {
+                <div class="row ml-2 mt-3">
+                    <h4>Results for "@_readyQuery"</h4>
+                </div>
+            }
+        }
         <div class="table-responsive">
             <table class="table table-striped table-borderless">
                 <thead>
                     <tr>
                         <th>Last outcome</th>
                         <th>State</th>
-                        <th>Test name</th>
-                        <th>Description</th>
+                        <th>
+                            Test name
+                        </th>
+                        <th>
+                            Description
+                        </th>
                         <th>Last run</th>
                         <th>Next run</th>
                         <th>Author</th>
@@ -124,21 +148,28 @@ else
 }
 
 @code {
-        const int ADD_MORE_BUTTONS_COUNT = 3;
-        const int NUM_OF_TESTS = 10;
+    const int ADD_MORE_BUTTONS_COUNT = 3;
+    const int NUM_OF_TESTS = 10;
 
-        [Parameter]
-        public string? TestNameFilter { get; set; }
+    [Parameter]
+    public bool UseQuery { get; set; }
 
-        [Parameter]
-        public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
+    string _query = "";
+    string _readyQuery = "";
+    bool shouldApplyQuery => _query != _readyQuery;
 
-        int shownCount { get; set; }
+    [Parameter]
+    public string? TestNameFilter { get; set; }
 
-        int _totalCount;
-        readonly List<TestInfo> _tests = new List<TestInfo>();
+    [Parameter]
+    public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
 
-        bool _setting = false; // no inf loops!
+    int shownCount { get; set; }
+
+    int _totalCount;
+    readonly List<TestInfo> _tests = new List<TestInfo>();
+
+    bool _setting = false; // no inf loops!
     protected override async Task OnParametersSetAsync()
     {
         if (!_setting)
@@ -161,7 +192,9 @@ else
 
     async Task addTestsAsync(int from, int to)
     {
-        var response = await PresentationService.ListTestsAsync(ListTestsRequest.ByNameFilter(TestNameFilter, new IntInterval(from, to), false));
+        var response = UseQuery
+            ? await PresentationService.ListTestsAsync(ListTestsRequest.ByQuery(_query, new IntInterval(from, to), false))
+            : await PresentationService.ListTestsAsync(ListTestsRequest.ByNameFilter(TestNameFilter, new IntInterval(from, to), false));
 
         _totalCount = response.TotalCount;
         _tests.Clear();
@@ -182,8 +215,10 @@ else
         NavigationManager.NavigateTo(Test.BuildPath(testName));
     }
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
+        await AppInitializer.AwaitInitializedAsync();
+
         Hub.TestAddedAsync += m => rerenderAsync();
         Hub.TestCompletedAsync += m => rerenderAsync();
         Hub.TestDeletedAsync += m => rerenderAsync();
@@ -196,13 +231,31 @@ else
             }
         };
 
-        return base.OnInitializedAsync();
+        filterDaemon();
+
+        await base.OnInitializedAsync();
+    }
+
+    async void filterDaemon()
+    {
+        await ThreadingUtils.ContinueAtDedicatedThread();
+
+        while(true)
+        {
+            await Task.Delay(1000);
+
+            if (shouldApplyQuery)
+            {
+                var rQ = _query;
+                await rerenderAsync();
+                _readyQuery = rQ;
+                StateHasChanged();
+            }
+        }
     }
 
     async Task rerenderAsync()
     {
-        await AppInitializer.AwaitInitializedAsync();
-
         await addTestsAsync(0, NUM_OF_TESTS);
         shownCount = _tests?.Count() ?? 0;
 
