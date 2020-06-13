@@ -5,7 +5,7 @@
 @if (Columns == null || !_isInitialized)
 {
     <RootContainer>
-        <LoadingIndicator/>
+        <LoadingIndicator />
     </RootContainer>
 }
 else if (Rows == null || Rows.Count() == 0)
@@ -17,6 +17,27 @@ else if (Rows == null || Rows.Count() == 0)
 else
 {
     <div class="col-12">
+        @if (UseQuery)
+        {
+            <div class="row mx-1 mt-2">
+                <div class="col">
+                    <input @bind="_query" placeholder="Enter set of space separated keywords" style="width: 100%" />
+                </div>
+                @if (shouldApplyQuery)
+                {
+                    <div class="col">
+                        <LoadingIndicator />
+                    </div>
+                }
+            </div>
+            @if (_readyQuery.IsNotNullOrEmpty())
+            {
+                <div class="row ml-2 mt-3">
+                    <h4>Results for "@_readyQuery"</h4>
+                </div>
+            }
+        }
+
         <div class="table-responsive">
             <table class="table table-striped table-borderless">
                 <thead>
@@ -54,7 +75,7 @@ else
             </table>
         </div>
 
-        <div class="row px-3">
+        <div class="row px-3 mt-n1">
             <div class="col ml-auto">Shown @getCurrentItemsCount() of @TotalCount entries</div>
             @if (TotalCount - getCurrentItemsCount() > 0)
             {
@@ -85,6 +106,12 @@ else
     }
     bool _isInitialized = false;
 
+    int getCurrentItemsCount() => Rows.Count / RowsPerItem;
+
+    string _query = "";
+    string _readyQuery = "";
+    bool shouldApplyQuery => UseQuery && _query != _readyQuery;
+
     [Parameter]
     public IEnumerable<Column> Columns { get; set; }
 
@@ -104,59 +131,51 @@ else
     public int RowsPerItem { get; set; } = 1;
 
     [Parameter]
-    public RenderFragment EmptyMessage { get; set; } = @<span>There are nothing to show yet</span>;
+    public RenderFragment EmptyMessage { get; set; } =@<span>There are nothing to show yet</span>;
 
     [Parameter]
-    public Func<int, Task> OnAddRequestedAsync { get; set; } = _ => Task.CompletedTask;
+    public Func<string, int, Task> OnAddRequestedAsync { get; set; } = (_1, _2) => Task.CompletedTask;
 
-    //protected override async Task OnParametersSetAsync()
-    //{
-    //    await Browser.LogToConsoleAsync("Rerendering!");
-
-    //    await onAddAsync(0);
-
-    //    await base.OnParametersSetAsync();
-    //}
+    [Parameter]
+    public bool UseQuery { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await onAddAsync(InitialCount);
+        filterDaemon();
         _isInitialized = true;
 
         await base.OnInitializedAsync();
     }
 
-    bool _setting = false; // no inf loops!
-    protected override async Task OnParametersSetAsync()
-    {
-        //if (!_setting)
-        {
-            _setting = true;
-
-            await onAddAsync(0);
-        }
-
-        _setting = false;
-
-        await base.OnParametersSetAsync();
-    }
-
-    bool _s = false;
     async Task onAddAsync(int count)
     {
-        //if (!_s)
-        {
-            _s = true;
+        await OnAddRequestedAsync(_query ?? "", count);
+    }
 
-            if (count != 0)
+    async void filterDaemon()
+    {
+        await ThreadingUtils.ContinueAtDedicatedThread();
+
+        while (true)
+        {
+            await Task.Delay(1000);
+
+            try
             {
-                await OnAddRequestedAsync(count);
+                if (shouldApplyQuery)
+                {
+                    var rQ = _query;
+                    await onAddAsync(0);
+                    _readyQuery = rQ;
+                    StateHasChanged();
+                }
+            }
+            catch
+            {
+
             }
         }
-
-        _s = false;
-
-        //StateHasChanged();
     }
 
     int getCount(int buttonIndex)
@@ -166,6 +185,4 @@ else
 
         return Math.Exp((buttonIndex + 1) * xk).Round();
     }
-
-    int getCurrentItemsCount() => Rows.Count / RowsPerItem;
 }

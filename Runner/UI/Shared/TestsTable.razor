@@ -276,14 +276,21 @@ else
 
         while(true)
         {
-            await Task.Delay(1000);
+            await Task.Delay(500);
 
-            if (shouldApplyQuery)
+            try
             {
-                var rQ = _query;
-                await rerenderAsync();
-                _readyQuery = rQ;
-                StateHasChanged();
+                if (shouldApplyQuery)
+                {
+                    var rQ = _query;
+                    await rerenderAsync();
+                    _readyQuery = rQ;
+                    StateHasChanged();
+                }
+            }
+            catch
+            {
+
             }
         }
     }

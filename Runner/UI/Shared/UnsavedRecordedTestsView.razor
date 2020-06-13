@@ -3,12 +3,9 @@
 @inject IMessageService MessageService;
 @inject IWebMessageHub Hub;
 
-<TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" RowsPerItem="2" OnAddRequestedAsync="addAsync"  />
+<TableBase Columns="_columns" Rows="_rows" TotalCount="_totalCount" RowsPerItem="2" InitialCount="6" UseQuery="true" OnAddRequestedAsync="addAsync"  />
 
 @code {
-    [Parameter]
-    public Dictionary<string, string> Parameters { get; set; }
-
     List<TableBase.Column> _columns = new List<TableBase.Column>();
 
     List<TableBase.Row> _rows = new List<TableBase.Row>();
@@ -25,27 +22,32 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await rerenderAsync();
+        //await rerenderAsync();
 
         await base.OnParametersSetAsync();
     }
 
     protected override Task OnInitializedAsync()
     {
-        Hub.TestDeletedAsync += m => rerenderAsync();
-        Hub.TestRecordedAsync += m => rerenderAsync();
-        Hub.TestAddedAsync += m => rerenderAsync();
+        Hub.TestDeletedAsync += m => softRerenderAsync();
+        Hub.TestRecordedAsync += m => softRerenderAsync();
+        Hub.TestAddedAsync += m => softRerenderAsync();
+
+        rerenderDaemon();
 
         return base.OnInitializedAsync();
     }
 
-    async Task addAsync(int count)
+    string _lastQuery = "";
+    async Task addAsync(string? query, int count)
     {
+        query = query ?? _lastQuery;
+        _lastQuery = query;
         var newCount = _rows.Count / 2 + count;
         _rows = new List<TableBase.Row>();
         _columns = new List<TableBase.Column>();
 
-        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByParameters(Parameters, new IntInterval(0, newCount), true));
+        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByQuery(query, new IntInterval(0, newCount), true));
         _totalCount = response.TotalCount;
         _rows.Clear();
         _columns.Clear();
@@ -110,16 +112,35 @@
 
     async Task rerenderAsync()
     {
-        if (_rows.Count < 20)
+        if (_rows.Count < 12)
         {
-            await addAsync(10 - _rows.Count / 2);
+            await addAsync(null, 6 - _rows.Count / 2);
         }
         else
         {
-            await addAsync(0);
+            await addAsync(null, 0);
         }
+    }
 
-        StateHasChanged();
+    bool _rerenderingRequired = false;
+    async void rerenderDaemon()
+    {
+        await ThreadingUtils.ContinueAtDedicatedThread();
+
+        while (true)
+        {
+            await Task.Delay(2000);
+
+            if (_rerenderingRequired)
+            {
+                _rerenderingRequired = false;
+                await rerenderAsync();
+            }
+        }
+    }
+    async Task softRerenderAsync()
+    {
+        _rerenderingRequired = true;
     }
 
     async Task saveTestAsync(int testId, TestSaveModel saveModel, TableBase.Row row)

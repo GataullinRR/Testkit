@@ -73,7 +73,7 @@ namespace TestsStorageService
             }
             else if (request.IsByQuery)
             {
-                if (request.Query.IsNotNullOrEmpty())
+                if (request.Query.IsNotNullOrEmpty() && request.Query.IsNotNullOrWhiteSpace())
                 {
                     var queryKeywords = request.Query
                         .Split(' ', StringSplitOptions.RemoveEmptyEntries)

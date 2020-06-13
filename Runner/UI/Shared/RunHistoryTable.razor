@@ -3,7 +3,7 @@
 @inject IWebMessageHub Hub;
 @inject Microsoft.Extensions.Logging.ILogger<RunHistoryTable> Logger;
 
-<TableBase Columns="_columns" Rows="_rows" RowsPerItem="2" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" InitialCount="3" />
+<TableBase Columns="_columns" Rows="_rows" RowsPerItem="2" TotalCount="_totalCount" OnAddRequestedAsync="async (q, c) => await addMoreAsync(c)" EmptyMessage="_emptyMessage" InitialCount="3" />
 
 @code {
     readonly TableBase.Column[] _columns = new TableBase.Column[]
