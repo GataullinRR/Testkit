@@ -11,14 +11,18 @@ using Utilities;
 using System;
 using System.Diagnostics;
 using Utilities.Types;
+using MessageHub;
+using TestsStorageService.API;
 
 namespace RunnerService
 {
-    class StateCleaner : IHostedService
+    class RunStateUpdateDaemon : IHostedService
     {
         [Inject] public IServiceScopeFactory ScopeFactory { get; set; }
+        [Inject] public IMessageProducer Producer { get; set; }
+        [Inject] public ITestsStorageService Storage { get; set; }
 
-        public StateCleaner(IDependencyResolver di)
+        public RunStateUpdateDaemon(IDependencyResolver di)
         {
             di.ResolveProperties(this);
         }
@@ -39,29 +43,28 @@ namespace RunnerService
                     using var scope = ScopeFactory.CreateScope();
                     var db = scope.ServiceProvider.GetRequiredService<RunnerContext>();
 
-                    var hang = await db.RunResults
-                        .IncludeGroup(EntityGroups.ALL, db)
+                    var toUpdate = await db.RunResults
                         .AsNoTracking()
+                        .IncludeGroup(API.Models.EntityGroups.ALL, db)
+                        .Where(r => !r.ResultBase.State.IsFinal && r.ResultBase.State.NextStateUpdate != null && r.ResultBase.State.NextStateUpdate.Value < DateTime.UtcNow)
                         .ToArrayAsync();
-                    hang = hang
-                        .Where(d => d.ResultBase.Result == API.Models.RunResult.Running 
-                            && DateTime.UtcNow - d.ResultBase.StartTime > TimeSpan.FromMinutes(3))
-                        .ToArray();
-                    db.RunResults.RemoveRange(hang);
-                    await db.SaveChangesAsync();
+                    foreach (var r in toUpdate)
+                    {
+                        Producer.FireUpdateTestResultState(new UpdateTestResultStateMessage(r.ResultBase.TestId, r.Id, r.ResultBase.SourceId, r.ResultBase.State));
+                    }
                 }
                 catch (Exception ex)
                 {
                     Debugger.Break();
                 }
 
-                await Task.Delay(60 * 1000);
+                await Task.Delay(10 * 1000);
             }
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-
+            
         }
     }
 }

@@ -26,6 +26,24 @@ namespace RunnerService
             MessageConsumer.TestCompletedOnSourceAsync += MessageConsumer_TestCompletedOnSourceAsync;
             MessageConsumer.TestDeletedAsync += MessageConsumer_TestDeletedAsync;
             MessageConsumer.CancelTestAsync += MessageConsumer_CancelTestAsync;
+            MessageConsumer.TestResultStateAcquiredAsync += MessageConsumer_TestResultStateAcquiredAsync;
+        }
+
+        async Task MessageConsumer_TestResultStateAcquiredAsync(TestResultStateAcquiredMessage arg)
+        {
+            using var scope = ScopeFactory.CreateScope();
+            using var db = scope.ServiceProvider.GetRequiredService<RunnerContext>();
+
+            var rr = db.RunResults
+                .IncludeGroup(API.Models.EntityGroups.ALL, db)
+                .FirstOrDefault(r => r.Id == arg.ResultId);
+            if (rr != null)
+            {
+                rr.ResultBase.State = arg.NewState;
+                await db.SaveChangesAsync();
+
+                MessageProducer.FireTestResultStateUpdated(new TestResultStateUpdatedMessage(rr.ResultBase.TestId, arg.ResultId, arg.NewState));
+            }
         }
 
         async Task MessageConsumer_CancelTestAsync(CancelTestMessage arg)
@@ -68,7 +86,7 @@ namespace RunnerService
             using var db = sp.GetRequiredService<RunnerContext>();
 
             var runInfo = await db.TestRuns
-                .IncludeGroup(EntityGroups.ALL, db)
+                .IncludeGroup(API.Models.EntityGroups.ALL, db)
                 .FirstOrDefaultAsync(r => r.TestId == r.TestId || r.TestName == arg.TestName);
             if (runInfo != null)
             {
@@ -83,7 +101,7 @@ namespace RunnerService
             using var db = scope.ServiceProvider.GetRequiredService<RunnerContext>();
 
             var runInfo = await db.TestRuns
-                .IncludeGroup(EntityGroups.ALL, db)
+                .IncludeGroup(API.Models.EntityGroups.ALL, db)
                 .FirstAsync(r => r.TestId == arg.TestId);
             var result = runInfo.Results
                 .FirstOrDefault(r => r.Id == arg.ResultId);

@@ -25,6 +25,10 @@ namespace MessageHub
         readonly IProducer<Null, TestCancelledMessage> _testCancelledProducer;
         readonly IProducer<Null, CancelTestMessage> _cancelTestProducer;
 
+        readonly IProducer<Null, UpdateTestResultStateMessage> _updateTestResultStateProducer;
+        readonly IProducer<Null, TestResultStateAcquiredMessage> _testResultStateAcquiredProducer;
+        readonly IProducer<Null, TestResultStateUpdatedMessage> _testResultStateUpdatedProducer;
+
         public MessageProducer(ILogger<MessageProducer> logger, JsonSerializerSettings serializerSettings)
         {
             _logger = logger;
@@ -42,6 +46,10 @@ namespace MessageHub
             _testRecordedProducer = new ProducerBuilder<Null, TestRecordedMessage>(conf).Build(serializerSettings);
             _testCancelledProducer = new ProducerBuilder<Null, TestCancelledMessage>(conf).Build(serializerSettings);
             _cancelTestProducer = new ProducerBuilder<Null, CancelTestMessage>(conf).Build(serializerSettings);
+
+            _updateTestResultStateProducer = new ProducerBuilder<Null, UpdateTestResultStateMessage>(conf).Build(serializerSettings);
+            _testResultStateAcquiredProducer = new ProducerBuilder<Null, TestResultStateAcquiredMessage>(conf).Build(serializerSettings);
+            _testResultStateUpdatedProducer = new ProducerBuilder<Null, TestResultStateUpdatedMessage>(conf).Build(serializerSettings);
         }
 
         public void FireTestExecuted(TestExecutedMessage args)
@@ -102,6 +110,21 @@ namespace MessageHub
         public void FireTestCancelled(TestCancelledMessage args)
         {
             _testCancelledProducer.Produce(_options.TestCancelledTopic, new Message<Null, TestCancelledMessage> { Value = args });
+        }
+
+        public void FireUpdateTestResultState(UpdateTestResultStateMessage args)
+        {
+            _updateTestResultStateProducer.Produce(args.GetType().Name, new Message<Null, UpdateTestResultStateMessage> { Value = args });
+        }
+
+        public void FireTestResultStateAcquired(TestResultStateAcquiredMessage args)
+        {
+            _testResultStateAcquiredProducer.Produce(args.GetType().Name, new Message<Null, TestResultStateAcquiredMessage> { Value = args });
+        }
+
+        public void FireTestResultStateUpdated(TestResultStateUpdatedMessage args)
+        {
+            _testResultStateUpdatedProducer.Produce(args.GetType().Name, new Message<Null, TestResultStateUpdatedMessage> { Value = args });
         }
     }
 }

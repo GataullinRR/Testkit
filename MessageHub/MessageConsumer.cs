@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 using System.Reflection;
 using Microsoft.Extensions.Options;
 using System.Threading;
+using System.Linq;
+using Namotion.Reflection;
 
 namespace MessageHub
 {
@@ -29,6 +31,10 @@ namespace MessageHub
         public event Func<TestRecordedMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
         public event Func<CancelTestMessage, Task> CancelTestAsync = m => Task.CompletedTask;
         public event Func<TestCancelledMessage, Task> TestCancelledAsync = m => Task.CompletedTask;
+
+        public event Func<UpdateTestResultStateMessage, Task> UpdateTestResultAsync = m => Task.CompletedTask;
+        public event Func<TestResultStateAcquiredMessage, Task> TestResultStateAcquiredAsync = m => Task.CompletedTask;
+        public event Func<TestResultStateUpdatedMessage, Task> TestResultStateUpdatedAsync = m => Task.CompletedTask;
 
         public MessageConsumer(ILogger<MessageConsumer> logger, JsonSerializerSettings serializerSettings, MessageHubOptions options, 
             IOptions<MessageConsumerOptions> consumerOptions)
@@ -75,11 +81,16 @@ namespace MessageHub
 
             startConsumeDaemon<CancelTestMessage>(conf, serializerSettings, options.CancelTestTopic, m => CancelTestAsync.InvokeAndWaitAsync(m));
             startConsumeDaemon<TestCancelledMessage>(conf, serializerSettings, options.TestCancelledTopic, m => TestCancelledAsync.InvokeAndWaitAsync(m));
+            
+            startConsumeDaemon<UpdateTestResultStateMessage>(conf, serializerSettings, null, m => UpdateTestResultAsync.InvokeAndWaitAsync(m));
+            startConsumeDaemon<TestResultStateAcquiredMessage>(conf, serializerSettings, null, m => TestResultStateAcquiredAsync.InvokeAndWaitAsync(m));
+            startConsumeDaemon<TestResultStateUpdatedMessage>(conf, serializerSettings, null, m => TestResultStateUpdatedAsync.InvokeAndWaitAsync(m));
         }
 
-        async void startConsumeDaemon<TMessage>(ConsumerConfig config, JsonSerializerSettings serializerSettings, string topic, Func<TMessage, Task> fireEventAsync) 
+        async void startConsumeDaemon<TMessage>(ConsumerConfig config, JsonSerializerSettings serializerSettings, string? topic, Func<TMessage, Task> fireEventAsync) 
             where TMessage : class
         {
+            topic = topic ?? typeof(TMessage).Name;//.Split(".").TakeFromEnd(1).Single().Where(char.IsLetterOrDigit).Aggregate();
             var testExecuted = new ConsumerBuilder<Ignore, TMessage>(config).Build(serializerSettings);
             consumeDaemon(testExecuted, topic, fireEventAsync);
         }
@@ -101,8 +112,6 @@ namespace MessageHub
                 catch (Exception e)
                 {
                     _logger.LogError(e, $"Error occured");
-
-                    Debugger.Break();
                 }
             }
         }

@@ -8,7 +8,7 @@
     readonly TableBase.Column[] _columns = new TableBase.Column[]
     {
         new TableBase.Column() { Name = "Outcome" },
-        new TableBase.Column() { Name = "Duration" },
+        new TableBase.Column() { Name = "Information" },
         new TableBase.Column() { Name = "Test name" },
         new TableBase.Column() { Name = "Run date" },
         new TableBase.Column() { Name = "Started by" },
@@ -39,6 +39,13 @@
         };
         Hub.TestDeletedAsync += m => rerenderAsync();
         Hub.TestBegunAsync += m => rerenderAsync();
+        Hub.EntryChangedAsync += async m =>
+        {
+            if (m is TestResultChangedWebMessage trc)
+            {
+                await rerenderAsync();
+            }
+        };
 
         await base.OnInitializedAsync();
     }
@@ -71,8 +78,8 @@
             {
                 Cells = new RenderFragment[]
                 {
-                    @<span>@result.Result</span>,
-                    @<span>@result.Duration.TotalSeconds.ToString("F1") secouns</span>,
+                    @<span>@($"{result.Result} in {result.Duration.TotalSeconds.ToString("F1")}s")</span>,
+                    @<span>@result.State.State</span>,
                     @<TestReferenceButton TestName="@result.TestName" />,
                     @<span>@result.StartTime.ToLocalTime().ToString("hh:mm dd.MM.yyy")</span>,
                     @<UserProfileButton UserName="@result.StartedByUser" />

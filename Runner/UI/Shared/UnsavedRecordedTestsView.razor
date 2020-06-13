@@ -88,7 +88,6 @@
                         <FormValidator/>
 
                         <FormButton Name="Save" IsSubmit="true" OnClick="async () => await saveTestAsync(test.TestId, saveModel, _rows[rowIndex])"/>
-                        <FormButton Name="Discard" Type="@FormButton.ButtonType.Danger" OnClick="async () => await discardTestAsync(test.TestId, saveModel, _rows[rowIndex])"/>
                     </FormTemplate>);
             _rows.Add(new TableBase.Row()
             {
@@ -129,13 +128,5 @@
         StateHasChanged();
 
         await PresentationService.SaveRecordedTestAsync(new SaveRecordedTestRequest(testId, saveModel.TestName, saveModel.TestDescription));
-    }
-
-    async Task discardTestAsync(int testId, TestSaveModel saveModel, TableBase.Row row)
-    {
-        row.IsDisabled = true;
-        StateHasChanged();
-        
-        await PresentationService.DeleteTestAsync(new DeleteTestRequest(testId));
     }
 }

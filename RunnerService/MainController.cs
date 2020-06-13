@@ -59,7 +59,7 @@ namespace RunnerService
                         TestId = testFromStorge.TestId,
                         Results = new List<Result>(),
                         RunPlan = new ManualRunPlan(),
-                        TestName = testFromStorge.TestName
+                        TestName = testFromStorge.TestName,
                     });
 
                     await Db.TestRuns.AddAsync(tests.LastElement());
@@ -77,6 +77,7 @@ namespace RunnerService
                         StartedByUser = request.UserName,
                         TestId = test.TestId,
                         TestName = test.TestName,
+                        State = new StateInfo("", null, false)
                     }
                 };
                 test.Results.Add(result);

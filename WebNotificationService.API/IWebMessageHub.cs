@@ -11,5 +11,6 @@ namespace WebNotificationService.API
         event Func<TestCancelledWebMessage, Task> TestCancelledAsync;
         event Func<TestCompletedWebMessage, Task> TestCompletedAsync;
         event Func<TestRecordedWebMessage, Task> TestRecordedAsync;
+        event Func<EntryChangedWebMessageBase, Task> EntryChangedAsync;
     }
 }

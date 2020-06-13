@@ -24,9 +24,6 @@ namespace RunnerService.Db
                 .UseIdentityColumn();
             builder.Entity<StateBase>()
                 .HasKey("_Id");
-            //builder.Entity<StateBase>()
-            //    .Property(s => s.State)
-            //    .UsePropertyAccessMode(PropertyAccessMode.Field);
             builder.Entity<StateBase>()
                 .HasDiscriminator(r => r.State)
                 .HasValue<ReadyState>(State.Ready)
@@ -35,17 +32,6 @@ namespace RunnerService.Db
 
             builder.Entity<Result>()
                .HasOne(r => r.ResultBase);
-            //builder.Entity<RunResultBase>()
-            //    .Property<int>("_Id")
-            //    .UseIdentityColumn();
-            //builder.Entity<RunResultBase>()
-            //    .HasKey("_Id");
-
-            //builder.Entity<Result>()
-            //    .HasOne<RunResultBase>();
-            //builder.Entity<RunResultBase>()
-            //    .Property(r => r.Result)
-            //    .UsePropertyAccessMode(PropertyAccessMode.Field);
             builder.Entity<RunResultBase>()
                 .HasDiscriminator(r => r.Result)
                 .HasValue<PassedResult>(RunResult.Passed)
@@ -63,6 +49,12 @@ namespace RunnerService.Db
                 .HasDiscriminator(r => r.RunPlan)
                 .HasValue<ManualRunPlan>(RunPlan.Manual)
                 .HasValue<PeriodicRunPlan>(RunPlan.Periodic);
+
+            builder.Entity<StateInfo>()
+                .Property<int>("_Id")
+                .UseIdentityColumn();
+            builder.Entity<StateInfo>()
+                .HasKey("_Id");
 
             base.OnModelCreating(builder);
         }

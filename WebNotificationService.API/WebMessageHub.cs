@@ -23,6 +23,7 @@ namespace WebNotificationService.API
         public event Func<TestBegunWebMessage, Task> TestBegunAsync = m => Task.CompletedTask;
         public event Func<TestRecordedWebMessage, Task> TestRecordedAsync = m => Task.CompletedTask;
         public event Func<TestCancelledWebMessage, Task> TestCancelledAsync = m => Task.CompletedTask;
+        public event Func<EntryChangedWebMessageBase, Task> EntryChangedAsync = m => Task.CompletedTask;
 
         [Inject] public IWebMessageHubConnectionProvider ConnectionProvider { get; set; }
 
@@ -60,6 +61,11 @@ namespace WebNotificationService.API
                 ConnectionProvider.Connection.On<TestCancelledWebMessage>("TestCancelled", async (message) =>
                 {
                     await TestCancelledAsync.InvokeAndWaitAsync(message);
+                }),
+
+                ConnectionProvider.Connection.On<EntryChangedWebMessageBase>("EntryChanged", async (message) =>
+                {
+                    await EntryChangedAsync.InvokeAndWaitAsync(message);
                 })
             };
         }

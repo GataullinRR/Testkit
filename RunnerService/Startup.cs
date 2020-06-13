@@ -40,7 +40,8 @@ namespace RunnerService
                         options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
                     });
 
-            services.AddHostedService<StateCleaner>();
+            services.AddHostedService<StateCleanerDaemon>();
+            services.AddHostedService<RunStateUpdateDaemon>();
 
             services.AddGrpc();
             services.AddNecessaryFeatures();

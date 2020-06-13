@@ -33,6 +33,12 @@ namespace WebNotificationService
             MessageConsumer.BeginTestAsync += MessageConsumer_BeginTestAsync;
             MessageConsumer.TestRecordedAsync += MessageConsumer_TestRecordedAsync;
             MessageConsumer.TestCancelledAsync += MessageConsumer_TestCancelledAsync;
+            MessageConsumer.TestResultStateUpdatedAsync += MessageConsumer_TestResultStateUpdatedAsync;
+        }
+
+        async Task MessageConsumer_TestResultStateUpdatedAsync(TestResultStateUpdatedMessage arg)
+        {
+            await Hub.Clients.All.EntryChanged(new TestResultChangedWebMessage(arg.TestId, arg.ResultId, Change.Modified));
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
