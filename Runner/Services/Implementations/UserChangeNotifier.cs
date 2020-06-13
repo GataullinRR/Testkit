@@ -14,6 +14,7 @@ namespace Runner
 
         public event Func<Task> ProfileChangedAsync = () => Task.CompletedTask;
         public event Func<Task> AuthStateChangedAsync = () => Task.CompletedTask;
+        public event Func<Task> IdentityChangedAsync = () => Task.CompletedTask;
 
         public UserChangeNotifier(IDependencyResolver di)
         {
@@ -32,6 +33,13 @@ namespace Runner
             await Browser.LogToConsoleAsync("ProfileChangedAsync");
 
             await ProfileChangedAsync.InvokeAndWaitAsync();
+        }
+
+        public async Task FireIdentityChangedAsync()
+        {
+            await Browser.LogToConsoleAsync("IdentityChanged");
+
+            await IdentityChangedAsync.InvokeAndWaitAsync();
         }
     }
 }

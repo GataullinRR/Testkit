@@ -5,6 +5,9 @@ using AutoMapper;
 using UserService.API;
 using Utilities.Types;
 using Microsoft.AspNetCore.Components;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 
 namespace Runner
 {
@@ -14,19 +17,31 @@ namespace Runner
         [Inject] public IUserService UserService { get; set; }
         [Inject] public ICookieStorage Cookies { get; set; }
         [Inject] public Browser Browser { get; set; }
+        [Inject] public IUserChangeNotifier UserChangeNotifier { get; set; }
 
         public Identity Identity { get; private set; } = new Identity();
 
-        public IdentityContext(IDependencyResolver di, 
-            IUserChangeNotifier userChangeNotifier)
+        public IdentityContext(IDependencyResolver di)
         {
             di.ResolveProperties(this);
 
-            userChangeNotifier.ProfileChangedAsync += reloadIdentityAsync;
-            userChangeNotifier.AuthStateChangedAsync += reloadIdentityAsync;
+            UserChangeNotifier.ProfileChangedAsync += LoadAsync;
+            UserChangeNotifier.AuthStateChangedAsync += LoadAsync;
+
+            //var jwt = Cookies.Get(Constants.AUTH_TOKEN_COOKIE);
+            //if (jwt != null)
+            //{
+            //    var handler = new JwtSecurityTokenHandler();
+            //    var token = handler.ReadJwtToken(jwt);
+            //    var u = new GetUserInfoResponse(
+            //        token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value,
+            //        token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value,
+            //        token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.MobilePhone).Value);
+            //    Identity = new Identity(true, u);
+            //}
         }
 
-        async Task reloadIdentityAsync()
+        public async Task LoadAsync()
         {
             await Browser.LogToConsoleAsync("Reloading identity...");
 
@@ -41,6 +56,8 @@ namespace Runner
                 var response = await UserService.GetUserInfoAsync(request);
                 Identity = new Identity(true, response);
             }
+
+            await UserChangeNotifier.FireIdentityChangedAsync();
         }
     }
 }

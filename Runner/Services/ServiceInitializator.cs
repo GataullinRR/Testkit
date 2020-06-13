@@ -11,6 +11,7 @@ namespace Runner
     {
         Task _initializationTask;
         [Inject] public SingletonInitializationService InitializationService { get; set; }
+        [Inject] public IIdentityContext IdentityContext { get; set; }
 
         public ServiceInitializator(IDependencyResolver di)
         {
@@ -20,7 +21,7 @@ namespace Runner
         public async Task BeginInitializationAsync(IServiceProvider serviceProvider)
         {
             _initializationTask = InitializationService.InitializeAsync(serviceProvider);
-
+            await IdentityContext.LoadAsync();
             await AwaitInitializedAsync();
         }
 

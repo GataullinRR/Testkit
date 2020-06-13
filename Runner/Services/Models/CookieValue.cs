@@ -16,6 +16,7 @@ namespace Runner
 
         public string Value { get; }
         public DateTime ExpireAt { get; }
+        public TimeSpan ExpiresAfter => ExpireAt.Subtract(DateTime.UtcNow);
 
         public CookieValue(string value) : this(value, TimeSpan.FromDays(365))
         {
@@ -25,6 +26,11 @@ namespace Runner
         {
             Value = value;
             ExpireAt = DateTime.UtcNow.Add(duration);
+        }
+        public CookieValue(string value, DateTime expireAt)
+        {
+            Value = value;
+            ExpireAt = expireAt;
         }
     }
 }
