@@ -8,16 +8,33 @@
         <span class="d-block" @onclick="() => onParametersExpanderClickAsync()">@Name (click to collapse/expand)</span>
     }
     <div class="@_parametersContainerClass">
-        @ChildContent
+        @_content
     </div>
 </div>
 
 @code {
+    RenderFragment _cache = null;
+    RenderFragment _content = @<span></span>;
+
     async Task onParametersExpanderClickAsync()
     {
         _parametersContainerClass = _parametersContainerClass == "d-none"
             ? ""
             : "d-none";
+        if (_parametersContainerClass == "")
+        {
+            if (_cache == null)
+            {
+                _cache = ContentProvider();
+            }
+            _content = _cache;
+        }
+        else
+        {
+            _content = @<span></span>;
+        }
+
+        StateHasChanged();
     }
 
     string _parametersContainerClass = "d-none";
@@ -27,6 +44,17 @@
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public Func<RenderFragment> ContentProvider { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (ContentProvider == null)
+        { 
+            ContentProvider = () => ChildContent;
+        }
+    }
 
     [Parameter]
     public bool IsFirstLevel { get; set; } = true;

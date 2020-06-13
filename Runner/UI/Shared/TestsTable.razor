@@ -126,6 +126,15 @@ else
                                 }
                             </td>
                         </tr>
+
+                        @if (ShowParameters)
+                        {
+                            <tr>
+                                <td colspan="99">
+                                    <ParametersView Name="Recorded parameters" Parameters="global::SharedT.Types.NodeParameter.TryDeserialize(test.Target.Parameters)" />
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
@@ -163,6 +172,9 @@ else
 
     [Parameter]
     public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
+
+    [Parameter]
+    public bool ShowParameters { get; set; }
 
     int shownCount { get; set; }
 
@@ -219,21 +231,43 @@ else
     {
         await AppInitializer.AwaitInitializedAsync();
 
-        Hub.TestAddedAsync += m => rerenderAsync();
-        Hub.TestCompletedAsync += m => rerenderAsync();
-        Hub.TestDeletedAsync += m => rerenderAsync();
-        Hub.TestBegunAsync += m => rerenderAsync();
+        Hub.TestAddedAsync += m => softRerenderAsync();
+        Hub.TestCompletedAsync += m => softRerenderAsync();
+        Hub.TestDeletedAsync += m => softRerenderAsync();
+        Hub.TestBegunAsync += m => softRerenderAsync();
         Hub.TestCancelledAsync += async m =>
         {
             if (_tests.Any(t => t.TestId == m.TestId))
             {
-                await rerenderAsync();
+                await softRerenderAsync();
             }
         };
 
         filterDaemon();
+        rerenderDaemon();
 
         await base.OnInitializedAsync();
+    }
+
+    bool _rerenderingRequired = false;
+    async void rerenderDaemon()
+    {
+        await ThreadingUtils.ContinueAtDedicatedThread();
+
+        while (true)
+        {
+            await Task.Delay(3000);
+
+            if (_rerenderingRequired)
+            {
+                _rerenderingRequired = false;
+                await rerenderAsync();
+            }
+        }
+    }
+    async Task softRerenderAsync()
+    {
+        _rerenderingRequired = true;
     }
 
     async void filterDaemon()

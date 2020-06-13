@@ -1,0 +1,9 @@
+﻿@foreach (var f in Lines)
+{
+    @f
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<RenderFragment> Lines { get; set; }
+}

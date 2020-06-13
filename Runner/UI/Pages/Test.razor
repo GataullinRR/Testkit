@@ -11,17 +11,13 @@
         <span> | </span>
         <DeleteTestButton TestNameFilter="@TestNameFilter" />
     </h3>
-
-    <div class="ml-3 mt-2">
-        <h4>Tests</h4>
-    </div>
 </div>
 
-<TestsTable TestNameFilter="@TestNameFilter" OnTestsUpdatedAsync="onTestsLoadedAsync" />
+<TestsTable TestNameFilter="@TestNameFilter" ShowParameters="true" />
 
-<h4 class="ml-3 mt-3">Run history</h4>
+<h3 class="ml-4 mt-5">Run history</h3>
 
-<RunHistoryTable TestNameFilter="@TestNameFilter" />
+<RunHistoryTable TestNameFilter="@TestNameFilter"/>
 
 @code {
     public static string BuildPath(string testNameFilter)
@@ -31,18 +27,4 @@
 
     [Parameter]
     public string TestNameFilter { get; set; }
-
-    string? _parameters = null;
-
-    async Task onTestsLoadedAsync(IList<TestInfo> tests)
-    {
-        if (tests.Count == 1)
-        {
-            _parameters = tests.Single().Target.Parameters;
-        }
-        else
-        {
-            _parameters = null;
-        }
-    }
 }

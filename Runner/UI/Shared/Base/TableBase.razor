@@ -109,12 +109,14 @@ else
     [Parameter]
     public Func<int, Task> OnAddRequestedAsync { get; set; } = _ => Task.CompletedTask;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        onAddAsync(0);
+    //protected override async Task OnParametersSetAsync()
+    //{
+    //    await Browser.LogToConsoleAsync("Rerendering!");
 
-        await base.OnParametersSetAsync();
-    }
+    //    await onAddAsync(0);
+
+    //    await base.OnParametersSetAsync();
+    //}
 
     protected override async Task OnInitializedAsync()
     {
@@ -124,14 +126,37 @@ else
         await base.OnInitializedAsync();
     }
 
-    async Task onAddAsync(int count)
+    bool _setting = false; // no inf loops!
+    protected override async Task OnParametersSetAsync()
     {
-        if (count != 0)
+        //if (!_setting)
         {
-            await OnAddRequestedAsync(count);
+            _setting = true;
+
+            await onAddAsync(0);
         }
 
-        StateHasChanged();
+        _setting = false;
+
+        await base.OnParametersSetAsync();
+    }
+
+    bool _s = false;
+    async Task onAddAsync(int count)
+    {
+        //if (!_s)
+        {
+            _s = true;
+
+            if (count != 0)
+            {
+                await OnAddRequestedAsync(count);
+            }
+        }
+
+        _s = false;
+
+        //StateHasChanged();
     }
 
     int getCount(int buttonIndex)

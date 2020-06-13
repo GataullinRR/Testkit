@@ -1,8 +1,9 @@
 ﻿@using global::SharedT.Types;
 @inject IPresentationService PresentationService;
 @inject IWebMessageHub Hub;
+@inject Microsoft.Extensions.Logging.ILogger<RunHistoryTable> Logger;
 
-<TableBase Columns="_columns" Rows="_rows" RowsPerItem="2" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" />
+<TableBase Columns="_columns" Rows="_rows" RowsPerItem="2" TotalCount="_totalCount" OnAddRequestedAsync="addMoreAsync" EmptyMessage="_emptyMessage" InitialCount="3" />
 
 @code {
     readonly TableBase.Column[] _columns = new TableBase.Column[]
@@ -15,7 +16,6 @@
     };
     List<TableBase.Row> _rows = new List<TableBase.Row>();
     int _totalCount = 0;
-    int _testsToShow = 0;
     RenderFragment _emptyMessage = @<span>There are nothing to show yet :/ Run test to see the results</span>;
 
     [Parameter]
@@ -27,48 +27,69 @@
         {
             if (m.TestName.StartsWith(TestNameFilter))
             {
-                await rerenderAsync();
+                await softRerenderAsync();
             }
         };
         Hub.TestCancelledAsync += async m =>
         {
             if (m.TestName.StartsWith(TestNameFilter))
             {
-                await rerenderAsync();
+                await softRerenderAsync();
             }
         };
-        Hub.TestDeletedAsync += m => rerenderAsync();
-        Hub.TestBegunAsync += m => rerenderAsync();
+        Hub.TestDeletedAsync += m => softRerenderAsync();
+        Hub.TestBegunAsync += m => softRerenderAsync();
         Hub.EntryChangedAsync += async m =>
         {
             if (m is TestResultChangedWebMessage trc)
             {
-                await rerenderAsync();
+                await softRerenderAsync();
             }
         };
+
+        rerenderDaemon();
 
         await base.OnInitializedAsync();
     }
 
-    protected override async Task OnParametersSetAsync()
+    bool _rerenderingRequired = false;
+    async void rerenderDaemon()
     {
-        await rerenderAsync();
+        await ThreadingUtils.ContinueAtDedicatedThread();
 
-        await base.OnParametersSetAsync();
+        while (true)
+        {
+            await Task.Delay(3000);
+
+            if (_rerenderingRequired)
+            {
+                _rerenderingRequired = false;
+                await rerenderAsync();
+            }
+        }
     }
+    async Task softRerenderAsync()
+    {
+        _rerenderingRequired = true;
+    }
+
+    //protected override async Task OnParametersSetAsync()
+    //{
+    //    await rerenderAsync();
+
+    //    await base.OnParametersSetAsync();
+    //}
 
     async Task rerenderAsync()
     {
         await addMoreAsync(0);
-
-        StateHasChanged();
+        //StateHasChanged();
     }
 
     async Task addMoreAsync(int count)
     {
-        _testsToShow = _rows.Count + count;
-        var response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestNameFilter.ToSequence().ToArray(), _testsToShow));
-
+        var newCnt = (_rows.Count / 2) + count;
+        var response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestNameFilter.ToSequence().ToArray(), newCnt));
         _totalCount = response.TotalCount;
         _rows.Clear();
 
@@ -99,13 +120,35 @@
                 IsFullRowWide = true,
                 Cells = new RenderFragment[]
                 {
-                    @<Expander Name="Log">
+                    @<div>
                         <div><ParametersDifferenceView Differences="@differences" /></div>
                         <div><ParametersView Parameters="@NodeParameter.TryDeserialize(result.ActualParameters)" Name="Actual parameters" /></div>
-                        <div><ParametersView Parameters="@NodeParameter.TryDeserialize(result.ExpectedParameters)" Name="Expected parameters" /></div>
-                    </Expander>
+                    </div>
                 }
             });
+
+            @*IEnumerable<global::SharedT.Types.Difference> differences = null;
+            if (result.ActualParameters != null && result.ExpectedParameters != null)
+            {
+                var actual = NodeParameter.TryDeserialize(result.ActualParameters);
+                var expected = NodeParameter.TryDeserialize(result.ExpectedParameters);
+                differences = expected.CompareWith(actual);
+            }
+
+            Func<RenderFragment> dd = () => @<div>
+                             <div><ParametersDifferenceView Differences="@differences" /></div>
+                             <div><ParametersView Parameters="@NodeParameter.TryDeserialize(result.ActualParameters)" Name="Actual parameters" /></div>
+                         </div>;
+            _rows.Add(new TableBase.Row()
+            {
+                IsFullRowWide = true,
+                Cells = new RenderFragment[]
+                {
+                    @<Expander Name="Log" ContentProvider="dd" />
+                }
+            });*@
         }
+
+        StateHasChanged();
     }
 }

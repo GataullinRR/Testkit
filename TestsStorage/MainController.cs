@@ -76,7 +76,7 @@ namespace TestsStorageService
                 if (request.Query.IsNotNullOrEmpty())
                 {
                     var queryKeywords = request.Query
-                        .Split(" ")
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
                         .Take(5)
                         .ToArray();
                     cases = cases
@@ -90,7 +90,13 @@ namespace TestsStorageService
                                 .Concat(new[] { c.TestName })
                                 .ToArray(),
                         })
-                        .OrderByDescending(c => c.Keywords.Select(k => queryKeywords.Select(qk => k.FindAll(qk).Count() * qk.Length).Sum()).Sum() / (double)c.Keywords.Sum(k => k.Length))
+                        .Select(c => new
+                        {
+                            Case = c.Case,
+                            Match = c.Keywords.Select(k => queryKeywords.Select(qk => k.FindAll(qk).Count() * qk.Length).Sum()).Sum() / (double)c.Keywords.Sum(k => k.Length)
+                        })
+                        .Where(c => c.Match != 0)
+                        .OrderByDescending(c => c.Match)
                         .Select(c => c.Case)
                         .AsQueryable();
                 }
