@@ -25,5 +25,10 @@ namespace Runner
         {
             await _runtime.InvokeAsync<object>("console.log", new object[] { message });
         }
+
+        public async Task<bool> ConfirmAsync(string message)
+        {
+            return await _runtime.InvokeAsync<bool>("window.confirm", message);
+        }
     }
 }

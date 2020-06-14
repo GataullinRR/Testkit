@@ -2,18 +2,18 @@
 @inject ICookieStorage Cookies;
 @inject Browser Browser;
 
-@if (Columns == null || !_isInitialized)
+@if (Columns == null || Rows == null || !_isInitialized)
 {
     <RootContainer>
         <LoadingIndicator />
     </RootContainer>
 }
-else if (Rows == null || Rows.Count() == 0)
+@*else if (Rows == null || Rows.Count() == 0)
 {
     <RootContainer>
         @EmptyMessage
     </RootContainer>
-}
+}*@
 else
 {
     <div class="col-12">

@@ -69,7 +69,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtilitiesStandard.ASPCore",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VectorsStandard", "VectorsStandard\VectorsStandard.csproj", "{807A2743-95E4-4E7A-9D6B-DE90D5580B05}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RunnerIntergarion", "..\WORK2\Pochtabank.PaySystem.Testkit\src\RunnerIntergarion\RunnerIntergarion.csproj", "{90FB6007-00E0-4DD8-AF77-92B35FD932EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RunnerIntergarion", "..\WORK2\Testkit\src\RunnerIntergarion\RunnerIntergarion.csproj", "{B5B3716D-47BA-478C-8298-0F0E6F8C23C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -169,10 +169,10 @@ Global
 		{807A2743-95E4-4E7A-9D6B-DE90D5580B05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{807A2743-95E4-4E7A-9D6B-DE90D5580B05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{807A2743-95E4-4E7A-9D6B-DE90D5580B05}.Release|Any CPU.Build.0 = Release|Any CPU
-		{90FB6007-00E0-4DD8-AF77-92B35FD932EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{90FB6007-00E0-4DD8-AF77-92B35FD932EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{90FB6007-00E0-4DD8-AF77-92B35FD932EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{90FB6007-00E0-4DD8-AF77-92B35FD932EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5B3716D-47BA-478C-8298-0F0E6F8C23C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5B3716D-47BA-478C-8298-0F0E6F8C23C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5B3716D-47BA-478C-8298-0F0E6F8C23C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5B3716D-47BA-478C-8298-0F0E6F8C23C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -209,7 +209,7 @@ Global
 		{17D5C60C-9319-4B4C-9508-F70951213D60} = {F5F0FF81-BCB3-4F80-92F4-53A729A9539A}
 		{0849877E-F8F4-4C0E-9A99-E8A3E9CFFC80} = {F5F0FF81-BCB3-4F80-92F4-53A729A9539A}
 		{807A2743-95E4-4E7A-9D6B-DE90D5580B05} = {F5F0FF81-BCB3-4F80-92F4-53A729A9539A}
-		{90FB6007-00E0-4DD8-AF77-92B35FD932EC} = {2F1D943D-5D63-4F7F-834C-9C595DF6BE3F}
+		{B5B3716D-47BA-478C-8298-0F0E6F8C23C1} = {2F1D943D-5D63-4F7F-834C-9C595DF6BE3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CA964220-4AF3-45D4-BBC2-E555BE55486E}

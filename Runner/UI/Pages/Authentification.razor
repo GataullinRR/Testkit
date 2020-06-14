@@ -8,11 +8,11 @@
 <RootContainer>
     @if (_signIn)
     {
-        <SignInForm OnSubmit="loginAsync" OnRegistrationRequest="registrationRequested"></SignInForm>
+        <SignInForm OnSubmit="loginAsync" OnRegistrationRequest="registrationRequested" />
     }
     else
     {
-        <SignUpForm OnSubmit="registerAsync" OnSignInRequest="signInRequested"></SignUpForm>
+        <SignUpForm OnSubmit="registerAsync" OnSignInRequest="signInRequested" />
     }
 </RootContainer>
 
@@ -40,19 +40,33 @@
 
     async void registerAsync(SignUpForm.SignUpPresentationModel model)
     {
-        var response = await UserService.SignUpAsync((SignUpRequest)model);
-        MessageService.AddMessage("You've been succesfully registered, now you can sign in");
-        signInRequested();
+        try
+        {
+            var response = await UserService.SignUpAsync((SignUpRequest)model);
+            MessageService.AddMessage("You've been succesfully registered, now you can sign in");
+            signInRequested();
+        }
+        catch
+        {
+            MessageService.AddMessage("Ooops! There was an error. May be you missed something?");
+        }
     }
 
     async void loginAsync(SignInForm.SignInPresentationModel model)
     {
-        var response = await UserService.SignInAsync((SignInRequest)model);
-        await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, response.Token);
-        await UserChangeNotifier.FireAuthStateChangedAsync();
+        try
+        {
+            var response = await UserService.SignInAsync((SignInRequest)model);
+            await Cookies.SetAsync(Constants.AUTH_TOKEN_COOKIE, response.Token);
+            await UserChangeNotifier.FireAuthStateChangedAsync();
 
-        MessageService.AddMessage($"Hi, {model.UserName}!");
-
-        NavigationManager.NavigateTo(Runner.UI.Pages.Index.URI);
+            MessageService.AddMessage($"Hi, {model.UserName}!");
+            
+            NavigationManager.NavigateTo(Runner.UI.Pages.Index.URI);
+        }
+        catch
+        {
+            MessageService.AddMessage("Ooops! Wrong password the user does not exist");
+        }
     }
 }

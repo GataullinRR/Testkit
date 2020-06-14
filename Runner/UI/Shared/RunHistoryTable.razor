@@ -73,17 +73,9 @@
         _rerenderingRequired = true;
     }
 
-    //protected override async Task OnParametersSetAsync()
-    //{
-    //    await rerenderAsync();
-
-    //    await base.OnParametersSetAsync();
-    //}
-
     async Task rerenderAsync()
     {
         await addMoreAsync(0);
-        //StateHasChanged();
     }
 
     async Task addMoreAsync(int count)
@@ -118,7 +110,14 @@
             _rows.Add(new TableBase.Row()
             {
                 IsFullRowWide = true,
-                Cells = new RenderFragment[]
+                Cells = result.Result == RunnerService.API.Models.RunResult.FatalError 
+                ? new RenderFragment[]
+                {
+                    @<div>
+                        <span>Could not get any result :(</span>
+                    </div>
+                } 
+                : new RenderFragment[]
                 {
                     @<div>
                         <div><ParametersDifferenceView Differences="@differences" /></div>
@@ -126,27 +125,6 @@
                     </div>
                 }
             });
-
-            @*IEnumerable<global::SharedT.Types.Difference> differences = null;
-            if (result.ActualParameters != null && result.ExpectedParameters != null)
-            {
-                var actual = NodeParameter.TryDeserialize(result.ActualParameters);
-                var expected = NodeParameter.TryDeserialize(result.ExpectedParameters);
-                differences = expected.CompareWith(actual);
-            }
-
-            Func<RenderFragment> dd = () => @<div>
-                             <div><ParametersDifferenceView Differences="@differences" /></div>
-                             <div><ParametersView Parameters="@NodeParameter.TryDeserialize(result.ActualParameters)" Name="Actual parameters" /></div>
-                         </div>;
-            _rows.Add(new TableBase.Row()
-            {
-                IsFullRowWide = true,
-                Cells = new RenderFragment[]
-                {
-                    @<Expander Name="Log" ContentProvider="dd" />
-                }
-            });*@
         }
 
         StateHasChanged();

@@ -123,8 +123,8 @@ namespace RunnerService
                         {
                             RunResult.Aborted => new ReadyState(),
                             RunResult.Passed => new ReadyState(),
-                            RunResult.SUTError => new ReadyState(),
-                            RunResult.RunnerError => new ReadyState(),
+                            RunResult.Error => new ReadyState(),
+                            RunResult.FatalError => new ReadyState(),
                             RunResult.Running => new RunningState(),
                             null => new JustCreatedState(),
 

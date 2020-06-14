@@ -36,9 +36,9 @@ namespace RunnerService.Db
                 .HasDiscriminator(r => r.Result)
                 .HasValue<PassedResult>(RunResult.Passed)
                 .HasValue<AbortedResult>(RunResult.Aborted)
-                .HasValue<RunnerErrorResult>(RunResult.RunnerError)
+                .HasValue<RunnerErrorResult>(RunResult.FatalError)
                 .HasValue<PendingCompletionResult>(RunResult.Running)
-                .HasValue<SUTErrorResult>(RunResult.SUTError);
+                .HasValue<SUTErrorResult>(RunResult.Error);
 
             builder.Entity<RunPlanBase>()
                 .Property<int>("_Id")

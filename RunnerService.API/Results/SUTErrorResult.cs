@@ -2,7 +2,7 @@
 {
     public class SUTErrorResult : ErrorResult
     {
-        public SUTErrorResult() : base(RunResult.SUTError)
+        public SUTErrorResult() : base(RunResult.Error)
         {
         }
     }

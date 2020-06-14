@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @inject IMessageService MessageService
 @inject IIdentityContext Identity
+@inject Browser Browser;
 
 @if (Identity.Identity.IsAuthentificated)
 {
@@ -14,8 +15,15 @@
 
     async Task goToAsync()
     {
-        await PresentationService.DeleteTestAsync(new DeleteTestRequest(TestNameFilter));
+        if (await Browser.ConfirmAsync($"Are you sure? All tests which name starts with \"{TestNameFilter}\" will be deleted. You won't be able to restore them (yet)!"))
+        {
+            await PresentationService.DeleteTestAsync(new DeleteTestRequest(TestNameFilter));
+         
+            Navigation.NavigateTo(Pages.Index.URI);
+        }
+        else
+        {
 
-        Navigation.NavigateTo(Pages.Index.URI);
+        }
     }
 }

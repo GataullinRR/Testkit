@@ -9,7 +9,7 @@
 @inject IMessageService MessageService;
 @inject ICookieStorage Cookies;
 
-@if (_tests.Count == 0)
+@if (!_isInitialized)
 {
     <RootContainer>
         <LoadingIndicator />
@@ -178,6 +178,7 @@ else
 
     int shownCount { get; set; }
 
+    bool _isInitialized = false;
     int _totalCount;
     readonly List<TestInfo> _tests = new List<TestInfo>();
 
@@ -211,6 +212,7 @@ else
         _totalCount = response.TotalCount;
         _tests.Clear();
         _tests.AddRange(response.Tests);
+        _isInitialized = true;
 
         await OnTestsUpdatedAsync.InvokeAsync(_tests);
     }
