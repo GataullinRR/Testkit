@@ -110,7 +110,7 @@
             _rows.Add(new TableBase.Row()
             {
                 IsFullRowWide = true,
-                Cells = result.Result == RunnerService.API.Models.RunResult.FatalError 
+                Cells = result.Result.IsOneOf(RunnerService.API.Models.RunResult.FatalError, RunnerService.API.Models.RunResult.Running, RunnerService.API.Models.RunResult.Aborted)
                 ? new RenderFragment[]
                 {
                     @<div>
