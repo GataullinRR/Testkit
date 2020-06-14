@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SharedT;
+using Utilities.Types;
 
 namespace WebNotificationService
 {
@@ -27,7 +28,7 @@ namespace WebNotificationService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSignalR()
-                    .AddNewtonsoftJsonProtocol(options =>
+                    .AddNewtonsoftJsonProtocol(options => 
                     {
                         options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All; // Add one more security breach!
                     });
@@ -48,6 +49,7 @@ namespace WebNotificationService
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseRouting();
+            app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
             app.UseCors(builder =>
             {

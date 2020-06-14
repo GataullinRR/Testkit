@@ -21,6 +21,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
+	  <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
 	</ItemGroup>
 
 </Project>

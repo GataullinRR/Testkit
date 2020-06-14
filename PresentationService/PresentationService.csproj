@@ -12,8 +12,6 @@
 	<PackageReference Include="Grpc.Core" Version="2.29.0" />
 	<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 	<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.4" />
-    <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
-    <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
@@ -21,6 +19,9 @@
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
+    <ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
+    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
+    <ProjectReference Include="..\VectorsStandard\VectorsStandard.csproj" />
   </ItemGroup>
 
 </Project>

@@ -23,6 +23,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
 	  <ProjectReference Include="..\Utilities.EFCore31\Utilities.EFCore31.csproj" />
+	  <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -10,8 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.Emit\UtilitiesStandard.Emit.csproj" />
-    <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
+    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
   </ItemGroup>
 
 </Project>

@@ -11,7 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GeneralPurposeLibs\Vectors\VectorsStandard\VectorsStandard.csproj" />
+    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
+    <ProjectReference Include="..\VectorsStandard\VectorsStandard.csproj" />
   </ItemGroup>
 
 </Project>

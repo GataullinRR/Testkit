@@ -21,14 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
-    <ProjectReference Include="..\..\GeneralPurposeLibs\Utilities\UtilitiesStandard\UtilitiesStandard.csproj" />
-    <ProjectReference Include="..\..\GeneralPurposeLibs\Vectors\VectorsStandard\VectorsStandard.csproj" />
     <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
+    <ProjectReference Include="..\VectorsStandard\VectorsStandard.csproj" />
     <ProjectReference Include="..\WebNotificationService.API\WebNotificationService.API.csproj" />
   </ItemGroup>
 

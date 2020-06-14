@@ -83,7 +83,7 @@ namespace SharedT
         {
             services.AddHttpClient<IUserService, UserService.API.UserService>(c =>
             {
-                c.BaseAddress = new Uri("http://localhost:5000/api/v1/");
+                c.BaseAddress = new Uri("https://localhost:5015/api/v1/");
             });
             services.AddHttpClient<ITestsStorageService, TestsStorageService.API.TestsStorageService>(c =>
             {

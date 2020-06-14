@@ -84,7 +84,6 @@ namespace UserService
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<RequestResponseLoggingMiddleware>();
-            app.UseHttpsRedirection();
 
             app.UseRouting();
 
