@@ -23,7 +23,8 @@ namespace WebNotificationService.API
             di.ResolveProperties(this);
 
             Connection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:5041/signalRHub")
+                .WithUrl("http://172.20.12.12:5090/signalRHub")
+                //.WithUrl("http://172.20.12.12:5040/signalRHub")
                 .AddNewtonsoftJsonProtocol(options =>
                 {
                     options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;

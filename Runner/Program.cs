@@ -20,7 +20,7 @@ namespace Runner
 {
     public class Program
     {
-        public const string SERVER = "172.18.57.206";
+        public const string SERVER = "172.20.12.12";
 
         public static async Task Main(string[] args)
         {
@@ -31,7 +31,7 @@ namespace Runner
             services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             services.AddHttpClient<IPresentationService, PresentationService.API.PresentationService>(async (sp, c) =>
             {
-                c.BaseAddress = new Uri($"https://{SERVER}:5011/api/v1/");
+                c.BaseAddress = new Uri($"http://{SERVER}:5010/api/v1/");
 
                 var cookies = sp.GetRequiredService<ICookieStorage>();
                 var token = await cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE);
@@ -43,7 +43,7 @@ namespace Runner
             });
             services.AddHttpClient<IUserService, UserService.API.UserService>(async (sp, c) =>
             {
-                c.BaseAddress = new Uri($"https://{SERVER}:5015/api/v1/");
+                c.BaseAddress = new Uri($"http://{SERVER}:5015/api/v1/");
 
                 var cookies = sp.GetRequiredService<ICookieStorage>();
                 var token = await cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE);
