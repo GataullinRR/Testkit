@@ -23,6 +23,8 @@ namespace PresentationService
                 {
                     webBuilder.UseStartup<Startup>();
                 })
-                .ConfigureHost();
+                .ConfigureHost()
+                .UseStandardLogging("Testkit.PresentationService", "Kit.PresentationSvc");
+
     }
 }

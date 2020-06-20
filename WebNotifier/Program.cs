@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SharedT;
 
 namespace WebNotificationService
 {
@@ -21,6 +22,7 @@ namespace WebNotificationService
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .UseStandardLogging("Testkit.WebNotificationService", "Kit.WebNotifySvc");
     }
 }

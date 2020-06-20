@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SharedT;
 
 namespace TestsStorage
 {
@@ -21,6 +22,7 @@ namespace TestsStorage
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .UseStandardLogging("Testkit.TestsStorageService", "Kit.TestsStorageSvc");
     }
 }

@@ -16,6 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
+    <PackageReference Include="Serilog.Extensions.Logging.File" Version="2.0.0" />
+    <PackageReference Include="Serilog.Sinks.Async" Version="1.4.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="..\MessageHub\MessageHub.csproj" />
     <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
     <ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />

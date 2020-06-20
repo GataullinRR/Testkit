@@ -11,8 +11,10 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API;
 using RunnerService.API;
+using Serilog;
 using System;
 using System.Data.SqlTypes;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using TestsStorageService.API;
@@ -24,6 +26,26 @@ namespace SharedT
 {
     public static class Extensions
     {
+        public static IHostBuilder UseStandardLogging(this IHostBuilder host, string folder, string filePrefix)
+        {
+            return host.UseSerilog((hostingContext, loggerConfiguration) =>
+            {
+                var consoleTemplate = "[{Timestamp:HH:mm:ss.fff} {Level:u3} {SourceContext}] {Message:lj}{NewLine}{Exception}";
+                var fileTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3} {SourceContext}] {Message}{NewLine}{Exception}";
+                loggerConfiguration
+                    .ReadFrom.Configuration(hostingContext.Configuration)
+                    .Enrich.FromLogContext()
+                    .WriteTo.Debug()
+                    .WriteTo.RollingFile(Path.Combine("C:\\Logs", folder, filePrefix + "-{Date}.txt"),
+                        outputTemplate: fileTemplate,
+                        fileSizeLimitBytes: 1024 * 1024 * 1,
+                        retainedFileCountLimit: 20)
+                    .WriteTo.Console(
+                        outputTemplate: consoleTemplate)
+                    .MinimumLevel.Verbose();
+            });
+        }
+
         public static IHostBuilder ConfigureHost(this IHostBuilder builder)
         {
             return builder.ConfigureLogging(logBuilder =>
