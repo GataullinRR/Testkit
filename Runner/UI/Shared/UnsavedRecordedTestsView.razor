@@ -29,17 +29,18 @@
         return base.OnInitializedAsync();
     }
 
+    int _count = 0;
     string _lastQuery = "";
     async Task addAsync(string? query, int count)
     {
+        _count += count;
         query = query ?? _lastQuery;
         _lastQuery = query;
 
-        var newCount = _rows.Count / 2 + count;
         _rows = new List<TableBase.Row>();
         _columns = new List<TableBase.Column>();
 
-        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByQuery(query, new IntInterval(0, newCount), true));
+        ListTestsResponse response = await PresentationService.ListTestsAsync(ListTestsRequest.ByQuery(query, new IntInterval(0, _count), true));
         _totalCount = response.TotalCount;
         _rows.Clear();
         _columns.Clear();
