@@ -4,10 +4,10 @@
 
 @code {
     [Parameter]
-    public int TestId { get; set; }
+    public IEnumerable<IFilterOrder> Filters { get; set; }
 
     async Task goToAsync()
     {
-        await PresentationService.CancelTestAsync(new CancelTestRequest(TestId));
+        await PresentationService.CancelTestAsync(new CancelTestRequest(Filters.ToArray()));
     }
 }

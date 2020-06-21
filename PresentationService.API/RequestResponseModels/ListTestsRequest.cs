@@ -2,74 +2,48 @@
 using SharedT.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using TestsStorageService.API;
 using Vectors;
 
 namespace PresentationService.API
 {
     public class ListTestsRequest
     {
-        public bool IsByIds { get; }
-        public int[]? TestIds { get; }
-
-        public bool IsByAuthorName { get; }
-        public string? AuthorName { get; }
-
-        public bool IsByNameFilter { get; }
-        public string? TestNameFilter { get; }
-
-        public bool IsByParameters { get; }
-        public Dictionary<string, string>? TestParameters { get; }
-
-        public bool IsByQuery { get; }
-        public string? Query { get; }
+        [Required]
+        public IFilterOrder[] FilteringOrders { get; }
 
         [JsonConverter(typeof(IntIntervalSerializer))]
         public IntInterval Range { get; }
         public bool ReturnNotSaved { get; }
 
-        [JsonConstructor]
-        ListTestsRequest(
-            bool isByIds, int[]? testIds, 
-            bool isByAuthorName, string? authorName,
-            bool isByNameFilter, string? testNameFilter, 
-            bool isByParameters, Dictionary<string, string>? testParameters, 
-            bool isByQuery, string? query, 
-            IntInterval range, bool returnNotSaved)
+        public ListTestsRequest(IFilterOrder[] filteringOrders, IntInterval range, bool returnNotSaved)
         {
-            IsByIds = isByIds;
-            TestIds = testIds;
-            IsByAuthorName = isByAuthorName;
-            AuthorName = authorName;
-            IsByNameFilter = isByNameFilter;
-            TestNameFilter = testNameFilter;
-            IsByParameters = isByParameters;
-            TestParameters = testParameters;
-            IsByQuery = isByQuery;
-            Query = query;
+            FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));
             Range = range;
             ReturnNotSaved = returnNotSaved;
         }
 
         public static ListTestsRequest ByIdsName(int[] ids, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(true, ids, false, default, false, default, false, default, false, default, range, returnNotSaved);
+            return new ListTestsRequest(new[] { new ByTestIdsFilter(ids) }, range, returnNotSaved);
         }
-        public static ListTestsRequest ByAuthorName(string? authorName, IntInterval range, bool returnNotSaved)
+        public static ListTestsRequest ByAuthorName(string authorName, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(false, default, true, authorName, false, default, false, default, false, default, range, returnNotSaved);
+            return new ListTestsRequest(new[] { new ByAuthorsFilter(new[] { authorName }) }, range, returnNotSaved);
         }
-        public static ListTestsRequest ByNameFilter(string? nameFilter, IntInterval range, bool returnNotSaved)
+        public static ListTestsRequest ByNameFilter(string nameFilter, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(false, default, false, default, true, nameFilter, false, default, false, default, range, returnNotSaved);
+            return new ListTestsRequest(new[] { new ByTestNamesFilter(new[] { nameFilter }) }, range, returnNotSaved);
         }
         public static ListTestsRequest ByParameters(Dictionary<string, string> testParameters, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(false, default, false, default, false, default, true, testParameters, false, default, range, returnNotSaved);
+            return new ListTestsRequest(new[] { new ByKeyParametersFilter(testParameters) }, range, returnNotSaved);
         }
         public static ListTestsRequest ByQuery(string query, IntInterval range, bool returnNotSaved)
         {
-            return new ListTestsRequest(false, default, false, default, false, default, false, default, true, query, range, returnNotSaved);
+            return new ListTestsRequest(new[] { new ByQueryFilter(query) }, range, returnNotSaved);
         }
     }
 }

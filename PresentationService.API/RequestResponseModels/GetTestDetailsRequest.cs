@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SharedT.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,19 +11,19 @@ namespace PresentationService.API
     {
         public static implicit operator global::RunnerService.API.Models.GetTestDetailsRequest (GetTestDetailsRequest request)
         {
-            return new global::RunnerService.API.Models.GetTestDetailsRequest(request.TestIdFilters, request.CountFromEnd);
+            return new global::RunnerService.API.Models.GetTestDetailsRequest(request.CountFromEnd, request.FilteringOrders);
         }
 
         [Required]
-        public string[] TestIdFilters { get; }
+        public IFilterOrder[] FilteringOrders { get; }
 
         [Required]
         public int CountFromEnd { get; }
 
         [JsonConstructor]
-        public GetTestDetailsRequest(string[] testIdFilters, int countFromEnd)
+        public GetTestDetailsRequest(int countFromEnd, params IFilterOrder[] filteringOrders)
         {
-            TestIdFilters = testIdFilters ?? throw new ArgumentNullException(nameof(testIdFilters));
+            FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));
             CountFromEnd = countFromEnd;
         }
     }

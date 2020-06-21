@@ -5,10 +5,10 @@
 
 @code {
     [Parameter]
-    public string TestNameFilter { get; set; }
+    public IEnumerable<IFilterOrder> Filters { get; set; }
 
     async Task goToAsync()
     {
-        await PresentationService.BeginTestAsync(new BeginTestRequest(TestNameFilter));
+        await PresentationService.BeginTestAsync(new BeginTestRequest(Filters.ToArray()));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SharedT.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,15 +10,14 @@ namespace RunnerService.API.Models
     public class GetTestDetailsRequest
     {
         [Required]
-        public string[] TestIdFilters { get; }
+        public IFilterOrder[] FilteringOrders { get; }
 
         [Required]
         public int CountFromEnd { get; }
 
-        [JsonConstructor]
-        public GetTestDetailsRequest(string[] testIdFilters, int countFromEnd)
+        public GetTestDetailsRequest(int countFromEnd, params IFilterOrder[] filteringOrders)
         {
-            TestIdFilters = testIdFilters ?? throw new ArgumentNullException(nameof(testIdFilters));
+            FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));
             CountFromEnd = countFromEnd;
         }
     }

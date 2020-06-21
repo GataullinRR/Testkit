@@ -15,6 +15,7 @@ using MessageHub;
 using SharedT.Types;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace TestsStorageService
 {
@@ -23,6 +24,7 @@ namespace TestsStorageService
     {
         [Inject] public IMessageProducer MessageProducer { get; set; }
         [Inject] public TestsContext Db { get; set; }
+        [Inject] public ILogger<MainController> Logger { get; set; }
         
         public MainController(IDependencyResolver di)
         {
@@ -32,80 +34,14 @@ namespace TestsStorageService
         [Microsoft.AspNetCore.Mvc.Route("list"), HttpPost]
         public async Task<ListTestsDataResponse> ListTestsData(ListTestsDataRequest request)
         {
-            IQueryable<TestCase> cases = Db.Cases.AsNoTracking()
+            IQueryable<TestCase> cases = Db.Cases
+                .AsNoTracking()
                 .IncludeGroup(EntityGroups.ALL, Db)
                 .Where(c => request.ReturnNotSaved
                     ? c.State == TestCaseState.RecordedButNotSaved
                     : c.State == TestCaseState.Saved)
                 .OrderByDescending(c => c.CreationDate);
-            if (request.IsByIds)
-            {
-                cases = cases.Where(c => request.TestIds.Contains(c.TestId));
-            }
-            else if (request.IsByAuthorName)
-            {
-                cases = cases.Where(c => c.AuthorName == request.AuthorName);
-            }
-            else if (request.IsByNameFilters)
-            {
-                if (request.TestNameFilters.Length > 0)
-                {
-                    IQueryable<TestCase> original = null;
-                    foreach (var filter in request.TestNameFilters)
-                    {
-                        var additional = cases.Where(c => c.TestName.StartsWith(filter));
-                        original = original == null
-                            ? additional
-                            : original.Concat(additional);
-                    }
-                    cases = original;
-                }
-            }
-            else if (request.IsByParameters)
-            {
-                foreach (var fp in request.TestParameters)
-                {
-                    if (fp.Value != null)
-                    {
-                        cases = cases.Where(c => c.Data.KeyParameters.Any(p => p.Key == fp.Key && p.Value == fp.Value));
-                    }
-                }
-            }
-            else if (request.IsByQuery)
-            {
-                if (request.Query.IsNotNullOrEmpty() && request.Query.IsNotNullOrWhiteSpace())
-                {
-                    var queryKeywords = request.Query
-                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                        .Take(5)
-                        .ToArray();
-                    cases = cases
-                        .AsEnumerable()
-                        .Select(c => new
-                        {
-                            Case = c,
-                            Keywords = c.Data.KeyParameters
-                                .Select(p => p.Value)
-                                .Concat(c.TestDescription.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                                .Concat(new[] { c.TestName })
-                                .ToArray(),
-                        })
-                        .Select(c => new
-                        {
-                            Case = c.Case,
-                            Match = c.Keywords.Select(k => queryKeywords.Select(qk => k.FindAll(qk).Count() * qk.Length).Sum()).Sum() / (double)c.Keywords.Sum(k => k.Length)
-                        })
-                        .Where(c => c.Match != 0)
-                        .OrderByDescending(c => c.Match)
-                        .Select(c => c.Case)
-                        .AsQueryable();
-                }
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-
+            cases = filterCases(cases, request.FilteringOrders);
 
             var totalCount = cases is Microsoft.EntityFrameworkCore.Query.Internal.IAsyncQueryProvider
                 ? await cases.CountAsync()
@@ -130,29 +66,96 @@ namespace TestsStorageService
             return new ListTestsDataResponse(result, totalCount);
         }
 
+        IQueryable<TestCase> filterCases(IQueryable<TestCase> cases, IFilterOrder[] filteringorders)
+        {
+            foreach (var filterOrder in filteringorders)
+            {
+                if (filterOrder is ByTestIdsFilter ids)
+                {
+                    cases = cases.Where(c => ids.TestIds.Contains(c.TestId));
+                }
+                else if (filterOrder is ByTestNamesFilter namesFilter)
+                {
+                    foreach (var nameFilter in namesFilter.TestNameFilters)
+                    {
+                        cases = cases
+                            .Where(r => r.TestName == nameFilter
+                               || (r.TestName.Length > nameFilter.Length
+                                   && r.TestName.StartsWith(nameFilter)
+                                   && r.TestName[nameFilter.Length] == '.'));
+                    }
+                }
+                else if (filterOrder is ByKeyParametersFilter parameters)
+                {
+                    foreach (var parameter in parameters.TestParameters)
+                    {
+                        if (parameter.Value != null)
+                        {
+                            cases = cases
+                                .Where(c => c.Data.KeyParameters
+                                    .Any(p => p.Key == parameter.Key && p.Value == parameter.Value));
+                        }
+                    }
+                }
+                else if (filterOrder is ByQueryFilter query)
+                {
+                    if (query.Query.IsNotNullOrEmpty() && query.Query.IsNotNullOrWhiteSpace())
+                    {
+                        var queryKeywords = query.Query
+                            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                            .Take(6)
+                            .ToArray();
+                        cases = cases
+                            .AsEnumerable()
+                            .Select(c => new
+                            {
+                                Case = c,
+                                Keywords = c.Data.KeyParameters
+                                    .Select(p => p.Value)
+                                    .Concat(c.TestDescription.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                                    .Concat(new[] { c.TestName })
+                                    .ToArray(),
+                            })
+                            .Select(c => new
+                            {
+                                Case = c.Case,
+                                Match = c.Keywords.Select(k => queryKeywords.Select(qk => k.FindAll(qk).Count() * qk.Length).Sum()).Sum() / (double)c.Keywords.Sum(k => k.Length)
+                            })
+                            .Where(c => c.Match != 0)
+                            .OrderByDescending(c => c.Match)
+                            .Select(c => c.Case)
+                            .AsQueryable();
+                    }
+                }
+                else if (filterOrder is ByAuthorsFilter authors)
+                {
+                    foreach (var author in authors.AuthorNames)
+                    {
+                        cases = cases.Where(c => c.AuthorName == author);
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning("Unsupported filter order {@FilterOrder}", filterOrder);
+                }
+            }
+
+            return cases;
+        }
+
         [Microsoft.AspNetCore.Mvc.Route("delete"), HttpPost]
         public async Task<DeleteTestResponse> DeleteTest(DeleteTestRequest request)
         {
-            TestCase[] casesToDelete = null;
             var cases = Db.Cases.IncludeGroup(EntityGroups.ALL, Db);
-            if (request.IsById)
-            {
-                var caseToDelete = await cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
-                casesToDelete = caseToDelete == null
-                    ? new TestCase[0]
-                    : new TestCase[] { caseToDelete };
-            }
-            else
-            {
-                casesToDelete = await cases.Where(c => c.TestName != null && c.TestName.StartsWith(request.TestNameFilter)).ToArrayAsync();
-            }
+            var casesToDelete = await filterCases(cases, request.FilteringOrders)
+                .ToArrayAsync();
 
             if (casesToDelete.Length > 0)
             {
                 foreach (var caseToDelete in casesToDelete)
                 {
                     Db.Cases.Remove(caseToDelete);
-                    await Db.SaveChangesAsync();
+                    await Db.SaveChangesAsync(); // i know...
 
                     MessageProducer.FireTestDeleted(new TestDeletedMessage(caseToDelete.TestId, caseToDelete.TestName));
                 }

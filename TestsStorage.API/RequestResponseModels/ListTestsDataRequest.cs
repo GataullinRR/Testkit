@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using SharedT.Types;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Utilities.Extensions;
 using Vectors;
@@ -9,69 +11,46 @@ namespace TestsStorageService.API
 {
     public class ListTestsDataRequest
     {
-        public bool IsByIds { get; }
-        public int[]? TestIds { get; }
-
-        public bool IsByAuthorName { get; }
-        public string? AuthorName { get; }
-
-        public bool IsByNameFilters { get; }
-        public string[]? TestNameFilters { get; }
-
-        public bool IsByParameters { get; }
-        public Dictionary<string, string>? TestParameters { get; }
-
-        public bool IsByQuery { get; }
-        public string? Query { get; }
+        [Required]
+        public IFilterOrder[] FilteringOrders { get; }
 
         [JsonConverter(typeof(IntIntervalSerializer))]
         public IntInterval Range { get; }
         public bool IncludeData { get; }
         public bool ReturnNotSaved { get; }
 
-        [JsonConstructor]
-        ListTestsDataRequest(
-            bool isByIds, int[]? testIds,
-            bool isByAuthorName, string? authorName,
-            bool isByNameFilters, string[]? testNameFilters,
-            bool isByParameters, Dictionary<string, string>? testParameters,
-            bool isByQuery, string? query,
-            IntInterval range, bool returnNotSaved, bool includeData)
+        public ListTestsDataRequest(IFilterOrder filteringOrder, IntInterval range, bool includeData, bool returnNotSaved) 
+            : this(new [] { filteringOrder }, range, includeData, returnNotSaved)
         {
-            IsByIds = isByIds;
-            TestIds = testIds;
-            IsByAuthorName = isByAuthorName;
-            AuthorName = authorName;
-            IsByNameFilters = isByNameFilters;
-            TestNameFilters = testNameFilters;
-            IsByParameters = isByParameters;
-            TestParameters = testParameters;
-            IsByQuery = isByQuery;
-            Query = query;
+
+        }
+        public ListTestsDataRequest(IFilterOrder[] filteringOrders, IntInterval range, bool includeData, bool returnNotSaved)
+        {
+            FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));
             Range = range;
-            ReturnNotSaved = returnNotSaved;
             IncludeData = includeData;
+            ReturnNotSaved = returnNotSaved;
         }
 
         public static ListTestsDataRequest ByIds(int[] ids, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(true, ids, false, default, false, default, false, default, false, default, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(new ByTestIdsFilter(ids) , range, returnNotSaved, includeData);
         }
-        public static ListTestsDataRequest ByAuthorName(string? authorName, IntInterval range, bool returnNotSaved, bool includeData)
+        public static ListTestsDataRequest ByAuthorName(string authorName, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(false, default, true, authorName, false, default, false, default, false, default, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(new ByAuthorsFilter(new[] { authorName }), range, returnNotSaved, includeData);
         }
-        public static ListTestsDataRequest ByNameFilter(string[]? nameFilters, IntInterval range, bool returnNotSaved, bool includeData)
+        public static ListTestsDataRequest ByNameFilter(string[] nameFilters, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(false, default, false, default, true, nameFilters, false, default, false, default, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(new ByTestNamesFilter(nameFilters), range, returnNotSaved, includeData);
         }
         public static ListTestsDataRequest ByParameters(Dictionary<string, string> testParameters, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(false, default, false, default, false, default, true, testParameters, false, default, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(new ByKeyParametersFilter(testParameters), range, returnNotSaved, includeData);
         }
         public static ListTestsDataRequest ByQuery(string query, IntInterval range, bool returnNotSaved, bool includeData)
         {
-            return new ListTestsDataRequest(false, default, false, default, false, default, false, default, true, query, range, returnNotSaved, includeData);
+            return new ListTestsDataRequest(new ByQueryFilter(query), range, returnNotSaved, includeData);
         }
     }
 }

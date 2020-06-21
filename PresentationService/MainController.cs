@@ -40,35 +40,8 @@ namespace PresentationService
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.ListTestsAsync))]
         public async Task<ListTestsResponse> ListTests(ListTestsRequest request)
         {
-            ListTestsDataRequest lstRequest = null;
-            if (request.IsByIds)
-            {
-                lstRequest = ListTestsDataRequest.ByIds(request.TestIds, request.Range, request.ReturnNotSaved, false);
-            }
-            else if (request.IsByAuthorName)
-            {
-                lstRequest = ListTestsDataRequest.ByAuthorName(request.AuthorName, request.Range, request.ReturnNotSaved, false);
-            }
-            else if (request.IsByParameters)
-            {
-                lstRequest = ListTestsDataRequest.ByParameters(request.TestParameters, request.Range, request.ReturnNotSaved, false);
-            }
-            else if (request.IsByNameFilter)
-            {
-                var filters = request.TestNameFilter == null
-                    ? new string[0]
-                    : new string[] { request.TestNameFilter };
-                lstRequest = ListTestsDataRequest.ByNameFilter(filters, request.Range, request.ReturnNotSaved, false);
-            }
-            else if (request.IsByQuery)
-            {
-                lstRequest = ListTestsDataRequest.ByQuery(request.Query , request.Range, request.ReturnNotSaved, false);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-            ListTestsDataResponse tests = await TestsStorage.ListTestsDataAsync(lstRequest);
+            var lstRequest = new ListTestsDataRequest(request.FilteringOrders, request.Range, request.ReturnNotSaved, false);
+            var tests = await TestsStorage.ListTestsDataAsync(lstRequest);
 
             var testsIds = tests.Tests.Select(c => c.TestId).ToArray();
             var getInfosR = new RunnerService.API.Models.GetTestsInfoRequest(testsIds);
@@ -121,7 +94,7 @@ namespace PresentationService
             {
                 var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
 
-                var runReq = new RunnerService.API.Models.RunTestRequest(request.TestNameFilter.ToSequence().ToArray(), userInfResp.UserName);
+                var runReq = new RunnerService.API.Models.RunTestRequest(userInfResp.UserName, request.FilteringOrders);
                 var runResponse = await RunnerService.RunTestAsync(runReq);
 
                 return Ok(new BeginTestResponse());
@@ -147,14 +120,12 @@ namespace PresentationService
             {
                 var userInfResp = await UserService.GetUserInfoAsync(new GetUserInfoRequest(token));
                 var userName = userInfResp.UserName;
-                var testAuthor = (request.IsById
-                    ? await getAuthorNameAsync(request.TestId, true) ?? await getAuthorNameAsync(request.TestId, false)
-                    : await getAuthorNameAsync(request.TestNameFilter, true) ?? await getAuthorNameAsync(request.TestNameFilter, false)).AuthorName;
+                var testAuthor = (await getAuthorNameAsync(request.FilteringOrders, true)
+                    ?? await getAuthorNameAsync(request.FilteringOrders, false))
+                    .AuthorName;
                 if (userName == testAuthor)
                 {
-                    var response = await TestsStorage.DeleteTestAsync(request.IsById 
-                        ? new TestsStorageService.API.DeleteTestRequest(request.TestId) 
-                        : new TestsStorageService.API.DeleteTestRequest(request.TestNameFilter));
+                    var response = await TestsStorage.DeleteTestAsync(new TestsStorageService.API.DeleteTestRequest(request.FilteringOrders));
 
                     return Ok(new API.DeleteTestResponse());
                 }
@@ -169,10 +140,10 @@ namespace PresentationService
             }
         }
 
-        async Task<TestCase> getAuthorNameAsync(string testName, bool returnNotSaved)
+        async Task<TestCase> getAuthorNameAsync(IFilterOrder[] filterOrders, bool returnNotSaved)
         {
-            var lstReq = ListTestsDataRequest.ByNameFilter(new string[] { testName }, new IntInterval(0, 1), returnNotSaved, false);
-            ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
+            var lstReq = new ListTestsDataRequest(filterOrders, new IntInterval(0, 1), returnNotSaved, false);
+            var lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElementOrDefault();
         }
@@ -211,7 +182,7 @@ namespace PresentationService
             var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
             if (result.IsValid)
             {
-                messageProducer.FireCancelTest(new CancelTestMessage(request.TestId));
+                messageProducer.FireCancelTest(new CancelTestMessage(request.FilteringOrders.Single().To<ByTestIdsFilter>().TestIds.Single()));
                 
                 return Ok(new CancelTestResponse());
             }

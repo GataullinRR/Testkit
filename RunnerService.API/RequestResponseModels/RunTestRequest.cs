@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using RunnerService.API;
+using SharedT.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,15 +11,15 @@ namespace RunnerService.API.Models
     public class RunTestRequest
     {
         [Required]
-        public string[] TestNameFilters { get; }
-        
-        [Required]
-        public string UserName { get; }
+        public string StartedByUser { get; }
 
-        public RunTestRequest(string[] testNameFilters, string userName)
+        [Required]
+        public IFilterOrder[] FilteringOrders { get; }
+
+        public RunTestRequest(string startedByUser, params IFilterOrder[] filteringOrders)
         {
-            TestNameFilters = testNameFilters ?? throw new ArgumentNullException(nameof(testNameFilters));
-            UserName = userName ?? throw new ArgumentNullException(nameof(userName));
+            StartedByUser = startedByUser ?? throw new ArgumentNullException(nameof(startedByUser));
+            FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));
         }
     }
 }

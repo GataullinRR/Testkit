@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using SharedT.Types;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace PresentationService.API
@@ -6,12 +8,12 @@ namespace PresentationService.API
     public class CancelTestRequest
     {
         [Required]
-        public int TestId { get; }
+        public IFilterOrder[] FilteringOrders { get; }
 
         [JsonConstructor]
-        public CancelTestRequest(int testId)
+        public CancelTestRequest(params IFilterOrder[] filteringOrders)
         {
-            TestId = testId;
+            FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿@using global::SharedT.Types;
-@inject IPresentationService PresentationService;
+﻿@inject IPresentationService PresentationService;
 @inject IWebMessageHub Hub;
 @inject Microsoft.Extensions.Logging.ILogger<RunHistoryTable> Logger;
 
@@ -19,23 +18,17 @@
     RenderFragment _emptyMessage = @<span>There are nothing to show yet :/ Run test to see the results</span>;
 
     [Parameter]
-    public string TestNameFilter { get; set; }
+    public IEnumerable<IFilterOrder> Filters { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Hub.TestCompletedAsync += async m =>
         {
-            if (m.TestName.StartsWith(TestNameFilter))
-            {
-                await softRerenderAsync();
-            }
+            await softRerenderAsync();
         };
         Hub.TestCancelledAsync += async m =>
         {
-            if (m.TestName.StartsWith(TestNameFilter))
-            {
-                await softRerenderAsync();
-            }
+            await softRerenderAsync();
         };
         Hub.TestDeletedAsync += m => softRerenderAsync();
         Hub.TestBegunAsync += m => softRerenderAsync();
@@ -81,7 +74,7 @@
     async Task addMoreAsync(int count)
     {
         var newCnt = (_rows.Count / 2) + count;
-        var response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(TestNameFilter.ToSequence().ToArray(), newCnt));
+        var response = await PresentationService.GetTestDetailsAsync(new GetTestDetailsRequest(newCnt, Filters.ToArray()));
         _totalCount = response.TotalCount;
         _rows.Clear();
 

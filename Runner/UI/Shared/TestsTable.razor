@@ -108,21 +108,25 @@ else
                             <td>
                                 @if (test.CreationState == TestsStorageService.API.TestCaseState.Saved)
                                 {
+                                    var filters = new ByTestIdsFilter(test.TestId).ToSequence().ToArray();
                                     @switch (test.State.State)
                                     {
                                         case RunnerService.API.Models.State.JustCreated:
                                         case RunnerService.API.Models.State.Ready:
-                                            <RunTestButton TestNameFilter="@test.TestName" />
+                                            <RunTestButton Filters="@filters" />
                                             break;
                                         case RunnerService.API.Models.State.Running:
-                                            <CancelTestButton TestId="@test.TestId"/>
+                                            <CancelTestButton Filters="@filters" />
                                             <span> | </span>
-                                            <RunTestButton TestNameFilter="@test.TestName" />
+                                            <RunTestButton Filters="@filters" />
                                             break;
 
                                         default:
                                             throw new NotSupportedException();
                                     }
+
+                                    <span> | </span>
+                                    <DeleteTestButton Filters="@filters" />
                                 }
                             </td>
                         </tr>
@@ -131,7 +135,7 @@ else
                         {
                             <tr>
                                 <td colspan="99">
-                                    <ParametersView Name="Recorded parameters" Parameters="global::SharedT.Types.NodeParameter.TryDeserialize(test.Target.Parameters)" />
+                                    <ParametersView Name="Recorded parameters" Parameters="NodeParameter.TryDeserialize(test.Target.Parameters)" />
                                 </td>
                             </tr>
                         }
@@ -168,7 +172,7 @@ else
     bool shouldApplyQuery => _query != _readyQuery;
 
     [Parameter]
-    public string? TestNameFilter { get; set; }
+    public IEnumerable<IFilterOrder> Filters { get; set; }
 
     [Parameter]
     public EventCallback<IList<TestInfo>> OnTestsUpdatedAsync { get; set; }
@@ -207,7 +211,7 @@ else
     {
         var response = UseQuery
             ? await PresentationService.ListTestsAsync(ListTestsRequest.ByQuery(_query, new IntInterval(from, to), false))
-            : await PresentationService.ListTestsAsync(ListTestsRequest.ByNameFilter(TestNameFilter, new IntInterval(from, to), false));
+            : await PresentationService.ListTestsAsync(new ListTestsRequest(Filters.ToArray(), new IntInterval(from, to), false));
 
         _totalCount = response.TotalCount;
         _tests.Clear();

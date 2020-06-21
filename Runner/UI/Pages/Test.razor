@@ -7,17 +7,19 @@
     <h3 class="ml-3">
         <TestReferenceButton TestName="@TestNameFilter" />
         <span> | </span>
-        <RunTestButton TestNameFilter="@TestNameFilter" />
+        <RunTestButton Filters="@_filters" />
         <span> | </span>
-        <DeleteTestButton TestNameFilter="@TestNameFilter" />
+        <CancelTestButton Filters="@_filters" />
+        <span> | </span>
+        <DeleteTestButton Filters="@_filters" />
     </h3>
 </div>
 
-<TestsTable TestNameFilter="@TestNameFilter" ShowParameters="true" />
+<TestsTable Filters="@_filters" ShowParameters="true" />
 
 <h3 class="ml-4 mt-5">Run history</h3>
 
-<RunHistoryTable TestNameFilter="@TestNameFilter"/>
+<RunHistoryTable Filters="@_filters"/>
 
 @code {
     public static string BuildPath(string testNameFilter)
@@ -27,4 +29,6 @@
 
     [Parameter]
     public string TestNameFilter { get; set; }
+
+    IEnumerable<IFilterOrder> _filters => new[] { new ByTestNamesFilter(new[] { TestNameFilter }) };
 }

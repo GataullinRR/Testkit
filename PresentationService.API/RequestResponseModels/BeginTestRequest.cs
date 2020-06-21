@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SharedT.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,12 +8,12 @@ namespace PresentationService.API
     public class BeginTestRequest
     {
         [Required]
-        public string TestNameFilter { get; }
+        public IFilterOrder[] FilteringOrders { get; }
 
         [JsonConstructor]
-        public BeginTestRequest(string testNameFilter)
+        public BeginTestRequest(params IFilterOrder[] filteringOrders)
         {
-            TestNameFilter = testNameFilter ?? throw new ArgumentNullException(nameof(testNameFilter));
+            FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));
         }
     }
 }

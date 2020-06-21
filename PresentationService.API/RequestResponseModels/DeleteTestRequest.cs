@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SharedT.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Utilities.Extensions;
@@ -7,27 +8,12 @@ namespace PresentationService.API
 {
     public class DeleteTestRequest
     {
-        public bool IsById { get; }
-        public int TestId { get; }
+        [Required]
+        public IFilterOrder[] FilteringOrders { get; }
 
-        public string? TestNameFilter { get; } 
-
-        public DeleteTestRequest(int testId)
+        public DeleteTestRequest(params IFilterOrder[] filteringorders)
         {
-            IsById = true;
-            TestId = testId;
-        }
-        public DeleteTestRequest(string testNameFilter) 
-        {
-            TestNameFilter = testNameFilter ?? throw new ArgumentNullException(nameof(testNameFilter));
-        }
-
-        [JsonConstructor]
-        DeleteTestRequest(bool isById, int testId, string? testNameFilter)
-        {
-            IsById = isById;
-            TestId = testId;
-            TestNameFilter = testNameFilter;
+            FilteringOrders = filteringorders ?? throw new ArgumentNullException(nameof(filteringorders));
         }
     }
 }

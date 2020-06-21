@@ -11,14 +11,15 @@
 
 @code {
     [Parameter]
-    public string TestNameFilter { get; set; }
+    public IEnumerable<IFilterOrder> Filters { get; set; }
 
     async Task goToAsync()
     {
-        if (await Browser.ConfirmAsync($"Are you sure? All tests which name starts with \"{TestNameFilter}\" will be deleted. You won't be able to restore them (yet)!"))
+        if (Filters.Any(f => !(f is ByTestIdsFilter) || (f as ByTestIdsFilter)?.TestIds?.Length > 1) 
+            && await Browser.ConfirmAsync($"Are you sure? You won't be able to restore deleted tests (yet)!"))
         {
-            await PresentationService.DeleteTestAsync(new DeleteTestRequest(TestNameFilter));
-         
+            await PresentationService.DeleteTestAsync(new DeleteTestRequest(Filters.ToArray()));
+
             Navigation.NavigateTo(Pages.Index.URI);
         }
         else

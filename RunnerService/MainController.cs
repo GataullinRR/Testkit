@@ -1,15 +1,18 @@
 ﻿using Google.Protobuf;
 using Grpc.Core;
+using Grpc.Core.Logging;
 using MessageHub;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PresentationService.API;
 using RunnerService.API;
 using RunnerService.API.Models;
 using RunnerService.Db;
 using SharedT;
+using SharedT.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +20,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using TestsStorageService.API;
 using Utilities.Extensions;
+using Utilities.Interfaces;
 using Utilities.Types;
 using GetTestDetailsRequest = RunnerService.API.Models.GetTestDetailsRequest;
 using GetTestDetailsResponse = RunnerService.API.Models.GetTestDetailsResponse;
@@ -30,6 +34,7 @@ namespace RunnerService
         [Inject] public IMessageProducer MessageProducer { get; set; }
         [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public JsonSerializerSettings JsonSettings { get; set; }
+        [Inject] public ILogger<MainController> Logger { get; set; }
 
         public MainController(IDependencyResolver di)
         {
@@ -39,16 +44,12 @@ namespace RunnerService
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IRunnerService.RunTestAsync))]
         public async Task<RunTestResponse> RunTest(RunTestRequest request)
         {
-            var listRequest = ListTestsDataRequest.ByNameFilter(request.TestNameFilters, new Vectors.IntInterval(0, 1000), false, true);
-            ListTestsDataResponse listResponse = await TestsStorage.ListTestsDataAsync(listRequest);
+            var listRequest = new ListTestsDataRequest(request.FilteringOrders, new Vectors.IntInterval(0, 1000), false, true);
+            var listResponse = await TestsStorage.ListTestsDataAsync(listRequest);
 
-            var testIdFilter = request.TestNameFilters.Single();
-            var tests = Db.TestRuns
-                .IncludeGroup(RunnerService.Db.EntityGroups.ALL, Db)
-                .Where(r => r.TestName.StartsWith(testIdFilter))
-                .AsEnumerable()
-                .Where(r => r.TestName == testIdFilter || r.TestName[testIdFilter.Length] == '.')
-                .ToArray();
+            var testsQuery = Db.TestRuns.IncludeGroup(RunnerService.Db.EntityGroups.ALL, Db);
+            testsQuery = filter(testsQuery, request.FilteringOrders);
+            var tests = await testsQuery.ToArrayAsync();
             foreach (var testFromStorge in listResponse.Tests)
             {
                 var exists = tests.Any(r => r.TestName == testFromStorge.TestName);
@@ -74,7 +75,7 @@ namespace RunnerService
                     ResultBase = new PendingCompletionResult()
                     {
                         StartTime = DateTime.UtcNow,
-                        StartedByUser = request.UserName,
+                        StartedByUser = request.StartedByUser,
                         TestId = test.TestId,
                         TestName = test.TestName,
                         State = new StateInfo("", null, false)
@@ -178,10 +179,8 @@ namespace RunnerService
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IRunnerService.GetTestDetailsAsync))]
         public async Task<GetTestDetailsResponse> GetTestDetails(GetTestDetailsRequest request)
         {
-            var testIdFilter = request.TestIdFilters.Single();
-            var dbResults = await Db.TestRuns
-                .IncludeGroup(RunnerService.Db.EntityGroups.RESULTS, Db)
-                .Where(r => r.TestName.StartsWith(testIdFilter))
+            var ff = filter(Db.TestRuns.IncludeGroup(RunnerService.Db.EntityGroups.RESULTS, Db), request.FilteringOrders);
+            var dbResults = await ff
                 .SelectMany(r => r.Results)
                 .OrderByDescending(r => r.ResultBase.StartTime)
                 .ToArrayAsync();
@@ -191,6 +190,35 @@ namespace RunnerService
                 .ToArray();
 
             return new GetTestDetailsResponse(results, dbResults.Length);
+        }
+
+        IQueryable<Db.TestRunInfo> filter(IQueryable<Db.TestRunInfo> runs, IFilterOrder[] filteringOrders)
+        {
+            foreach (var order in filteringOrders)
+            {
+                if (order is ByTestIdsFilter idsFilter)
+                {
+                    runs = runs
+                        .Where(r => idsFilter.TestIds.Contains(r.TestId));
+                }
+                if (order is ByTestNamesFilter namesFilter)
+                {
+                    foreach (var nameFilter in namesFilter.TestNameFilters)
+                    {
+                        runs = runs
+                            .Where(r => r.TestName == nameFilter
+                               || (r.TestName.Length > nameFilter.Length
+                                   && r.TestName.StartsWith(nameFilter)
+                                   && r.TestName[nameFilter.Length] == '.'));
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning("Unsupported filter order {@Order}", order);
+                }
+            }
+
+            return runs;
         }
     }
 }
