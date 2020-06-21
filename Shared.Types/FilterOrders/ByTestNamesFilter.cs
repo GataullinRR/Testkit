@@ -12,7 +12,7 @@ namespace SharedT.Types
         public string[] TestNameFilters { get; }
        
         [JsonConstructor]
-        public ByTestNamesFilter(string[] testNameFilters)
+        public ByTestNamesFilter(params string[] testNameFilters)
         {
             TestNameFilters = testNameFilters ?? throw new ArgumentNullException(nameof(testNameFilters));
         }

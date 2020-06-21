@@ -1,40 +1,60 @@
 ﻿@inject NavigationManager Navigation
 
-@for (int i = 0; i < _subIds.Count; i++)
+@if (TestId.HasValue)
 {
-    var id = _subIds[i];
-    var shouldAddDescriminator = i < (_subIds.Count - 1);
-    <InlineButton style="float:left" class="p-0 m-0" @onclick="() => goToTestsAsync(id.Id)">@id.Part</InlineButton>
-    <span style="float:left">@(shouldAddDescriminator ? "." : "")</span>
+    <InlineButton style="float:left" class="p-0 m-0" @onclick="() => goToTestAsync()">@ChildContent</InlineButton>
+}
+else if (TestName != null)
+{
+    @for (int i = 0; i < _subIds.Count; i++)
+    {
+        var id = _subIds[i];
+        var shouldAddDescriminator = i < (_subIds.Count - 1);
+        <InlineButton style="float:left" class="p-0 m-0" @onclick="() => goToTestsAsync(id.Id)">@id.Part</InlineButton>
+        <span style="float:left">@(shouldAddDescriminator ? "." : "")</span>
+    }
 }
 
 @code {
     [Parameter]
-    public string TestName { get; set; }
+    public string? TestName { get; set; }
+
+    [Parameter]
+    public int? TestId { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
 
     List<(string Part, string Id)> _subIds = new List<(string, string)>();
 
     protected override void OnParametersSet()
     {
         _subIds.Clear();
-
-        var parts = TestName.Split('.', StringSplitOptions.RemoveEmptyEntries);
-        for (int i = 0; i < parts.Length; i++)
+        if (TestName != null)
         {
-            var subId = "";
-            for (int k = 0; k <= i; k++)
+            var parts = TestName.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < parts.Length; i++)
             {
-                if (subId.Length > 0)
+                var subId = "";
+                for (int k = 0; k <= i; k++)
                 {
-                    subId += ".";
+                    if (subId.Length > 0)
+                    {
+                        subId += ".";
+                    }
+                    subId += parts[k];
                 }
-                subId += parts[k];
-            }
 
-            _subIds.Add((parts[i], subId));
+                _subIds.Add((parts[i], subId));
+            }
         }
 
         base.OnParametersSet();
+    }
+
+    async Task goToTestAsync()
+    {
+        Navigation.NavigateTo(Test.BuildPathToSingle(TestId.Value));
     }
 
     async Task goToTestsAsync(string id)

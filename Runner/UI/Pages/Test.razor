@@ -1,12 +1,16 @@
 ﻿@inject IPresentationService PresentationService;
 @inject IMessageService MessageService;
 @inject Browser Browser;
+@page "/case/{TestId}"
 @page "/cases/{TestNameFilter}"
 
 <div class="col-12 mt-3">
     <h3 class="ml-3">
-        <TestReferenceButton TestName="@TestNameFilter" />
-        <span> | </span>
+        @if (TestNameFilter != null)
+        {
+            <TestReferenceButton TestName="@TestNameFilter" />
+            <span> | </span>
+        }
         <RunTestButton Filters="@_filters" />
         <span> | </span>
         <CancelTestButton Filters="@_filters" />
@@ -19,16 +23,41 @@
 
 <h3 class="ml-4 mt-5">Run history</h3>
 
-<RunHistoryTable Filters="@_filters"/>
+<RunHistoryTable Filters="@_filters" />
 
 @code {
+    public static string BuildPathToSingle(int testId)
+    {
+        return $"/case/{testId}";
+    }
     public static string BuildPath(string testNameFilter)
     {
         return $"/cases/{testNameFilter}";
     }
 
     [Parameter]
-    public string TestNameFilter { get; set; }
+    public string? TestId { get; set; }
 
-    IEnumerable<IFilterOrder> _filters => new[] { new ByTestNamesFilter(new[] { TestNameFilter }) };
+    [Parameter]
+    public string? TestNameFilter { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (TestId != null)
+        {
+            _filters = new[] { new ByTestIdsFilter(TestId.ParseToInt32Invariant()) };
+        }
+        else if (TestNameFilter != null)
+        {
+            _filters = new[] { new ByTestNamesFilter(TestNameFilter) };
+        }
+        else
+        {
+
+        }
+
+        base.OnInitialized();
+    }
+
+    IEnumerable<IFilterOrder> _filters = new IFilterOrder[0];
 }

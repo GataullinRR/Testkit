@@ -77,7 +77,7 @@ else
                             </td>
 
                             <td>
-                                <InlineButton @onclick="() => goToTest(test.TestName)">@test.Target.DisplayName</InlineButton>
+                                <TestReferenceButton TestId="@test.TestId">@test.Target.DisplayName</TestReferenceButton>
                             </td>
 
                             <td>
@@ -225,11 +225,6 @@ else
         await addTestsAsync(_tests.Count, _tests.Count + count);
 
         StateHasChanged();
-    }
-
-    async Task goToTest(string testName)
-    {
-        NavigationManager.NavigateTo(Test.BuildPath(testName));
     }
 
     protected override async Task OnInitializedAsync()
