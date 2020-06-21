@@ -6,7 +6,6 @@
 
 @code {
     List<TableBase.Column> _columns = new List<TableBase.Column>();
-
     List<TableBase.Row> _rows = new List<TableBase.Row>();
     int _totalCount = 0;
 
@@ -17,13 +16,6 @@
 
         [Required]
         public string TestDescription { get; set; }
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        //await rerenderAsync();
-
-        await base.OnParametersSetAsync();
     }
 
     protected override Task OnInitializedAsync()
@@ -42,6 +34,7 @@
     {
         query = query ?? _lastQuery;
         _lastQuery = query;
+
         var newCount = _rows.Count / 2 + count;
         _rows = new List<TableBase.Row>();
         _columns = new List<TableBase.Column>();

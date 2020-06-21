@@ -1,6 +1,6 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
-span {
+span .pre {
     white-space: pre-wrap;
 }
 

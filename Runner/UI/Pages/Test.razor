@@ -9,12 +9,12 @@
         @if (TestNameFilter != null)
         {
             <TestReferenceButton TestName="@TestNameFilter" />
-            <span> | </span>
+            <PreSpan> | </PreSpan>
         }
         <RunTestButton Filters="@_filters" />
-        <span> | </span>
+        <PreSpan> | </PreSpan>
         <CancelTestButton Filters="@_filters" />
-        <span> | </span>
+        <PreSpan> | </PreSpan>
         <DeleteTestButton Filters="@_filters" />
     </h3>
 </div>
