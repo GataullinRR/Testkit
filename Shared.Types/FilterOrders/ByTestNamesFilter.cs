@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,7 +10,8 @@ namespace SharedT.Types
     {
         [Required]
         public string[] TestNameFilters { get; }
-
+       
+        [JsonConstructor]
         public ByTestNamesFilter(string[] testNameFilters)
         {
             TestNameFilters = testNameFilters ?? throw new ArgumentNullException(nameof(testNameFilters));

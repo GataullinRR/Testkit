@@ -42,7 +42,7 @@ namespace TestsStorageService
                     : c.State == TestCaseState.Saved)
                 .OrderByDescending(c => c.CreationDate);
             cases = filterCases(cases, request.FilteringOrders);
-
+            
             var totalCount = cases is Microsoft.EntityFrameworkCore.Query.Internal.IAsyncQueryProvider
                 ? await cases.CountAsync()
                 : cases.Count();
@@ -66,6 +66,49 @@ namespace TestsStorageService
             return new ListTestsDataResponse(result, totalCount);
         }
 
+        [Microsoft.AspNetCore.Mvc.Route("delete"), HttpPost]
+        public async Task<DeleteTestResponse> DeleteTest(DeleteTestRequest request)
+        {
+            var cases = Db.Cases.IncludeGroup(EntityGroups.ALL, Db);
+            var casesToDelete = await filterCases(cases, request.FilteringOrders)
+                .ToArrayAsync();
+
+            if (casesToDelete.Length > 0)
+            {
+                foreach (var caseToDelete in casesToDelete)
+                {
+                    Db.Cases.Remove(caseToDelete);
+                    await Db.SaveChangesAsync(); // i know...
+
+                    MessageProducer.FireTestDeleted(new TestDeletedMessage(caseToDelete.TestId, caseToDelete.TestName));
+                }
+            }
+
+            return new DeleteTestResponse();
+        }
+
+        [Microsoft.AspNetCore.Mvc.Route("save"), HttpPost]
+        public async Task<IActionResult> SaveTest(SaveTestRequest request)
+        {
+            var test = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
+            if (test?.State == TestCaseState.RecordedButNotSaved)
+            {
+                test.AuthorName = request.AuthorName;
+                test.TestDescription = request.Description;
+                test.TestName = request.Name;
+                test.State = TestCaseState.Saved;
+                await Db.SaveChangesAsync();
+
+                MessageProducer.FireTestAdded(new TestAddedMessage(test.TestId, test.TestName, test.AuthorName));
+
+                return Ok(new SaveTestResponse());
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
         IQueryable<TestCase> filterCases(IQueryable<TestCase> cases, IFilterOrder[] filteringorders)
         {
             foreach (var filterOrder in filteringorders)
@@ -80,9 +123,7 @@ namespace TestsStorageService
                     {
                         cases = cases
                             .Where(r => r.TestName == nameFilter
-                               || (r.TestName.Length > nameFilter.Length
-                                   && r.TestName.StartsWith(nameFilter)
-                                   && r.TestName[nameFilter.Length] == '.'));
+                                || r.TestName.StartsWith(nameFilter + "."));
                     }
                 }
                 else if (filterOrder is ByKeyParametersFilter parameters)
@@ -141,49 +182,6 @@ namespace TestsStorageService
             }
 
             return cases;
-        }
-
-        [Microsoft.AspNetCore.Mvc.Route("delete"), HttpPost]
-        public async Task<DeleteTestResponse> DeleteTest(DeleteTestRequest request)
-        {
-            var cases = Db.Cases.IncludeGroup(EntityGroups.ALL, Db);
-            var casesToDelete = await filterCases(cases, request.FilteringOrders)
-                .ToArrayAsync();
-
-            if (casesToDelete.Length > 0)
-            {
-                foreach (var caseToDelete in casesToDelete)
-                {
-                    Db.Cases.Remove(caseToDelete);
-                    await Db.SaveChangesAsync(); // i know...
-
-                    MessageProducer.FireTestDeleted(new TestDeletedMessage(caseToDelete.TestId, caseToDelete.TestName));
-                }
-            }
-
-            return new DeleteTestResponse();
-        }
-
-        [Microsoft.AspNetCore.Mvc.Route("save"), HttpPost]
-        public async Task<IActionResult> SaveTest(SaveTestRequest request)
-        {
-            var test = await Db.Cases.FirstOrDefaultAsync(c => c.TestId == request.TestId);
-            if (test?.State == TestCaseState.RecordedButNotSaved)
-            {
-                test.AuthorName = request.AuthorName;
-                test.TestDescription = request.Description;
-                test.TestName = request.Name;
-                test.State = TestCaseState.Saved;
-                await Db.SaveChangesAsync();
-
-                MessageProducer.FireTestAdded(new TestAddedMessage(test.TestId, test.TestName, test.AuthorName));
-
-                return Ok(new SaveTestResponse());
-            }
-            else
-            {
-                return NotFound();
-            }
         }
     }
 }

@@ -40,7 +40,7 @@ namespace PresentationService
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.ListTestsAsync))]
         public async Task<ListTestsResponse> ListTests(ListTestsRequest request)
         {
-            var lstRequest = new ListTestsDataRequest(request.FilteringOrders, request.Range, request.ReturnNotSaved, false);
+            var lstRequest = new ListTestsDataRequest(request.FilteringOrders, request.Range, false, request.ReturnNotSaved);
             var tests = await TestsStorage.ListTestsDataAsync(lstRequest);
 
             var testsIds = tests.Tests.Select(c => c.TestId).ToArray();
@@ -142,17 +142,10 @@ namespace PresentationService
 
         async Task<TestCase> getAuthorNameAsync(IFilterOrder[] filterOrders, bool returnNotSaved)
         {
-            var lstReq = new ListTestsDataRequest(filterOrders, new IntInterval(0, 1), returnNotSaved, false);
+            var lstReq = new ListTestsDataRequest(filterOrders, new IntInterval(0, 1), false, returnNotSaved);
             var lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
 
             return lstResp.Tests.FirstElementOrDefault();
-        }
-        async Task<TestCase> getAuthorNameAsync(int testId, bool returnNotSaved)
-        {
-            var lstReq = ListTestsDataRequest.ByIds(new int[] { testId }, new IntInterval(0, 1), returnNotSaved, false);
-            ListTestsDataResponse lstResp = await TestsStorage.ListTestsDataAsync(lstReq);
-
-            return lstResp.Tests.FirstElement();
         }
 
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IPresentationService.SaveRecordedTestAsync))]
@@ -182,7 +175,7 @@ namespace PresentationService
             var result = await UserService.ValidateTokenAsync(new ValidateTokenRequest(token));
             if (result.IsValid)
             {
-                messageProducer.FireCancelTest(new CancelTestMessage(request.FilteringOrders.Single().To<ByTestIdsFilter>().TestIds.Single()));
+                messageProducer.FireCancelTest(new CancelTestMessage(request.FilteringOrders));
                 
                 return Ok(new CancelTestResponse());
             }

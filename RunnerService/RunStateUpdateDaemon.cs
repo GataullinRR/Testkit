@@ -20,7 +20,6 @@ namespace RunnerService
     {
         [Inject] public IServiceScopeFactory ScopeFactory { get; set; }
         [Inject] public IMessageProducer Producer { get; set; }
-        [Inject] public ITestsStorageService Storage { get; set; }
 
         public RunStateUpdateDaemon(IDependencyResolver di)
         {

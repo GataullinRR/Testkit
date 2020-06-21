@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Utilities.Types;
 using Utilities.Extensions;
 using RunnerService.API.Models;
+using Grpc.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace RunnerService
 {
@@ -18,6 +20,7 @@ namespace RunnerService
         [Inject] public IMessageConsumer MessageConsumer { get; set; }
         [Inject] public IMessageProducer MessageProducer{ get; set; }
         [Inject] public IServiceScopeFactory ScopeFactory { get; set; }
+        [Inject] public ILogger<Notifier> Logger{ get; set; }
 
         public Notifier(IDependencyResolver di)
         {
@@ -50,10 +53,14 @@ namespace RunnerService
         {
             using var scope = ScopeFactory.CreateScope();
             using var db = scope.ServiceProvider.GetRequiredService<RunnerContext>();
+            var testIds = await db.TestRuns
+                .Filter(Logger, arg.FilteringOrders)
+                .Select(r => r.TestId)
+                .ToArrayAsync();
             var runs = await db.RunResults
                 .Include(r => r.ResultBase)
-                .Where(r => r.ResultBase.TestId == arg.TestId)
                 .Where(r => r.ResultBase.Result == RunResult.Running)
+                .Where(r => testIds.Contains(r.ResultBase.TestId))
                 .ToArrayAsync();
             if (runs.Length != 0)
             {
@@ -67,7 +74,8 @@ namespace RunnerService
                         StartedByUser = run.ResultBase.StartedByUser,
                         StartTime = run.ResultBase.StartTime,
                         TestId = run.ResultBase.TestId,
-                        TestName = run.ResultBase.TestName
+                        TestName = run.ResultBase.TestName,
+                        State = new StateInfo(null, null, true)
                     };
                 }
                 await db.SaveChangesAsync();

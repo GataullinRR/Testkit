@@ -42,7 +42,7 @@ namespace SharedT
                         retainedFileCountLimit: 20)
                     .WriteTo.Console(
                         outputTemplate: consoleTemplate)
-                    .MinimumLevel.Verbose();
+                    .MinimumLevel.Debug();
             });
         }
 

@@ -44,11 +44,12 @@ namespace RunnerService
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IRunnerService.RunTestAsync))]
         public async Task<RunTestResponse> RunTest(RunTestRequest request)
         {
-            var listRequest = new ListTestsDataRequest(request.FilteringOrders, new Vectors.IntInterval(0, 1000), false, true);
+            var listRequest = new ListTestsDataRequest(request.FilteringOrders, new Vectors.IntInterval(0, 1000), true, false);
             var listResponse = await TestsStorage.ListTestsDataAsync(listRequest);
-
-            var testsQuery = Db.TestRuns.IncludeGroup(RunnerService.Db.EntityGroups.ALL, Db);
-            testsQuery = filter(testsQuery, request.FilteringOrders);
+           
+            var testsQuery = Db.TestRuns
+                .IncludeGroup(RunnerService.Db.EntityGroups.ALL, Db)
+                .Filter(Logger, request.FilteringOrders);
             var tests = await testsQuery.ToArrayAsync();
             foreach (var testFromStorge in listResponse.Tests)
             {
@@ -179,7 +180,9 @@ namespace RunnerService
         [HttpPost, Microsoft.AspNetCore.Mvc.Route(nameof(IRunnerService.GetTestDetailsAsync))]
         public async Task<GetTestDetailsResponse> GetTestDetails(GetTestDetailsRequest request)
         {
-            var ff = filter(Db.TestRuns.IncludeGroup(RunnerService.Db.EntityGroups.RESULTS, Db), request.FilteringOrders);
+            var ff = Db.TestRuns
+                .IncludeGroup(RunnerService.Db.EntityGroups.RESULTS, Db)
+                .Filter(Logger, request.FilteringOrders);
             var dbResults = await ff
                 .SelectMany(r => r.Results)
                 .OrderByDescending(r => r.ResultBase.StartTime)
@@ -190,35 +193,6 @@ namespace RunnerService
                 .ToArray();
 
             return new GetTestDetailsResponse(results, dbResults.Length);
-        }
-
-        IQueryable<Db.TestRunInfo> filter(IQueryable<Db.TestRunInfo> runs, IFilterOrder[] filteringOrders)
-        {
-            foreach (var order in filteringOrders)
-            {
-                if (order is ByTestIdsFilter idsFilter)
-                {
-                    runs = runs
-                        .Where(r => idsFilter.TestIds.Contains(r.TestId));
-                }
-                if (order is ByTestNamesFilter namesFilter)
-                {
-                    foreach (var nameFilter in namesFilter.TestNameFilters)
-                    {
-                        runs = runs
-                            .Where(r => r.TestName == nameFilter
-                               || (r.TestName.Length > nameFilter.Length
-                                   && r.TestName.StartsWith(nameFilter)
-                                   && r.TestName[nameFilter.Length] == '.'));
-                    }
-                }
-                else
-                {
-                    Logger.LogWarning("Unsupported filter order {@Order}", order);
-                }
-            }
-
-            return runs;
         }
     }
 }

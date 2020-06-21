@@ -41,7 +41,7 @@ namespace Utilities.Types
         {
             var requestStream = new MemoryStream();
             await context.Request.Body.CopyToAsync(requestStream);
-            _logger.LogInformation($"Request to: {context.Request.Method}:{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}/{context.Request.QueryString} {Environment.NewLine}Body:{ReadStreamInChunks(requestStream).Take(1000).Aggregate()}");
+            _logger.LogInformation($"Request to: {context.Request.Method}:{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}/{context.Request.QueryString} {Environment.NewLine}Body:{ReadStreamInChunks(requestStream).Take(10000).Aggregate()}");
            
             requestStream.Position = 0;
             context.Request.Body = requestStream;
@@ -78,7 +78,7 @@ namespace Utilities.Types
             context.Response.Body.Seek(0, SeekOrigin.Begin);
             _logger.LogInformation($"Response from: {context.Request.Method}:{context.Request.Scheme}://{context.Request.Host}{context.Request.Path}/{context.Request.QueryString}" +
                                    $"{Environment.NewLine}Status: {(System.Net.HttpStatusCode)context.Response.StatusCode} ({context.Response.StatusCode})" +
-                                   $"{Environment.NewLine}Body: {text.Take(1000).Aggregate()}");
+                                   $"{Environment.NewLine}Body: {text.Take(10000).Aggregate()}");
 
             await responseBody.CopyToAsync(originalBodyStream);
         }

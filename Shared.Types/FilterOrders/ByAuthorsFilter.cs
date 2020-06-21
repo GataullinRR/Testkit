@@ -9,7 +9,8 @@ namespace TestsStorageService.API
     {
         [Required]
         public string[] AuthorNames { get; }
-
+        
+        [JsonConstructor]
         public ByAuthorsFilter(string[] authorNames)
         {
             AuthorNames = authorNames ?? throw new ArgumentNullException(nameof(authorNames));

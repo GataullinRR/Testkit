@@ -16,6 +16,7 @@ namespace RunnerService.API.Models
         [Required]
         public IFilterOrder[] FilteringOrders { get; }
 
+        [JsonConstructor]
         public RunTestRequest(string startedByUser, params IFilterOrder[] filteringOrders)
         {
             StartedByUser = startedByUser ?? throw new ArgumentNullException(nameof(startedByUser));

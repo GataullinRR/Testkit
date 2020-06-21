@@ -9,7 +9,8 @@ namespace TestsStorageService.API
     {
         [Required]
         public string Query { get; }
-
+       
+        [JsonConstructor]
         public ByQueryFilter(string query)
         {
             Query = query ?? throw new ArgumentNullException(nameof(query));

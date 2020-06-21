@@ -10,7 +10,7 @@ namespace RunnerService.API.Models
 
         public StateInfo(string? state, DateTime? nextStateUpdate, bool isFinal)
         {
-            State = state ?? throw new ArgumentNullException(nameof(state));
+            State = state;
             NextStateUpdate = nextStateUpdate;
             IsFinal = isFinal;
         }

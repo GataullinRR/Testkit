@@ -10,7 +10,8 @@ namespace TestsStorageService.API
     {
         [Required]
         public Dictionary<string, string> TestParameters { get; }
-
+        
+        [JsonConstructor]
         public ByKeyParametersFilter(Dictionary<string, string> testParameters)
         {
             TestParameters = testParameters ?? throw new ArgumentNullException(nameof(testParameters));

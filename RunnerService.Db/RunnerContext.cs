@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RunnerService.API;
 using RunnerService.API.Models;
 using System;
@@ -15,6 +16,13 @@ namespace RunnerService.Db
         public RunnerContext(DbContextOptions<RunnerContext> options) : base(options)
         {
             Database.EnsureCreated();
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Dont know why but i'm gettin NullRefEx at Database.EnsureCreated(); without this line...
+            // It is started from Commit 5dacbd29
+            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(b => { }));
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

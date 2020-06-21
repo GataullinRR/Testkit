@@ -15,6 +15,7 @@ namespace RunnerService.API.Models
         [Required]
         public int CountFromEnd { get; }
 
+        [JsonConstructor]
         public GetTestDetailsRequest(int countFromEnd, params IFilterOrder[] filteringOrders)
         {
             FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));

@@ -11,6 +11,7 @@ namespace TestsStorageService.API
         [Required]
         public IFilterOrder[] FilteringOrders { get; }
 
+        [JsonConstructor]
         public DeleteTestRequest(params IFilterOrder[] filteringorders)
         {
             FilteringOrders = filteringorders ?? throw new ArgumentNullException(nameof(filteringorders));

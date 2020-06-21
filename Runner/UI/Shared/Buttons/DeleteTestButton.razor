@@ -15,16 +15,27 @@
 
     async Task goToAsync()
     {
-        if (Filters.Any(f => !(f is ByTestIdsFilter) || (f as ByTestIdsFilter)?.TestIds?.Length > 1) 
-            && await Browser.ConfirmAsync($"Are you sure? You won't be able to restore deleted tests (yet)!"))
+        try
         {
-            await PresentationService.DeleteTestAsync(new DeleteTestRequest(Filters.ToArray()));
+            if (Filters.Any(f => !(f is ByTestIdsFilter) || (f as ByTestIdsFilter)?.TestIds?.Length > 1))
+            {
+                if (await Browser.ConfirmAsync($"Are you sure? You won't be able to restore deleted tests (yet)!"))
+                {
+                    await PresentationService.DeleteTestAsync(new DeleteTestRequest(Filters.ToArray()));
 
-            Navigation.NavigateTo(Pages.Index.URI);
+                    Navigation.NavigateTo(Pages.Index.URI);
+                }
+            }
+            else
+            {
+                await PresentationService.DeleteTestAsync(new DeleteTestRequest(Filters.ToArray()));
+
+                Navigation.NavigateTo(Pages.Index.URI);
+            }
         }
-        else
+        catch
         {
-
+            MessageService.AddMessage("Could not delete the test. Do you have peremissions?");
         }
     }
 }

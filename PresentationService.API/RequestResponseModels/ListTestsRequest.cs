@@ -18,6 +18,7 @@ namespace PresentationService.API
         public IntInterval Range { get; }
         public bool ReturnNotSaved { get; }
 
+        [JsonConstructor]
         public ListTestsRequest(IFilterOrder[] filteringOrders, IntInterval range, bool returnNotSaved)
         {
             FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));

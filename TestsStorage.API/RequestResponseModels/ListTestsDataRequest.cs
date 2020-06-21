@@ -19,11 +19,13 @@ namespace TestsStorageService.API
         public bool IncludeData { get; }
         public bool ReturnNotSaved { get; }
 
+
         public ListTestsDataRequest(IFilterOrder filteringOrder, IntInterval range, bool includeData, bool returnNotSaved) 
             : this(new [] { filteringOrder }, range, includeData, returnNotSaved)
         {
 
         }
+        [JsonConstructor]
         public ListTestsDataRequest(IFilterOrder[] filteringOrders, IntInterval range, bool includeData, bool returnNotSaved)
         {
             FilteringOrders = filteringOrders ?? throw new ArgumentNullException(nameof(filteringOrders));

@@ -19,8 +19,9 @@ using UserService.API;
 namespace Runner
 {
     public class Program
-    {
-        public const string SERVER = "172.20.12.12";
+    {   
+        //public const string SERVER = "172.20.12.12";
+        public const string SERVER = "localhost";
 
         public static async Task Main(string[] args)
         {
