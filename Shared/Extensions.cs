@@ -42,7 +42,8 @@ namespace SharedT
                         retainedFileCountLimit: 20)
                     .WriteTo.Console(
                         outputTemplate: consoleTemplate)
-                    .MinimumLevel.Debug();
+                    .MinimumLevel.Verbose()
+                    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information);
             });
         }
 
