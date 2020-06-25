@@ -43,7 +43,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestsSourceSvc", "TestsSour
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleTestsSourceService", "TestsSourceService\ExampleTestsSourceService.csproj", "{2241BC29-3691-4A7D-A47A-8426A7CF05AE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageHub", "MessageHub\MessageHub.csproj", "{955E9EEB-1FD7-41E6-A381-7D52EDB51E31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageHub.API", "MessageHub\MessageHub.API.csproj", "{955E9EEB-1FD7-41E6-A381-7D52EDB51E31}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{9C7BBE5F-7DB3-4436-839A-8BC1F66FBA14}"
 EndProject

@@ -33,7 +33,6 @@ namespace RunnerService
         [Inject] public RunnerContext Db { get; set; }
         [Inject] public IMessageProducer MessageProducer { get; set; }
         [Inject] public ITestsStorageService TestsStorage { get; set; }
-        [Inject] public JsonSerializerSettings JsonSettings { get; set; }
         [Inject] public ILogger<MainController> Logger { get; set; }
 
         public MainController(IDependencyResolver di)

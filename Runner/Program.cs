@@ -15,47 +15,31 @@ using SharedT;
 using Microsoft.AspNetCore.SignalR.Client;
 using PresentationService.API;
 using UserService.API;
+using WebNotificationService.API;
 
 namespace Runner
 {
     public class Program
     {   
-        //public const string SERVER = "172.20.12.12";
-        public const string SERVER = "localhost";
-
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
+            var envName = builder.HostEnvironment.Environment;
+            var assembly = Assembly.GetExecutingAssembly();
+            var mainConfig = assembly.GetManifestResourceStream("appsettings.json");
+            var envConfig = assembly.GetManifestResourceStream($"appsettings.{envName}.json");
+            var configBuilder = new ConfigurationBuilder()
+                .AddJsonStream(mainConfig)
+                .AddJsonStream(envConfig);
+            var config = configBuilder.Build();
+
             var services = builder.Services;
-            services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            services.AddHttpClient<IPresentationService, PresentationService.API.PresentationService>(async (sp, c) =>
-            {
-                c.BaseAddress = new Uri($"http://{SERVER}:5010/api/v1/");
-
-                var cookies = sp.GetRequiredService<ICookieStorage>();
-                var token = await cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE);
-                if (token.IsNotNullOrEmpty())
-                {
-                    c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-                    c.DefaultRequestHeaders.Add("token", token);
-                }
-            });
-            services.AddHttpClient<IUserService, UserService.API.UserService>(async (sp, c) =>
-            {
-                c.BaseAddress = new Uri($"http://{SERVER}:5015/api/v1/");
-
-                var cookies = sp.GetRequiredService<ICookieStorage>();
-                var token = await cookies.GetValueAsync(Constants.AUTH_TOKEN_COOKIE);
-                if (token.IsNotNullOrEmpty())
-                {
-                    c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-                    c.DefaultRequestHeaders.Add("token", token);
-                }
-            });
-
             services.AddUINecessaryFeatures();
+            services.AddUserService(config.GetSection("Services"));
+            services.AddPresentationService(config.GetSection("Services"));
+            services.AddWebNotificationService(config.GetSection("Services"));
 
             await builder.Build().RunAsync();
         }

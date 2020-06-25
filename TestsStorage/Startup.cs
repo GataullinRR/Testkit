@@ -37,7 +37,6 @@ namespace TestsStorage
         {
             services.AddDbContext<TestsContext>(options =>
                 options.UseSqlServer(Configuration.GetSection("DefaultConnection").Value));
-
             services.AddControllers()
                     .AddNewtonsoftJson(options =>
                     {
@@ -46,10 +45,10 @@ namespace TestsStorage
                     });
 
             services.AddHostedService<UnsavedTestsCleanerDaemon>();
-            services.AddNecessaryFeatures();
-            services.AddMessaging(Configuration.GetSection("Messaging"));
-
             services.AddDbInitializer<DbSeeder>();
+
+            services.AddNecessaryFeatures();
+            services.AddMessagingServices(Configuration.GetSection("Services"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

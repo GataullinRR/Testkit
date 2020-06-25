@@ -37,12 +37,13 @@ namespace WebNotificationService
                         opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
                     });
 
-            services.AddCors();
-            services.AddServices();
-            services.AddNecessaryFeatures();
-            services.AddMessaging(Configuration.GetSection("Messaging"));
-
             services.AddHostedService<Notifier>();
+
+            services.AddCors();
+            services.AddNecessaryFeatures();
+            services.AddUserService(Configuration.GetSection("Services"));
+            services.AddMessagingServices(Configuration.GetSection("Services"));
+            services.AddTestsStorageService(Configuration.GetSection("Services"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj" />
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
   </ItemGroup>
 

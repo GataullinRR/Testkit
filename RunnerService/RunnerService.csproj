@@ -24,7 +24,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\MessageHub\MessageHub.csproj" />
+	  <ProjectReference Include="..\MessageHub\MessageHub.API.csproj" />
 	  <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
 	  <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
 	  <ProjectReference Include="..\RunnerService.Db\RunnerService.Db.csproj" />

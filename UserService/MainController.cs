@@ -21,8 +21,6 @@ using UserService.API;
 using UserServiceDb;
 using Utilities.Extensions;
 using Utilities.Types;
-using Confluent.Kafka;
-using NJsonSchema.Validation;
 
 namespace UserService
 {

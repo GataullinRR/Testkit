@@ -10,7 +10,7 @@
 	<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4" />
-    <ProjectReference Include="..\MessageHub\MessageHub.csproj" />
+    <ProjectReference Include="..\MessageHub\MessageHub.API.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
     <ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />

@@ -43,10 +43,9 @@ namespace RunnerService
             services.AddHostedService<StateCleanerDaemon>();
             services.AddHostedService<RunStateUpdateDaemon>();
 
-            services.AddGrpc();
             services.AddNecessaryFeatures();
-            services.AddServices();
-            services.AddMessaging(Configuration.GetSection("Messaging"));
+            services.AddTestsStorageService(Configuration.GetSection("Services"));
+            services.AddMessagingServices(Configuration.GetSection("Services"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

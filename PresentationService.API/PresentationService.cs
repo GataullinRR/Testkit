@@ -5,7 +5,7 @@ using TestsStorageService.API;
 
 namespace PresentationService.API
 {
-    public class PresentationService : ServiceBase, IPresentationService
+    class PresentationService : ServiceBase, IPresentationService
     {
         public PresentationService(HttpClient client) : base(client)
         {
