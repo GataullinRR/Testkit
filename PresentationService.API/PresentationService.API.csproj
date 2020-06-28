@@ -13,7 +13,6 @@
 	  <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="3.1.4" />
 	  <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.4" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
-    <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
