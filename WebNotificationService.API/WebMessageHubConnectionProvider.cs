@@ -18,15 +18,13 @@ namespace WebNotificationService.API
 
         public HubConnection Connection { get; private set; }
 
-        public WebMessageHubConnectionProvider(IDependencyResolver di)
+        public WebMessageHubConnectionProvider(IDependencyResolver di, IOptions<WebMessagingOptions> options)
         {
             di.ResolveProperties(this);
 
             Connection = new HubConnectionBuilder()
                 .WithAutomaticReconnect()
-                //.WithUrl("http://172.20.12.12:5090/signalRHub")
-                .WithUrl("http://localhost:5090/signalRHub")
-                //.WithUrl("http://172.20.12.12:5040/signalRHub")
+                .WithUrl(options.Value.HubAddress)
                 .AddNewtonsoftJsonProtocol(options =>
                 {
                     options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;

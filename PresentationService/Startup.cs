@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
-using MessageHub;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -38,11 +37,12 @@ namespace PresentationService
                         options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
                     });
 
-            services.AddGrpc();
             services.AddCors();
             services.AddNecessaryFeatures();
-            services.AddServices();
-            services.AddMessaging(Configuration.GetSection("Messaging"));
+            services.AddUserService(Configuration.GetSection("Services"));
+            services.AddTestsStorageService(Configuration.GetSection("Services"));
+            services.AddRunnerService(Configuration.GetSection("Services"));
+            services.AddMessagingServices(Configuration.GetSection("Services"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

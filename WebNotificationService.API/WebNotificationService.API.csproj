@@ -12,6 +12,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
+		<ProjectReference Include="..\Shared\Shared.csproj" />
 		<ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
 		<ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
 	</ItemGroup>

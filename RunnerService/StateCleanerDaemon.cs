@@ -38,7 +38,7 @@ namespace RunnerService
                 try
                 {
                     using var scope = ScopeFactory.CreateScope();
-                    var db = scope.ServiceProvider.GetRequiredService<RunnerContext>();
+                    using var db = scope.ServiceProvider.GetRequiredService<RunnerContext>();
 
                     var hang = await db.RunResults
                         .IncludeGroup(API.Models.EntityGroups.ALL, db)

@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.Net.Client" Version="2.28.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.4" />
@@ -22,12 +21,14 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\MessageHub\MessageHub.csproj" />
-    <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
+    <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
     <ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
     <ProjectReference Include="..\VectorsStandard\VectorsStandard.csproj" />
-    <ProjectReference Include="..\WebNotificationService.API\WebNotificationService.API.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Types\" />
   </ItemGroup>
 
 </Project>

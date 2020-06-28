@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace UserService.API
 {
-    public class UserService : ServiceBase, IUserService
+    class UserService : ServiceBase, IUserService
     {
         public UserService(HttpClient client) : base(client)
         {

@@ -38,6 +38,14 @@ namespace UserService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<UserContext>(options =>
+                options.UseSqlServer(Configuration.GetSection("DefaultConnection").Value));
+            services.AddControllers()
+                    .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
+                    });
             services.AddAuthorization();
             services.AddJWTAuthentication(Configuration);
             services.AddIdentity<User, IdentityRole>()
@@ -63,21 +71,10 @@ namespace UserService
                 options.User.RequireUniqueEmail = false;
             });
 
-            services.AddDbContext<UserContext>(options =>
-                options.UseSqlServer(Configuration.GetSection("DefaultConnection").Value));
-            services.AddControllers()
-                    .AddNewtonsoftJson(options =>
-                    {
-                        options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
-                        options.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.All;
-                    });
-
-            services.AddGrpc();
-            services.AddCors();
-            services.AddUtilityServices();
-            services.AddAttributeRegisteredServices();
-
             services.AddDbInitializer<DbInitializer>();
+
+            services.AddCors();
+            services.AddNecessaryFeatures();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -10,6 +10,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include=".\appsettings.json">
+      <LogicalName>appsettings.json</LogicalName>
+    </EmbeddedResource>
+    
+    <EmbeddedResource Include=".\appsettings.Development.json">
+      <LogicalName>appsettings.Development.json</LogicalName>
+    </EmbeddedResource>
+    
+    <EmbeddedResource Include=".\appsettings.Production.json">
+      <LogicalName>appsettings.Production.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0" PrivateAssets="all" />
@@ -30,6 +44,12 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\js\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="appsettings.Development.json" />
+    <Resource Include="appsettings.json" />
+    <Resource Include="appsettings.Production.json" />
   </ItemGroup>
 
 </Project>

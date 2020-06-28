@@ -18,8 +18,8 @@ using Utilities.Types;
 using Utilities.Extensions;
 using SharedT.Types;
 using Vectors;
-using MessageHub;
 using Microsoft.AspNetCore.Mvc;
+using MessageHub;
 
 namespace PresentationService
 {
@@ -30,7 +30,6 @@ namespace PresentationService
         [Inject] public ITestsStorageService TestsStorage { get; set; }
         [Inject] public IRunnerService RunnerService { get; set; }
         [Inject] public ILogger<MainController> Logger { get; set; }
-        [Inject] public JsonSerializerSettings JsonSettings { get; set; }
 
         public MainController(IDependencyResolver di)
         {

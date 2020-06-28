@@ -11,8 +11,7 @@ using Utilities.Types;
 
 namespace TestsStorageService.API
 {
-    [Service(ServiceLifetime.Scoped)]
-    public class TestsStorageService : ServiceBase, ITestsStorageService
+    class TestsStorageService : ServiceBase, ITestsStorageService
     {
         public TestsStorageService(HttpClient client) : base(client)
         {

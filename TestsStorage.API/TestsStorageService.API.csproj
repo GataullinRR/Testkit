@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\Utilities.EFCore31\Utilities.EFCore31.csproj" />
     <ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
     <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />

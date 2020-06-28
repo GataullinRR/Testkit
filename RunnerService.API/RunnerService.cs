@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RunnerService.API
 {
-    public class RunnerService : ServiceBase, IRunnerService
+    class RunnerService : ServiceBase, IRunnerService
     {
         public RunnerService(HttpClient client) : base(client)
         {
