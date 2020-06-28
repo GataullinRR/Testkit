@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ABC.Utilities" Version="2.0.0" />
+    <PackageReference Include="ABC.Utilities.ASPCore31" Version="2.0.0" />
+    <PackageReference Include="ABC.Utilities.EFCore31" Version="2.0.0" />
+    <PackageReference Include="ABC.Vectors" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
   </ItemGroup>
@@ -13,8 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\Utilities.EFCore31\Utilities.EFCore31.csproj" />
-    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
   </ItemGroup>
 
 </Project>

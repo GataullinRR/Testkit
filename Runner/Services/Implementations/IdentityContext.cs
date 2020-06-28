@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using AutoMapper;
 using UserService.API;
 using Utilities.Types;
 using Microsoft.AspNetCore.Components;

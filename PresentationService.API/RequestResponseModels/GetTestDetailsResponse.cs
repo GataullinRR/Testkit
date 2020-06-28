@@ -1,5 +1,4 @@
-﻿using AutoMapper.Mappers;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RunnerService.API;
 using RunnerService.API.Models;
 using SharedT.Types;

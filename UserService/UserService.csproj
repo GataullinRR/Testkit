@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="ABC.Utilities" Version="2.0.0" />
+	<PackageReference Include="ABC.Utilities.ASPCore31" Version="2.0.0" />
+	<PackageReference Include="ABC.Utilities.EFCore31" Version="2.0.0" />
+	<PackageReference Include="ABC.Vectors" Version="2.0.0" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.28.0" />
     <PackageReference Include="Grpc.Core" Version="2.29.0" />
@@ -24,13 +28,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
-    <ProjectReference Include="..\Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\UserDb\UserService.Db.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
-    <ProjectReference Include="..\Utilities.EFCore31\Utilities.EFCore31.csproj" />
-    <ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
-    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
   </ItemGroup>
 
 </Project>

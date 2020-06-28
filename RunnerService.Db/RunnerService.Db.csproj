@@ -6,6 +6,10 @@
   </PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="ABC.Utilities" Version="2.0.0" />
+		<PackageReference Include="ABC.Utilities.ASPCore31" Version="2.0.0" />
+		<PackageReference Include="ABC.Utilities.EFCore31" Version="2.0.0" />
+		<PackageReference Include="ABC.Vectors" Version="2.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4">
@@ -22,8 +26,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
-	  <ProjectReference Include="..\Utilities.EFCore31\Utilities.EFCore31.csproj" />
-	  <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
 	</ItemGroup>
 
 </Project>

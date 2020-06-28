@@ -6,6 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Types\**" />
+    <EmbeddedResource Remove="Types\**" />
+    <None Remove="Types\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ABC.Utilities.ASPCore31" Version="2.0.0" />
+    <PackageReference Include="ABC.Vectors" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.4" />
@@ -22,13 +30,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
-    <ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
-    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
-    <ProjectReference Include="..\VectorsStandard\VectorsStandard.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Types\" />
   </ItemGroup>
 
 </Project>

@@ -6,10 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared.AutoMapperUtilities\Utilities.AutoMapper.csproj" />
+    <PackageReference Include="ABC.Utilities" Version="2.0.0" />
+    <PackageReference Include="ABC.Utilities.ASPCore31" Version="2.0.0" />
+    <PackageReference Include="ABC.Vectors" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
   </ItemGroup>
 
 </Project>

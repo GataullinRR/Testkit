@@ -11,7 +11,6 @@ using Utilities.Types;
 
 namespace UserService
 {
-    [Service(ServiceLifetime.Scoped, RegisterAsPolicy.Self)]
     class DbSeeder
     {
         public DbSeeder(TestsContext db)

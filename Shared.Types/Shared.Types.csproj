@@ -6,14 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ABC.Utilities" Version="2.0.0" />
+    <PackageReference Include="ABC.Utilities.ASPCore31" Version="2.0.0" />
+    <PackageReference Include="ABC.Vectors" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
-    <ProjectReference Include="..\VectorsStandard\VectorsStandard.csproj" />
   </ItemGroup>
 
 </Project>

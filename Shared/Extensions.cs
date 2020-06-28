@@ -103,7 +103,7 @@ namespace SharedT
 
         public static IServiceCollection AddDbInitializer<T>(this IServiceCollection services) where T : class
         {
-            services.TryAddSingleton<T>();
+            services.TryAddScoped<T>();
             using var sp = services.BuildServiceProvider();
             sp.GetRequiredService<T>();
 

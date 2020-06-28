@@ -19,7 +19,6 @@ using UserServiceDb;
 using UserService.Misc;
 using Microsoft.AspNetCore.Http;
 using Utilities.Extensions;
-using AutoMapper;
 using System.Reflection;
 using Utilities.Types;
 using SharedT;

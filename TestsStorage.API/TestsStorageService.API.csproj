@@ -3,9 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
    <Nullable>enable</Nullable>
+   <UserSecretsId>7ac6a6d0-c51d-410c-94de-a80f6f7ce7fc</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="ABC.Utilities" Version="2.0.0" />
+	<PackageReference Include="ABC.Utilities.ASPCore31" Version="2.0.0" />
+	<PackageReference Include="ABC.Utilities.EFCore31" Version="2.0.0" />
+	<PackageReference Include="ABC.Vectors" Version="2.0.0" />
 	<PackageReference Include="Grpc.Core" Version="2.29.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
@@ -14,10 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared.Types\Shared.Types.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\Utilities.EFCore31\Utilities.EFCore31.csproj" />
-    <ProjectReference Include="..\UtilitiesStandard.ASPCore\UtilitiesStandard.ASPCore.csproj" />
-    <ProjectReference Include="..\UtilitiesStandard\UtilitiesStandard.csproj" />
-    <ProjectReference Include="..\VectorsStandard\VectorsStandard.csproj" />
   </ItemGroup>
 
 </Project>
