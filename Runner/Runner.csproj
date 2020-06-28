@@ -39,7 +39,7 @@
     <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\Testkit.Common\Testkit.Common\Testkit.Common.csproj" />
-    <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
+    <ProjectReference Include="..\Testkit.UserService\UserService.API\UserService.API.csproj" />
     <ProjectReference Include="..\WebNotificationService.API\WebNotificationService.API.csproj" />
   </ItemGroup>
 

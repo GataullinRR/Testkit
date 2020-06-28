@@ -20,9 +20,9 @@
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\RunnerService.Db\RunnerService.Db.csproj" />
     <ProjectReference Include="..\Testkit.Common\Testkit.Common\Testkit.Common.csproj" />
+    <ProjectReference Include="..\Testkit.UserService\UserService.API\UserService.API.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
-    <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
   </ItemGroup>
 
 </Project>

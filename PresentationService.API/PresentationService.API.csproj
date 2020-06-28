@@ -14,9 +14,9 @@
 	  <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.4" />
     <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
     <ProjectReference Include="..\Testkit.Common\Testkit.Common\Testkit.Common.csproj" />
+    <ProjectReference Include="..\Testkit.UserService\UserService.API\UserService.API.csproj" />
     <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
-    <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
 	  <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.4" />
 	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.4" />
   </ItemGroup>

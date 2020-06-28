@@ -1,3 +1,6 @@
 [submodule "Testkit.Common"]
 	path = Testkit.Common
 	url = https://github.com/GataullinRR/Testkit.Common.git
+[submodule "Testkit.UserService"]
+	path = Testkit.UserService
+	url = https://github.com/GataullinRR/Testkit.UserService.git

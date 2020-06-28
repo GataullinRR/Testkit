@@ -12,8 +12,8 @@
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<ProjectReference Include="..\MessageHub\MessageHub.API.csproj" />
 		<ProjectReference Include="..\Testkit.Common\Testkit.Common\Testkit.Common.csproj" />
+		<ProjectReference Include="..\Testkit.UserService\UserService.API\UserService.API.csproj" />
 		<ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
-		<ProjectReference Include="..\UserService.API\UserService.API.csproj" />
 		<ProjectReference Include="..\WebNotificationService.API\WebNotificationService.API.csproj" />
 	</ItemGroup>
 
