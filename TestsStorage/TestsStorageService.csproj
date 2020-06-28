@@ -15,7 +15,7 @@
 	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4" />
     <ProjectReference Include="..\MessageHub\MessageHub.API.csproj" />
-    <ProjectReference Include="..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\Testkit.Common\Testkit.Common\Testkit.Common.csproj" />
     <ProjectReference Include="..\TestsStorageService.Db\TestsStorageService.Db.csproj" />
   </ItemGroup>
 

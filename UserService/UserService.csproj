@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
-    <ProjectReference Include="..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\Testkit.Common\Testkit.Common\Testkit.Common.csproj" />
     <ProjectReference Include="..\UserDb\UserService.Db.csproj" />
     <ProjectReference Include="..\UserService.API\UserService.API.csproj" />
   </ItemGroup>

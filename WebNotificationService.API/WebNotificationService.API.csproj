@@ -15,7 +15,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
-		<ProjectReference Include="..\Shared\Shared.csproj" />
+		<ProjectReference Include="..\Testkit.Common\Testkit.Common\Testkit.Common.csproj" />
 	</ItemGroup>
 	
 </Project>

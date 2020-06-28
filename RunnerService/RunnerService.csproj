@@ -32,7 +32,7 @@
 	  <ProjectReference Include="..\PresentationService.API\PresentationService.API.csproj" />
 	  <ProjectReference Include="..\RunnerService.API\RunnerService.API.csproj" />
 	  <ProjectReference Include="..\RunnerService.Db\RunnerService.Db.csproj" />
-	  <ProjectReference Include="..\Shared\Shared.csproj" />
+	  <ProjectReference Include="..\Testkit.Common\Testkit.Common\Testkit.Common.csproj" />
 	  <ProjectReference Include="..\TestsStorage.API\TestsStorageService.API.csproj" />
 	</ItemGroup>
 </Project>
