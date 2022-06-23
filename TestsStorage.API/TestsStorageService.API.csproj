@@ -12,7 +12,7 @@
 	<PackageReference Include="ABC.Utilities.EFCore31" Version="2.0.0" />
 	<PackageReference Include="ABC.Vectors" Version="2.0.0" />
 	<PackageReference Include="Grpc.Core" Version="2.29.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
   </ItemGroup>
 
